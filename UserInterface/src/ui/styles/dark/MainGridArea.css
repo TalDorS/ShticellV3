@@ -1,0 +1,59 @@
+/* dark-theme.css */
+
+
+/* Define styles for the grid pane in dark mode */
+.grid-pane {
+    -fx-background-color: #2e2e2e; /* Dark background color for GridPane */
+    -fx-grid-lines-visible: true; /* Show grid lines */
+    -fx-border-color: #444444; /* Optional: border color to match dark theme */
+    -fx-border-width: 1px; /* Optional: border width */
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+
+}
+
+/* Column Header Styles */
+.column-header {
+    -fx-font-weight: bold;
+    -fx-background-color: #3b3b3b; /* Darker background for column headers */
+    -fx-text-fill: #ffffff; /* White text for better contrast */
+    -fx-alignment: center;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+
+}
+
+/* Row Header Styles */
+.row-header {
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-background-color: #3b3b3b; /* Darker background for row headers */
+    -fx-text-fill: #ffffff; /* White text for better contrast */
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+
+}
+
+/* Selected Header Styles */
+.selected-header {
+    -fx-background-color: #4a4a4a; /* Slightly lighter background for selected headers */
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+
+}
+
+/* TextField Styles */
+.text-field {
+    -fx-background-color: #2e2e2e; /* Dark background for text fields */
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-border-color: #444444; /* Dark border */
+    -fx-border-radius: 3px;
+    -fx-cursor: default;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+
+}
+
+/* Optional: Add general styles for ScrollPane to match dark theme */
+.scroll-pane {
+    -fx-background-color: #1c1c1c; /* Very dark background for ScrollPane */
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}

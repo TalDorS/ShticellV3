@@ -1,0 +1,108 @@
+/* General Styles */
+.root {
+    -fx-background-color: #282828; /* Dark retro green background */
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* ScrollPane */
+.scroll-pane {
+    -fx-background-color: #383838; /* Slightly darker background */
+    -fx-border-color: #00ff00; /* Neon green border for a retro vibe */
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* BorderPane */
+.border-pane {
+    -fx-background-color: #282828;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* VBox in BorderPane (Header and Options) */
+.border-pane .vbox {
+    -fx-background-color: #303030; /* Slightly lighter background */
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Header Label */
+.header-label {
+    -fx-text-fill: #00ff00; /* Neon green text for retro effect */
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Header Button */
+.header-button {
+    -fx-background-color: #505050; /* Retro-style gray button background */
+    -fx-text-fill: #00ff00;
+    -fx-border-color: #ff00ff; /* Magenta border for contrast */
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Header TextField */
+.header-text-field {
+    -fx-background-color: #404040;
+    -fx-text-fill: #00ff00;
+    -fx-border-color: #00ff00;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Header MenuButton */
+.header-menu-button {
+    -fx-background-color: #505050;
+    -fx-text-fill: #00ff00;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* OptionsBar */
+.options-bar {
+    -fx-background-color: #303030;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+.options-bar .label {
+    -fx-text-fill: #00ff00;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+.options-bar .text-field {
+    -fx-background-color: #404040;
+    -fx-text-fill: #00ff00;
+    -fx-border-color: #ff00ff;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+.options-bar .button {
+    -fx-background-color: #505050;
+    -fx-text-fill: #00ff00;
+    -fx-border-color: #ff00ff;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* LeftSide */
+.left-side-split-pane {
+    -fx-background-color: #282828;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+.left-side-split-pane .label {
+    -fx-text-fill: #00ff00;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+.left-side-split-pane .button {
+    -fx-background-color: #505050;
+    -fx-text-fill: #00ff00;
+    -fx-border-color: #ff00ff;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* MainGridArea */
+.main-grid-area {
+    -fx-background-color: #282828;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Style for the center container */
+.center-container {
+    -fx-background-color: #505050; /* Dark gray with a retro feel */
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}

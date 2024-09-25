@@ -1,0 +1,66 @@
+/* SplitPane */
+.split-pane {
+    -fx-background-color: #282828;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* AnchorPane inside SplitPane */
+.anchor-pane {
+    -fx-background-color: #303030;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Labels in LeftSide */
+.split-pane-label {
+    -fx-text-fill: #00ff00;
+    -fx-font-size: 20px;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Button in LeftSide */
+.button {
+    -fx-background-color: #404040;
+    -fx-text-fill: #00ff00;
+    -fx-border-color: #ff00ff;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Accordion in LeftSide */
+.accordion {
+    -fx-background-color: #282828;
+    -fx-border-color: #404040;
+    -fx-border-width: 1px;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* TitledPane Header in LeftSide */
+.titled-pane > .title {
+    -fx-background-color: #404040;
+    -fx-text-fill: #00ff00; /* Bright green for the header text */
+    -fx-padding: 5px;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Text inside TitledPane header */
+.titled-pane > .title > .text {
+    -fx-fill: #00ff00; /* Ensure header text is bright green */
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* TitledPane Content in LeftSide */
+.titled-pane > .content {
+    -fx-background-color: #303030;
+    -fx-padding: 10px;
+}
+
+/* Text inside TitledPane content */
+.titled-pane > .content > .label {
+    -fx-text-fill: #00ff00; /* Bright green for content text */
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* General text inside TitledPane */
+.titled-pane .text {
+    -fx-fill: #00ff00; /* Bright green for any other text inside TitledPane */
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}

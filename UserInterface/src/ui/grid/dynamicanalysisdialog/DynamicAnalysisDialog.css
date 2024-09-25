@@ -1,0 +1,54 @@
+/* Styling for the VBox container */
+.vbox {
+    padding: 20px;
+    background-color: #f0f0f0; /* Light gray background for better contrast */
+    border-radius: 10px; /* Rounded corners for the container */
+    spacing: 10px; /* Space between children elements */
+    -fx-alignment: center; /* Center alignment for all children */
+}
+
+/* Styling for Labels */
+.label {
+    font-size: 14px; /* Standard font size */
+    font-weight: bold; /* Bold font for emphasis */
+    text-fill: #333333; /* Dark gray text color */
+}
+
+/* Styling for TextFields */
+.text-field {
+    -fx-background-color: white; /* White background for input fields */
+    -fx-border-color: #cccccc; /* Light gray border */
+    -fx-border-radius: 5px; /* Rounded corners for the border */
+    -fx-padding: 5px; /* Padding inside the text field */
+    -fx-prompt-text-fill: #999999; /* Light gray color for the prompt text */
+    -fx-font-size: 12px; /* Font size for input text */
+    -fx-text-fill: #333333; /* Dark gray text color */
+}
+
+/* Styling for the Slider */
+.slider {
+    -fx-control-inner-background: #ffffff; /* White background for the slider track */
+    -fx-track-color: #0078d7; /* Primary color for the slider track */
+    -fx-tick-label-fill: #666666; /* Darker gray for tick labels */
+    -fx-minor-tick-count: 1; /* Display minor ticks */
+    -fx-major-tick-unit: 10; /* Major tick unit value */
+    -fx-pref-width: 200px; /* Preferred width of the slider */
+    -fx-padding: 10px; /* Padding around the slider */
+    -fx-snap-to-ticks: true; /* Enable snapping to tick marks */
+}
+
+/* Additional styling for dialog elements */
+.dialog-pane {
+    -fx-border-color: #0078d7; /* Blue border for the dialog pane */
+    -fx-border-width: 2px; /* Border width */
+    -fx-border-radius: 10px; /* Rounded corners for the border */
+}
+
+/* Styling for Button Types in the dialog */
+.button {
+    -fx-background-color: #0078d7; /* Primary blue color for buttons */
+    -fx-text-fill: white; /* White text color for buttons */
+    -fx-background-radius: 5px; /* Rounded corners for the button */
+    -fx-font-weight: bold; /* Bold text for buttons */
+    -fx-padding: 5 15 5 15; /* Padding around button text */
+}

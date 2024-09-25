@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.AppController">
+   <content>
+      <BorderPane fx:id="borderPane" prefHeight="555.0" prefWidth="1615.0" styleClass="border-pane" minHeight="-Infinity" minWidth="-Infinity">
+         <top>
+            <VBox alignment="TOP_CENTER" prefHeight="150.0" prefWidth="1325.0" styleClass="top-vbox" BorderPane.alignment="CENTER">
+               <children>
+                  <fx:include fx:id="headerLoadComponent" source="../ui/top/HeaderAndLoad.fxml" />
+                  <fx:include fx:id="optionsBarComponent" source="../ui/top/OptionsBar.fxml" />
+               </children>
+            </VBox>
+         </top>
+         <left>
+            <fx:include fx:id="leftSideComponent" source="../ui/leftside/LeftSide.fxml" />
+         </left>
+         <center>
+            <fx:include fx:id="mainGridAreaComponent" source="../ui/grid/MainGridArea.fxml" />
+         </center>
+      </BorderPane>
+   </content>
+</ScrollPane>

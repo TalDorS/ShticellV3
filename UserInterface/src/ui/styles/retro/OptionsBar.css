@@ -1,0 +1,39 @@
+/* HBox */
+.options-bar-hbox {
+    -fx-background-color: #282828;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Labels in OptionsBar */
+.options-bar-label {
+    -fx-text-fill: #00ff00;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* TextFields in OptionsBar */
+.options-bar-text-field {
+    -fx-background-color: #303030;
+    -fx-text-fill: #00ff00;
+    -fx-border-color: #ff00ff;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Button in OptionsBar */
+.options-bar-button {
+    -fx-background-color: #404040;
+    -fx-text-fill: #00ff00;
+    -fx-border-color: #ff00ff;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* MenuButton in OptionsBar */
+.options-bar-menu-button {
+    -fx-background-color: #404040;
+    -fx-text-fill: #00ff00;
+    -fx-border-color: #ff00ff;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+.options-bar-menu-button .text {
+    -fx-fill: #00ff00;
+}

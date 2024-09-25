@@ -1,0 +1,80 @@
+/* LeftSide.css */
+
+/* SplitPane */
+.split-pane {
+    -fx-background-color: #1c1c1c; /* Very dark background */
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+
+/* AnchorPane inside SplitPane */
+.anchor-pane {
+    -fx-background-color: #2e2e2e; /* Darker background for the AnchorPane */
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+
+/* Labels in LeftSide */
+.split-pane-label {
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-font-size: 14px;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+
+/* Button in LeftSide */
+.button {
+    -fx-background-color: #444444; /* Dark gray background */
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-border-color: #555555; /* Border color */
+    -fx-border-radius: 5px;
+    -fx-padding: 2px 8px; /* Adds padding for better button appearance */
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(to bottom, #0099ff, #007acc); /* Lighter blue on hover */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0.3, 2, 2); /* More pronounced shadow on hover */
+}
+
+.button:pressed {
+    -fx-background-color: #005c99; /* Darker blue when pressed */
+    -fx-effect: none; /* Remove shadow when pressed */
+}
+
+/* Accordion in LeftSide */
+.accordion {
+    -fx-background-color: #1c1c1c;
+    -fx-border-color: #555555;
+    -fx-border-width: 1px;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+
+/* TitledPane Header in LeftSide */
+.titled-pane > .title {
+    -fx-background-color: #444444;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 5px;
+    -fx-font-family: "Ink Free"; /* Apply custom font */
+}
+
+/* Text inside TitledPane header */
+.titled-pane > .title > .text {
+    -fx-fill: #ffffff;
+    -fx-font-family: "Ink Free"; /* Apply custom font */
+}
+
+/* TitledPane Content in LeftSide */
+.titled-pane > .content {
+    -fx-background-color: #303030;
+    -fx-padding: 10px;
+}
+
+/* Text inside TitledPane content */
+.titled-pane > .content > .container > .label {
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Ink Free"; /* Apply custom font */
+}
+
+/* General text inside TitledPane */
+.titled-pane .text {
+    -fx-fill: #ffffff; /* Bright green for any other text inside TitledPane */
+    -fx-font-family: "Ink Free"; /* Apply custom font */
+}

@@ -1,0 +1,88 @@
+/* OptionBar.css */
+
+/* Style for the options bar */
+.options-bar {
+    -fx-background-color: #1c1c1c; /* Very dark background */
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+
+/* Button in OptionBar */
+.options-bar-button {
+    -fx-background-color: #333333; /* Dark background for buttons */
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-border-color: #444444; /* Border color */
+    -fx-border-radius: 5px;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+
+/* Label in OptionBar */
+.options-bar-label {
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-font-size: 13px;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+
+/* TextField in OptionBar */
+.options-bar-text-field {
+    -fx-background-color: #2e2e2e; /* Dark background */
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-border-color: #333333; /* Dark border */
+    -fx-font-size: 14px;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+/* Button in OptionBar - Hover Effect */
+.options-bar-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #0099ff, #007acc); /* Blue gradient on hover */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0.3, 2, 2); /* Drop shadow effect on hover */
+}
+/* Button in OptionBar - Pressed Effect */
+.options-bar-button:pressed {
+    -fx-background-color: #005c99; /* Darker blue when pressed */
+    -fx-effect: none; /* Remove shadow when pressed */
+}
+/* optionbar MenuButton */
+.options-bar-menu-button {
+    -fx-background-color: #444444; /* Dark gray background */
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-border-color: #555555; /* Border color */
+    -fx-border-radius: 5px;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+/* OptionBar MenuButton - Hover Effect */
+.options-bar-menu-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #0099ff, #007acc); /* Blue gradient on hover */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0.3, 2, 2); /* Drop shadow effect on hover */
+}
+/* OptionBar MenuButton - Pressed Effect */
+.options-bar-menu-button:pressed {
+    -fx-background-color: #005c99; /* Darker blue when pressed */
+    -fx-effect: none; /* Remove shadow when pressed */
+}
+
+.options-bar-menu-button .text {
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+    -fx-fill: #ffffff; /* White text */
+}
+
+/* MenuButton's dropdown menu */
+.options-bar-menu-button .menu {
+    -fx-background-color: #444444; /* Dark gray background */
+    -fx-text-fill: #ffffff; /* White text */
+}
+
+/* MenuButton's menu items */
+.options-bar-menu-button .menu-item {
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+    -fx-background-color: #444444; /* Dark gray background */
+    -fx-text-fill: #ffffff; /* White text */
+}
+
+/* MenuButton's menu items hover effect */
+.options-bar-menu-button .menu-item:hover {
+    -fx-background-color: #555555; /* Slightly lighter background on hover */
+}
+.options-bar-menu-button .menu-item:pressed {
+    -fx-background-color: #666666; /* Darker background when pressed */
+}
+

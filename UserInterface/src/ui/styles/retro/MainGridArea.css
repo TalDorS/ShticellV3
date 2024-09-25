@@ -1,0 +1,42 @@
+/* GridPane */
+.grid-pane {
+    -fx-background-color: #303030;
+    -fx-grid-lines-visible: true;
+    -fx-border-color: #ff00ff;
+    -fx-border-width: 1px;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Column Header */
+.column-header {
+    -fx-font-weight: bold;
+    -fx-background-color: #404040;
+    -fx-text-fill: #00ff00;
+    -fx-alignment: center;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Row Header */
+.row-header {
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-background-color: #404040;
+    -fx-text-fill: #00ff00;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* Selected Header */
+.selected-header {
+    -fx-background-color: #505050;
+    -fx-text-fill: #00ff00;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}
+
+/* TextField */
+.text-field {
+    -fx-background-color: #303030;
+    -fx-text-fill: #00ff00;
+    -fx-border-color: #ff00ff;
+    -fx-border-radius: 3px;
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="400.0" prefWidth="294.0" stylesheets="@DynamicAnalysisDialog.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.grid.dynamicanalysisdialog.DynamicAnalysisDialogController"> <!-- Link the CSS file here -->
+
+    <children>
+        <!-- Main vertical box layout container -->
+        <VBox fx:id="dialogVBox" alignment="TOP_LEFT" layoutX="50.0" layoutY="30.0" spacing="10.0" styleClass="vbox"> <!-- Use style class defined in CSS -->
+            <children>
+                <!-- Header label -->
+                <Label styleClass="label" text="Set Range and Step Size:" />
+
+                <!-- Minimum value input -->
+                <Label styleClass="label" text="Min:" />
+                <TextField fx:id="minField" promptText="Min Value" styleClass="text-field" text="0" />
+
+                <!-- Maximum value input -->
+                <Label styleClass="label" text="Max:" />
+                <TextField fx:id="maxField" promptText="Max Value" styleClass="text-field" text="100" />
+
+                <!-- Step size input -->
+                <Label styleClass="label" text="Step Size:" />
+                <TextField fx:id="stepField" promptText="Step Size" styleClass="text-field" text="10" />
+
+                <!-- Slider for adjusting the value dynamically -->
+                <Label styleClass="label" text="Adjust the value using the slider:" />
+                <Slider fx:id="valueSlider" blockIncrement="1" majorTickUnit="10" max="100" min="0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" styleClass="slider" value="50" />
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

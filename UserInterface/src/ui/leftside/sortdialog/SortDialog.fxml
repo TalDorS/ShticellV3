@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="222.0" prefWidth="321.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.leftside.sortdialog.SortDialogController">
+   <content>
+      <AnchorPane prefHeight="226.0" prefWidth="328.0">
+         <children>
+            <Label id="selectedAreaTabelLabel" layoutX="12.0" layoutY="7.0" text="Select Table Area (e.g., A1..D10) :" />
+            <Button fx:id="chooseRangeButton" layoutX="252.0" layoutY="40.0" mnemonicParsing="false" text="Choose" />
+             <TextField fx:id="selectedTableArea" layoutX="11.0" layoutY="41.0" prefHeight="25.0" prefWidth="235.0" promptText="&lt;top left cell id&gt;..&lt;right bottom cell id&gt;" />
+            <Label id="sortByLabel" layoutX="23.0" layoutY="87.0" text="Sort by" />
+            <MenuButton fx:id="sortByDropMenu" layoutX="71.0" layoutY="83.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="105.0" text="Sort By">
+         <!-- Menu items will be added programmatically -->
+      </MenuButton>
+            <VBox fx:id="sortColumnsContainer" alignment="CENTER_LEFT" fillWidth="true" layoutX="11.0" layoutY="116.0" prefHeight="97.0" prefWidth="297.0" spacing="10.0">
+               <!-- Sort rows will be added here dynamically -->
+               <Button fx:id="addAnotherColumnButton" layoutX="23.0" layoutY="144.0" mnemonicParsing="false" onAction="#handleAddAnotherColumnButton" prefHeight="26.0" prefWidth="156.0" text="Add another sort column">
+                  <VBox.margin>
+                     <Insets left="5.0" />
+                  </VBox.margin>
+               </Button>
+               <HBox accessibleRole="RADIO_MENU_ITEM" alignment="BOTTOM_RIGHT" prefHeight="38.0" prefWidth="307.0">
+                  <children>
+                     <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButton" text="Cancel ">
+                        <HBox.margin>
+                           <Insets right="5.0" />
+                        </HBox.margin>
+                     </Button>
+                     <Button fx:id="sortButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#handleSortButton" text="Sort">
+                        <HBox.margin>
+                           <Insets right="5.0" />
+                        </HBox.margin>
+                     </Button>
+                  </children>
+                  <VBox.margin>
+                     <Insets bottom="5.0" right="5.0" />
+                  </VBox.margin>
+               </HBox>
+            </VBox>
+            <Label fx:id="chooseToProceedLabel" layoutX="14.0" layoutY="23.0" text="You have to choose to proceed" textFill="RED" />
+         </children>
+      </AnchorPane>
+   </content>
+</ScrollPane>

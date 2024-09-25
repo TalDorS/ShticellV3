@@ -1,0 +1,116 @@
+/* HeaderLoad.css - Dark Theme */
+
+/* VBox */
+.header-vbox {
+    -fx-background-color: #1c1c1c; /* Very dark background */
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+
+/* Header Label */
+.header-label {
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-border-radius: 5px;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+.shticell-label{
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-border-radius: 5px;
+    -fx-font-size: 25px;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+
+/* Header Button */
+.header-button {
+    -fx-background-color: linear-gradient(to bottom, #007acc, #005c99); /* Gradient for a vibrant effect */
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-border-color: #555555; /* Slight border color */
+    -fx-border-radius: 5px;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.25, 2, 2); /* Subtle shadow */
+    -fx-border-color: transparent; /* Transparent border */
+    -fx-cursor: hand; /* Hand cursor on hover */
+}
+
+/* Header TextField */
+.header-text-field {
+    -fx-background-color: #2e2e2e; /* Dark background */
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-border-color: #444444; /* Border color */
+    -fx-border-radius: 5px;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+.header-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #0099ff, #007acc); /* Lighter blue on hover */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0.3, 2, 2); /* More pronounced shadow on hover */
+}
+
+/* Header Button Pressed Effect */
+.header-button:pressed {
+    -fx-background-color: #005c99; /* Darker blue when pressed */
+    -fx-effect: none; /* Remove shadow when pressed */
+}
+
+/* Header MenuButton */
+.header-menu-button {
+    -fx-background-color: #444444; /* Dark gray background */
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-border-color: #555555; /* Border color */
+    -fx-border-radius: 5px;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+
+.header-menu-button .text {
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+    -fx-font-size: 14px;
+    -fx-fill: #ffffff; /* White text */
+}
+
+/* MenuButton's dropdown menu */
+.header-menu-button .menu {
+    -fx-background-color: #444444; /* Dark gray background */
+    -fx-text-fill: #ffffff; /* White text */
+}
+.header-menu-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #0099ff, #007acc); /* Lighter blue on hover */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0.3, 2, 2); /* More pronounced shadow on hover */
+}
+
+.header-menu-label {
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-font-size: 13px;
+    -fx-font-family: 'Ink Free'; /* Apply custom font */
+}
+
+/* Header Button Pressed Effect */
+.header-menu-button:pressed {
+    -fx-background-color: #005c99; /* Darker blue when pressed */
+    -fx-effect: none; /* Remove shadow when pressed */
+}
+
+/* MenuButton's menu items */
+.header-menu-button .menu-item {
+    -fx-background-color: #444444; /* Dark gray background */
+    -fx-text-fill: #ffffff; /* White text */
+}
+
+/* MenuButton's menu items hover effect */
+.header-menu-button .menu-item:hover {
+    -fx-background-color: linear-gradient(to bottom, #0099ff, #007acc); /* Lighter blue on hover */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0.3, 2, 2); /* More pronounced shadow on hover */
+}
+
+/* MenuButton's menu items pressed effect */
+.header-menu-button .menu-item:pressed {
+    -fx-background-color: #005c99; /* Darker blue when pressed */
+    -fx-effect: none; /* Remove shadow when pressed */
+}
+
+/* Progress Indicator in dark mode */
+.header-progress-indicator {
+    -fx-text-fill: white;
+    -fx-progress-color: #4caf50; /* A green color for the progress indicator */
+}

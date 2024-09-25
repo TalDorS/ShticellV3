@@ -1,0 +1,27 @@
+/* styles.css */
+
+/* Define styles for the grid pane */
+.grid-pane {
+    -fx-background-color: white; /* Background color of the GridPane */
+}
+.column-header {
+    -fx-font-weight: bold;
+    -fx-background-color: #F0F0F0;
+    -fx-alignment: center;
+}
+
+.row-header {
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-background-color: #F0F0F0;
+}
+
+.selected-header {
+    -fx-background-color: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
+
+.text-field {
+    -fx-cursor: default;
+}
