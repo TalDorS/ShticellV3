@@ -1,5 +1,7 @@
 package ui.grid;
 
+import dto.CellDTO;
+import dto.SpreadsheetDTO;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
@@ -51,7 +53,7 @@ public class MainGridAreaController implements SpreadsheetController {
 
 
     @Override
-    public void setEngine(Spreadsheet spreadsheet, boolean isPopup) {
+    public void start(SpreadsheetDTO spreadsheet, boolean isPopup) {
         this.isPopup = isPopup;
         this.cellProperties = new HashMap<>(); // Initialize the map for cell properties
 
@@ -59,7 +61,7 @@ public class MainGridAreaController implements SpreadsheetController {
     }
 
     @Override
-    public void initializeSpreadsheet(Spreadsheet spreadsheet) {
+    public void initializeSpreadsheet(SpreadsheetDTO spreadsheet) {
         int rowCount = spreadsheet.getRows();
         int columnCount = spreadsheet.getColumns();
         int columnWidth = spreadsheet.getColumnWidth();
@@ -231,7 +233,7 @@ public class MainGridAreaController implements SpreadsheetController {
     }
 
     @Override
-    public void createCells(Spreadsheet spreadsheet, int rowCount, int columnCount, int columnWidth, int rowHeight) {
+    public void createCells(SpreadsheetDTO spreadsheet, int rowCount, int columnCount, int columnWidth, int rowHeight) {
         final NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
         numberFormat.setMinimumFractionDigits(0);
         numberFormat.setMaximumFractionDigits(2);
@@ -239,7 +241,7 @@ public class MainGridAreaController implements SpreadsheetController {
         for (int row = 1; row <= rowCount; row++) {
             for (int col = 1; col <= columnCount; col++) {
                 String cellId = getColumnName(col - 1) + row;
-                Cell cell = spreadsheet.getCellById(cellId);
+                CellDTO cell = spreadsheet.getCellById(cellId);
 
                 StringProperty cellProperty = cellProperties.computeIfAbsent(cellId, key -> {
                     String cellEffectiveValue = "";

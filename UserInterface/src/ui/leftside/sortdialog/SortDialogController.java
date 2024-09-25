@@ -1,6 +1,7 @@
 package ui.leftside.sortdialog;
 
 import app.AppController;
+import dto.SpreadsheetDTO;
 import exceptions.engineexceptions.InvalidCellIdFormatException;
 import exceptions.engineexceptions.InvalidColumnException;
 import exceptions.engineexceptions.InvalidRowException;
@@ -398,7 +399,7 @@ public class SortDialogController {
         }
     }
 
-    public void showSortedResultsPopup(Spreadsheet sortedSpreadsheet,  Map<String,String> idMapping) {
+    public void showSortedResultsPopup(SpreadsheetDTO sortedSpreadsheet, Map<String,String> idMapping) {
         try {
             // Load the FXML file for the grid layout
             FXMLLoader loader = new FXMLLoader(getClass().getResource(MAIN_GRID_AREA_FXML));
@@ -409,7 +410,7 @@ public class SortDialogController {
             gridController.setMainController(mainController);
 
             // Set the engine and initialize the grid for the correct version
-            gridController.setEngine(sortedSpreadsheet, true);
+            gridController.start(sortedSpreadsheet, true);
 
             gridController.setCellStyles(
                     mainController.getCellBackgroundColors(),

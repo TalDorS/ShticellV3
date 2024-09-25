@@ -14,6 +14,7 @@ import spreadsheet.Spreadsheet;
 import versions.Version;
 import ranges.RangesManager; // Import RangesManager
 import java.util.*;
+import java.util.stream.Collectors;
 
 import java.io.IOException;
 import java.util.Map;
@@ -56,13 +57,23 @@ public class EngineImpl implements Engine {
         // Get Versions
         Map<Integer, Version> versions = getVersions();
 
+        // Retrieve ranges from RangesManager
+        Map<String, Range> ranges = rangesManager.getAllRanges();
+
         // Convert each version to a VersionDTO and add it to the map
         for (Map.Entry<Integer, Version> entry : versions.entrySet()) {
             Version version = entry.getValue();
+
+            // Collecting ranges as DTOs
+            List<RangeDTO> rangeDTOList = ranges.values().stream()
+                    .map(this::convertRangeToDTO)
+                    .collect(Collectors.toList());
+
             versionDTOMap.put(entry.getKey(), new VersionDTO(
                     version.getVersionNumber(),
                     version.getChangedCellsCount(),
-                    convertSpreadsheetToDTO(versions.get(entry.getKey()).getSpreadsheet())
+                    convertSpreadsheetToDTO(versions.get(entry.getKey()).getSpreadsheet()),
+                    rangeDTOList // Add ranges to the VersionDTO
             ));
         }
 
@@ -71,7 +82,7 @@ public class EngineImpl implements Engine {
     }
 
     // Method to convert spreadsheet to DTO
-    private SpreadsheetDTO convertSpreadsheetToDTO(Spreadsheet spreadsheet) {
+    public SpreadsheetDTO convertSpreadsheetToDTO(Spreadsheet spreadsheet) {
         if (spreadsheet == null) {
             return null;
         }
@@ -124,6 +135,17 @@ public class EngineImpl implements Engine {
         return cellDTOMap;
     }
 
+    private RangeDTO convertRangeToDTO(Range range) {
+        if (range == null) {
+            return null; // Handle null case if necessary
+        }
+        return new RangeDTO(
+                range.getName(), // Assuming Range has a getName() method
+                range.getStartCell(),
+                range.getEndCell(),
+                range.getCells() // Assuming Range has a getCells() method returning List<String>
+        );
+    }
 
     @Override
     // Method to load a spreadsheet from an XML file

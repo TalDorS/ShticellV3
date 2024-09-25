@@ -4,7 +4,9 @@ import api.Engine;
 import api.Expression;
 import api.Range;
 import cells.Cell;
+import dto.CellDTO;
 import dto.EngineDTO;
+import dto.SpreadsheetDTO;
 import dto.VersionDTO;
 import engineimpl.EngineImpl;
 import exceptions.engineexceptions.*;
@@ -111,13 +113,15 @@ public class AppController {
         // Load the spreadsheet and update components on the JavaFX Application Thread
         try {
             engine.loadSpreadsheet(filePath);
-            int currentVersionNumber = engine.getCurrentVersion();
+            EngineDTO engineDTO = engine.getEngineData();
+            int currentVersionNumber = engineDTO.getCurrentVersionNumber();
+            SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
 
             // Ensure UI updates are executed on the JavaFX Application Thread
             Platform.runLater(() -> {
                 mainGridAreaComponentController.clearGrid(); // Add a clearGrid() method to your controller if it doesn't exist
                 optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber); // Update the current version label
-                mainGridAreaComponentController.setEngine(engine.getCurrentSpreadsheet(), false);
+                mainGridAreaComponentController.start(spreadsheetDTO, false);
                 leftSideComponentController.refreshRanges();
             });
 
@@ -149,19 +153,23 @@ public class AppController {
         try {
             // Update the value in the engine
             engine.updateCellValue(cellId, newValue);
-            Cell currentCell = engine.getCurrentSpreadsheet().getCellById(cellId);
+            EngineDTO engineDTO = engine.getEngineData();
+            int currentVersionNumber = engineDTO.getCurrentVersionNumber();
+            SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
+
+            CellDTO currentCellDTO = spreadsheetDTO.getCellById(cellId);
 
             // Update the StringProperty for the cell ID
             StringProperty cellProperty = mainGridAreaComponentController.getCellProperty(cellId);
 
             if (cellProperty != null) {
 
-                cellProperty.set(currentCell.getEffectiveValue().toString());
-                updateSelectedCellInfo(cellId, currentCell.getOriginalValue(), Integer.toString(currentCell.getLastUpdatedVersion()));
-                int currentVersionNumber = engine.getCurrentVersion();
+                cellProperty.set(currentCellDTO.getEffectiveValue().toString());
+                updateSelectedCellInfo(cellId, currentCellDTO.getOriginalValue(), Integer.toString(currentCellDTO.getLastUpdatedVersion()));
+
                 optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber); // Update the current version label
 
-                Object effectiveValue = currentCell.getEffectiveValue();
+                Object effectiveValue = currentCellDTO.getEffectiveValue();
                 String effectiveValueString = String.valueOf(effectiveValue);
 
                 if (effectiveValue instanceof Boolean) {
@@ -169,12 +177,13 @@ public class AppController {
                 }
 
                 cellProperty.set(effectiveValueString);
-                optionsBarComponentController.updateCellInfo(cellId, currentCell.getOriginalValue(), Integer.toString(currentCell.getLastUpdatedVersion()));
+                optionsBarComponentController.updateCellInfo(cellId, currentCellDTO.getOriginalValue(), Integer.toString(currentCellDTO.getLastUpdatedVersion()));
 
             }
 
             // Update all dependent cells
             updateDependentCells(cellId,false);
+
         } catch (Exception e) { // Catch any exceptions thrown during the update
             // Show an error alert with the exception message
             showAlert(Alert.AlertType.ERROR, "Error Updating Cell", e.getMessage());
@@ -246,13 +255,17 @@ public class AppController {
             // Assuming you have a method in the engine to sort the spreadsheet
             Spreadsheet sortedSpreadsheet = new Spreadsheet(engine.getCurrentSpreadsheet());
             Map<String,String> idMapping= engine.sortSpreadsheet(sortedSpreadsheet, range, columnsToSortBy);
+
+            // Step 2: Convert the sorted spreadsheet (domain model) to a SpreadsheetDTO
+            SpreadsheetDTO sortedSpreadsheetDTO = engine.convertSpreadsheetToDTO(sortedSpreadsheet);
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource(SORT_DIALOG_FXML));
             Parent root = loader.load();
             sortDialogController = loader.getController(); // Get the controller after loading the FXML
             sortDialogController.setMainController(this); // Set the main controller
 
             // Now create a popup window to display the sorted results
-            sortDialogController.showSortedResultsPopup(sortedSpreadsheet, idMapping);
+            sortDialogController.showSortedResultsPopup(sortedSpreadsheetDTO, idMapping);
 
         } catch (Exception e) {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Sorting Error", "Failed to sort the spreadsheet: " + e.getMessage());
@@ -513,7 +526,7 @@ public class AppController {
 
     public void showDynamicAnalysisDialog(String cellId) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/grid/dynamicanalysisdialog/DynamicAnalysisDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(DYNAMIC_ANALYSIS_FXML));
             Parent root = loader.load();
 
             // Get the controller from the FXML loader
@@ -552,13 +565,12 @@ public class AppController {
         return mainGridAreaComponentController.getTextFieldMap();
     }
 
-    public Engine getEngine() { //fixme- maybe dto??
-        return engine;
+    public EngineDTO getEngine() {
+        return engine.getEngineData();
     }
 
     public void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException {
         engine.checkForCircularReferences(cellId, newExpression);
-
     }
 
     @Override
