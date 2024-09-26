@@ -32,4 +32,5 @@ public interface Engine {
     List<String> getRangeValues(String rangeName);
     Expression parseExpression (String input) throws InvalidExpressionException;
     void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException;
-}
+    public SpreadsheetDTO convertSpreadsheetToDTO(Spreadsheet spreadsheet);
+    }

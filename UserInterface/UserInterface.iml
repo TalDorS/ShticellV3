@@ -7,11 +7,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="lib1" level="project" />
-    <orderEntry type="library" name="artifacts" level="project" />
-    <orderEntry type="library" name="lib2" level="project" />
-    <orderEntry type="library" name="Uncommitted_changes_before_Checkout_at_27_08_2024_13_22_[Changes]" level="project" />
-    <orderEntry type="module" module-name="DTO" />
+    <orderEntry type="library" name="lib" level="project" />
     <orderEntry type="module" module-name="Engine" />
+    <orderEntry type="module" module-name="DTO" />
+    <orderEntry type="library" exported="" name="annotations-13.0" level="project" />
+    <orderEntry type="library" exported="" name="gson-2.1-javadoc" level="project" />
   </component>
 </module>

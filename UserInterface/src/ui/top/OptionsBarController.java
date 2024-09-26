@@ -122,7 +122,7 @@ public class OptionsBarController {
             gridController.setMainController(mainController);
 
             // Set the engine and initialize the grid for the correct version
-            gridController.setEngine(mainController.getEngine().getSpreadsheetByVersion(versionNumber), true);
+            gridController.start(mainController.getEngine().getSpreadsheetByVersion(versionNumber), true);
 
             // Create a new stage (window)
             Stage popupStage = new Stage();
