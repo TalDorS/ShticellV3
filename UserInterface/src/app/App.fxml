@@ -10,16 +10,16 @@
          <top>
             <VBox alignment="TOP_CENTER" prefHeight="150.0" prefWidth="1325.0" styleClass="top-vbox" BorderPane.alignment="CENTER">
                <children>
-                  <fx:include fx:id="headerLoadComponent" source="../ui/top/HeaderAndLoad.fxml" />
-                  <fx:include fx:id="optionsBarComponent" source="../ui/top/OptionsBar.fxml" />
+                  <fx:include fx:id="headerLoadComponent" source="../gridwindow/top/HeaderAndLoad.fxml" />
+                  <fx:include fx:id="optionsBarComponent" source="../gridwindow/top/OptionsBar.fxml" />
                </children>
             </VBox>
          </top>
          <left>
-            <fx:include fx:id="leftSideComponent" source="../ui/leftside/LeftSide.fxml" />
+            <fx:include fx:id="leftSideComponent" source="../gridwindow/leftside/LeftSide.fxml" />
          </left>
          <center>
-            <fx:include fx:id="mainGridAreaComponent" source="../ui/grid/MainGridArea.fxml" />
+            <fx:include fx:id="mainGridAreaComponent" source="../gridwindow/grid/MainGridArea.fxml" />
          </center>
       </BorderPane>
    </content>

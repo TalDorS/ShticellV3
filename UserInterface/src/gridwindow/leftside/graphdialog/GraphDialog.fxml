@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gridwindow.leftside.graphdialog.GraphDialogController">
+
+    <children>
+        <VBox layoutX="20" layoutY="20" prefHeight="360" prefWidth="560" spacing="10">
+            <HBox spacing="10">
+                <Label text="Select X Range:" />
+            <TextField prefHeight="25.0" prefWidth="208.0" promptText="&lt;column-cell&gt;&lt;bigger-column-cell&gt;" fx:id="xRangeTextField" />
+            </HBox>
+            <HBox spacing="10">
+                <Label text="Select Y Range:" />
+            <TextField fx:id="yRangeTextField" prefHeight="25.0" prefWidth="210.0" promptText="&lt;column-cell&gt;&lt;bigger-column-cell&gt;" />
+            </HBox>
+            <HBox spacing="10">
+                <Label text="Graph Type:" />
+                <RadioButton fx:id="barGraphRadioButton" selected="true" text="Bar Graph" />
+                <RadioButton fx:id="lineGraphRadioButton" text="Line Graph" />
+            </HBox>
+            <Button fx:id="createGraphButton" disable="true" onAction="#handleCreateGraphButton" opacity="0.5" text="Create Graph" />
+            <VBox fx:id="graphContainer" prefHeight="200" prefWidth="560" />
+        </VBox>
+      <Label layoutX="20.0" text="Please enter your desired X and Y axis values (e.g. A03..A07):" />
+    </children>
+</AnchorPane>
