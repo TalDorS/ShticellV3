@@ -1,6 +1,8 @@
-package gridwindow.top;
+package secondWindow.top;
 
 import exceptions.engineexceptions.SpreadsheetLoadingException;
+import gridwindow.top.Animation;
+import gridwindow.top.Skin;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -11,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import gridwindow.GridWindowController;
+import secondWindow.SecondWindowController;
 
 import java.io.File;
 import java.util.Objects;
@@ -18,62 +21,17 @@ import java.util.Objects;
 import static utils.AlertUtils.showAlert;
 
 public class HeaderLoadController {
-    private GridWindowController mainController;
+    private SecondWindowController mainController;
     private String previousFilePath = "";
 
     @FXML
     private Button loadFileButton;
-    @FXML
-    private MenuButton colorDisplay;//todo- remove
-    @FXML
-    private MenuButton animationDisplay;//todo- remove
+
     @FXML
     private TextField loadedFilePath;
     @FXML
     private ProgressIndicator progressIndicator;
 
-    @FXML
-    public void initialize() {
-        loadFileButton.setOnAction(event -> handleLoadFileButtonAction());
-        colorDisplay.setOnShowing(event -> handleColorDisplay());
-        animationDisplay.setOnShowing(event -> handleAnimationDisplay());
-    }
-//todo- remove
-    private void handleColorDisplay() {
-        colorDisplay.getItems().clear();
-        for (Skin skin : Skin.values()) {
-            MenuItem menuItem = new MenuItem(skin.getDisplayName());
-            menuItem.setOnAction(event -> handleSkinChange(skin));
-            colorDisplay.getItems().add(menuItem);
-        }
-    }
-//todo- remove
-
-    private void handleSkinChange(Skin skin) {
-        mainController.setSkin(skin.name().toLowerCase());
-        colorDisplay.setText(skin.getDisplayName());
-    }
-//todo- remove
-
-    private void handleAnimationDisplay() {
-        animationDisplay.getItems().clear();
-        for (Animation animation : Animation.values()) {
-            MenuItem menuItem = new MenuItem(animation.getDisplayName());
-            menuItem.setOnAction(event -> handleAnimationChange(animation));
-            animationDisplay.getItems().add(menuItem);
-        }
-    }
-//todo- remove
-
-    private void handleAnimationChange(Animation animation) {
-        mainController.setAnimation(animation.getIdentifier());
-        animationDisplay.setText(animation.getDisplayName());
-    }
-
-
-    public void setMainController(GridWindowController mainController) {
-        this.mainController = mainController;
-    }
 
     @FXML
     // Handle the Load File button action
@@ -203,12 +161,16 @@ public class HeaderLoadController {
         if (o == null || getClass() != o.getClass()) return false;
         HeaderLoadController that = (HeaderLoadController) o;
         return Objects.equals(mainController, that.mainController) && Objects.equals(loadFileButton, that.loadFileButton)
-                && Objects.equals(colorDisplay, that.colorDisplay) && Objects.equals(loadedFilePath, that.loadedFilePath)
+                && Objects.equals(loadedFilePath, that.loadedFilePath)
                 && Objects.equals(progressIndicator, that.progressIndicator);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mainController, loadFileButton, colorDisplay, loadedFilePath, progressIndicator);
+        return Objects.hash(mainController, loadFileButton, loadedFilePath, progressIndicator);
+    }
+
+    public void setMainController(SecondWindowController secondWindowController) {
+        this.mainController = secondWindowController;
     }
 }

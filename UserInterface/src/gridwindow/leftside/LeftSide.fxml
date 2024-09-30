@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane dividerPositions="0.3877118644067797" orientation="VERTICAL" prefHeight="474.0" prefWidth="227.0" styleClass="split-pane" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gridwindow.leftside.LeftSideController">
+<SplitPane dividerPositions="0.3877118644067797" orientation="VERTICAL" styleClass="split-pane" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gridwindow.leftside.LeftSideController">
     <items>
         <AnchorPane minHeight="98.0" minWidth="225.0" prefHeight="205.0" prefWidth="225.0" styleClass="anchor-pane" SplitPane.resizableWithParent="false">
             <children>

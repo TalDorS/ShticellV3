@@ -27,6 +27,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
 import javafx.util.Duration;
+import secondWindow.top.HeaderLoadController;
 import spreadsheet.Spreadsheet;
 import gridwindow.grid.MainGridAreaController;
 import gridwindow.grid.dynamicanalysisdialog.DynamicAnalysisDialogController;
@@ -56,9 +57,6 @@ public class GridWindowController {
     private ScrollPane scrollPane;
 
     @FXML
-    private HeaderLoadController headerLoadComponentController;//fixme- remove
-
-    @FXML
     private TopGridWindowController topGridWindowComponentController;
 
     @FXML
@@ -82,9 +80,6 @@ public class GridWindowController {
     @FXML
     public void initialize() {
 
-        if (headerLoadComponentController != null) { //fixme- remove
-            headerLoadComponentController.setMainController(this);
-        }
         if (optionsBarComponentController != null) {
             optionsBarComponentController.setMainController(this);
         }
@@ -313,7 +308,7 @@ public class GridWindowController {
                 skin = Skin.DEFAULT; // Fallback to default skin if skin isnt selected
             }
 
-            String[] components = {"TopGridWindow.css", "OptionsBar.css", "LeftSide.css", "MainGridArea.css", "GridWindow.css"};
+            String[] components = {"TopGridWindow.css", "OptionsBar.css", "LeftSide.css", "MainGridArea.css", "GridWindow.css","Back.css"};
             for (String component : components) {
                 String cssPath = String.format("/gridwindow/styles/%s/%s", skin.getDirectoryName(), component);
                 scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
@@ -579,7 +574,6 @@ public class GridWindowController {
         if (o == null || getClass() != o.getClass()) return false;
         GridWindowController that = (GridWindowController) o;
         return Objects.equals(engine, that.engine) && Objects.equals(scrollPane, that.scrollPane)
-                && Objects.equals(headerLoadComponentController, that.headerLoadComponentController)
                 && Objects.equals(optionsBarComponentController, that.optionsBarComponentController)
                 && Objects.equals(leftSideComponentController, that.leftSideComponentController)
                 && Objects.equals(mainGridAreaComponentController, that.mainGridAreaComponentController)
@@ -591,7 +585,7 @@ public class GridWindowController {
 
     @Override
     public int hashCode() {
-        return Objects.hash(engine, scrollPane, headerLoadComponentController,
+        return Objects.hash(engine, scrollPane,
                 optionsBarComponentController, leftSideComponentController,
                 mainGridAreaComponentController, sortDialogController, addRangeDialogController,
                 dynamicAnalysisComponentController, topGridWindowComponentController);
