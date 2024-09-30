@@ -13,7 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import app.AppController;
+import gridwindow.GridWindowController;
 import utils.AlertUtils;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.util.Objects;
 import static utils.CommonResourcesPaths.*;
 
 public class LeftSideController {
-    private AppController mainController;
+    private GridWindowController mainController;
 
     @FXML
     private Accordion rangesAccordion; // Container for range items
@@ -34,7 +34,7 @@ public class LeftSideController {
         // Initialization logic here
     }
 
-    public void setMainController(AppController mainController) {
+    public void setMainController(GridWindowController mainController) {
         this.mainController = mainController;
     }
 

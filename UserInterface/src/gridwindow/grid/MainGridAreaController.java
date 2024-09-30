@@ -16,7 +16,7 @@ import javafx.scene.layout.GridPane;
 import cells.Cell;
 
 import javafx.scene.control.MenuItem;
-import app.AppController;
+import gridwindow.GridWindowController;
 
 import java.text.NumberFormat;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import java.util.Objects;
 
 public class MainGridAreaController implements SpreadsheetController {
 
-    private AppController mainController;
+    private GridWindowController mainController;
     private boolean isPopup = false; // Default is false, indicating it’s not a popup
 
     @FXML
@@ -483,8 +483,8 @@ public class MainGridAreaController implements SpreadsheetController {
                 (int) (color.getBlue() * 255));
     }
 
-    public void setMainController(AppController appController) {
-        this.mainController = appController;
+    public void setMainController(GridWindowController gridWindowController) {
+        this.mainController = gridWindowController;
     }
 
     public StringProperty getCellProperty(String cellId) {

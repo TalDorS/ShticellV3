@@ -15,7 +15,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
-import app.AppController;
+import gridwindow.GridWindowController;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Modality;
@@ -30,7 +30,7 @@ import static utils.CommonResourcesPaths.MAIN_GRID_AREA_FXML;
 
 public class OptionsBarController {
 
-    private AppController mainController;
+    private GridWindowController mainController;
 
     @FXML
     private TextField selectedCellId;
@@ -63,7 +63,7 @@ public class OptionsBarController {
         versionSelectorButton.setOnShowing(event -> handleVersionSelectorButtonAction());
     }
 
-    public void setMainController(AppController mainController) {
+    public void setMainController(GridWindowController mainController) {
         this.mainController = mainController;
     }
 

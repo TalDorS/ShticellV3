@@ -1,4 +1,4 @@
-package gridwindow.manager;
+package manager;
 
 import api.Engine;
 import engineimpl.EngineImpl;

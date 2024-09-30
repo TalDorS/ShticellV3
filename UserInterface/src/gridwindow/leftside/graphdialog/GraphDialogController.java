@@ -6,7 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import app.AppController;
+import gridwindow.GridWindowController;
 import utils.AlertUtils;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class GraphDialogController {
-    private AppController mainController;
+    private GridWindowController mainController;
 
     @FXML
     private TextField xRangeTextField; // TextField for X axis range input
@@ -36,7 +36,7 @@ public class GraphDialogController {
 
     private final Pattern rangePattern = Pattern.compile("[A-Z]+\\d+\\.\\.[A-Z]+\\d+"); // Pattern to validate input format
 
-    public void setMainController(AppController mainController) {
+    public void setMainController(GridWindowController mainController) {
         this.mainController = mainController;
     }
 

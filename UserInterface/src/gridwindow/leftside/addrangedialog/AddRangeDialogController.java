@@ -3,11 +3,11 @@ package gridwindow.leftside.addrangedialog;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
-import app.AppController;
+import gridwindow.GridWindowController;
 import utils.AlertUtils;
 
 public class AddRangeDialogController {
-    private AppController mainController;
+    private GridWindowController mainController;
 
     @FXML
     private TextField rangeNameField;
@@ -15,7 +15,7 @@ public class AddRangeDialogController {
     @FXML
     private TextField rangeInputField; // Combined input for the cell range
 
-    public void setMainController(AppController mainController) {
+    public void setMainController(GridWindowController mainController) {
         this.mainController = mainController;
     }
 

@@ -1,6 +1,6 @@
 package gridwindow.grid.dynamicanalysisdialog;
 
-import app.AppController;
+import gridwindow.GridWindowController;
 import expressionimpls.FunctionExpression;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
@@ -26,17 +26,17 @@ public class DynamicAnalysisDialogController {
     @FXML
     private Slider valueSlider;
 
-    private AppController appController;
+    private GridWindowController gridWindowController;
     private double originalValue;
     private String cellId;
 
-    public void setMainController(AppController appController) {
-        this.appController = appController;
+    public void setMainController(GridWindowController gridWindowController) {
+        this.gridWindowController = gridWindowController;
     }
 
     public void openDynamicAnalysisDialog(String cellId) {
         this.cellId = cellId;
-        Cell cell = appController.getCellById(cellId);
+        Cell cell = gridWindowController.getCellById(cellId);
 
         if (cell == null || !(cell.getEffectiveValue() instanceof Number)) {
             showError("Dynamic Analysis can only be performed on cells with numeric values.");
@@ -164,13 +164,13 @@ public class DynamicAnalysisDialogController {
         performDynamicAnalysis(originalValue);
 
         // Update the dependent cells with the original value
-        appController.updateDependentCellsForDynamicAnalysis(cellId, originalValue);
+        gridWindowController.updateDependentCellsForDynamicAnalysis(cellId, originalValue);
     }
 
     // Method to perform dynamic analysis by temporarily updating the cell value
     private void performDynamicAnalysis(double tempValue) {
         // Retrieve the StringProperty of the target cell
-        StringProperty cellProperty = appController.getCellProperty(cellId);
+        StringProperty cellProperty = gridWindowController.getCellProperty(cellId);
 
         if (cellProperty != null) {
             // Format the number with thousands separators and up to two decimal places
@@ -185,7 +185,7 @@ public class DynamicAnalysisDialogController {
             cellProperty.set(formattedValue);
 
             // Update dependent cells dynamically based on the temporary value
-            appController.updateDependentCellsForDynamicAnalysis(cellId, tempValue);
+            gridWindowController.updateDependentCellsForDynamicAnalysis(cellId, tempValue);
         }
     }
 }

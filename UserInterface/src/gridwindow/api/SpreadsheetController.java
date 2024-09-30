@@ -1,9 +1,7 @@
 package gridwindow.api;
 
-import api.Engine;
-import app.AppController;
+import gridwindow.GridWindowController;
 import dto.SpreadsheetDTO;
-import spreadsheet.Spreadsheet;
 
 public interface SpreadsheetController {
     void initializeSpreadsheet(SpreadsheetDTO spreadsheet);
@@ -12,5 +10,5 @@ public interface SpreadsheetController {
     void createRowHeaders(int rowCount, int rowHeight);
     void createCells( SpreadsheetDTO spreadsheet, int rowCount, int columnCount, int columnWidth, int rowHeight);
     String getColumnName(int index);
-    void setMainController(AppController appController);
+    void setMainController(GridWindowController gridWindowController);
     }

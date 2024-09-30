@@ -10,7 +10,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import app.AppController;
+import gridwindow.GridWindowController;
 
 import java.io.File;
 import java.util.Objects;
@@ -18,15 +18,15 @@ import java.util.Objects;
 import static utils.AlertUtils.showAlert;
 
 public class HeaderLoadController {
-    private AppController mainController;
+    private GridWindowController mainController;
     private String previousFilePath = "";
 
     @FXML
     private Button loadFileButton;
     @FXML
-    private MenuButton colorDisplay;
+    private MenuButton colorDisplay;//todo- remove
     @FXML
-    private MenuButton animationDisplay;
+    private MenuButton animationDisplay;//todo- remove
     @FXML
     private TextField loadedFilePath;
     @FXML
@@ -38,7 +38,7 @@ public class HeaderLoadController {
         colorDisplay.setOnShowing(event -> handleColorDisplay());
         animationDisplay.setOnShowing(event -> handleAnimationDisplay());
     }
-
+//todo- remove
     private void handleColorDisplay() {
         colorDisplay.getItems().clear();
         for (Skin skin : Skin.values()) {
@@ -47,11 +47,13 @@ public class HeaderLoadController {
             colorDisplay.getItems().add(menuItem);
         }
     }
+//todo- remove
 
     private void handleSkinChange(Skin skin) {
         mainController.setSkin(skin.name().toLowerCase());
         colorDisplay.setText(skin.getDisplayName());
     }
+//todo- remove
 
     private void handleAnimationDisplay() {
         animationDisplay.getItems().clear();
@@ -61,13 +63,15 @@ public class HeaderLoadController {
             animationDisplay.getItems().add(menuItem);
         }
     }
+//todo- remove
+
     private void handleAnimationChange(Animation animation) {
         mainController.setAnimation(animation.getIdentifier());
         animationDisplay.setText(animation.getDisplayName());
     }
 
 
-    public void setMainController(AppController mainController) {
+    public void setMainController(GridWindowController mainController) {
         this.mainController = mainController;
     }
 
