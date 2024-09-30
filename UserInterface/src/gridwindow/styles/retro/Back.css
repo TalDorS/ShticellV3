@@ -1,0 +1,19 @@
+/* dark-mode.css */
+
+/* VBox background */
+.vbox {
+    -fx-background-color: #282828; /* Dark gray background */
+}
+
+/* Button styles */
+.back-button {
+    -fx-background-color: #404040; /* Darker gray background */
+    -fx-text-fill: #00ff00; /* Neon green text */
+    -fx-border-color: #ff00ff; /* Magenta border */
+    -fx-border-radius: 5px;
+    -fx-padding: 2px 8px; /* Adds padding for retro button look */
+    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Retro font */
+}
+
+
+

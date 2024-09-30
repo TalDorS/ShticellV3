@@ -1,4 +1,4 @@
-package gridwindow.top;
+package menuwindow.top;
 
 import exceptions.engineexceptions.SpreadsheetLoadingException;
 import javafx.application.Platform;
@@ -6,11 +6,11 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import app.AppController;
+import menuwindow.MenuWindowController;
+import menuwindow.center.AvailableSheetTableController;
 
 import java.io.File;
 import java.util.Objects;
@@ -18,59 +18,32 @@ import java.util.Objects;
 import static utils.AlertUtils.showAlert;
 
 public class HeaderLoadController {
-    private AppController mainController;
+    private MenuWindowController mainController;
     private String previousFilePath = "";
 
     @FXML
     private Button loadFileButton;
-    @FXML
-    private MenuButton colorDisplay;
-    @FXML
-    private MenuButton animationDisplay;
+
     @FXML
     private TextField loadedFilePath;
     @FXML
     private ProgressIndicator progressIndicator;
 
     @FXML
+    private Label nameLabel;
+
+    public void setMainController(MenuWindowController MenuWindowController) {
+        this.mainController = MenuWindowController;
+    }
+
+    private void setUsername(String username) {
+        nameLabel.setText(username);
+    }
+
+    @FXML
     public void initialize() {
         loadFileButton.setOnAction(event -> handleLoadFileButtonAction());
-        colorDisplay.setOnShowing(event -> handleColorDisplay());
-        animationDisplay.setOnShowing(event -> handleAnimationDisplay());
     }
-
-    private void handleColorDisplay() {
-        colorDisplay.getItems().clear();
-        for (Skin skin : Skin.values()) {
-            MenuItem menuItem = new MenuItem(skin.getDisplayName());
-            menuItem.setOnAction(event -> handleSkinChange(skin));
-            colorDisplay.getItems().add(menuItem);
-        }
-    }
-
-    private void handleSkinChange(Skin skin) {
-        mainController.setSkin(skin.name().toLowerCase());
-        colorDisplay.setText(skin.getDisplayName());
-    }
-
-    private void handleAnimationDisplay() {
-        animationDisplay.getItems().clear();
-        for (Animation animation : Animation.values()) {
-            MenuItem menuItem = new MenuItem(animation.getDisplayName());
-            menuItem.setOnAction(event -> handleAnimationChange(animation));
-            animationDisplay.getItems().add(menuItem);
-        }
-    }
-    private void handleAnimationChange(Animation animation) {
-        mainController.setAnimation(animation.getIdentifier());
-        animationDisplay.setText(animation.getDisplayName());
-    }
-
-
-    public void setMainController(AppController mainController) {
-        this.mainController = mainController;
-    }
-
     @FXML
     // Handle the Load File button action
     private void handleLoadFileButtonAction() {
@@ -192,19 +165,21 @@ public class HeaderLoadController {
             }
         };
     }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HeaderLoadController that = (HeaderLoadController) o;
         return Objects.equals(mainController, that.mainController) && Objects.equals(loadFileButton, that.loadFileButton)
-                && Objects.equals(colorDisplay, that.colorDisplay) && Objects.equals(loadedFilePath, that.loadedFilePath)
+                && Objects.equals(loadedFilePath, that.loadedFilePath)
                 && Objects.equals(progressIndicator, that.progressIndicator);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mainController, loadFileButton, colorDisplay, loadedFilePath, progressIndicator);
+        return Objects.hash(mainController, loadFileButton, loadedFilePath, progressIndicator);
     }
+
+
+
 }
