@@ -1,19 +1,16 @@
-package secondWindow.top;
+package menuwindow.top;
 
 import exceptions.engineexceptions.SpreadsheetLoadingException;
-import gridwindow.top.Animation;
-import gridwindow.top.Skin;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import gridwindow.GridWindowController;
-import secondWindow.SecondWindowController;
+import menuwindow.MenuWindowController;
+import menuwindow.center.AvailableSheetTableController;
 
 import java.io.File;
 import java.util.Objects;
@@ -21,7 +18,7 @@ import java.util.Objects;
 import static utils.AlertUtils.showAlert;
 
 public class HeaderLoadController {
-    private SecondWindowController mainController;
+    private MenuWindowController mainController;
     private String previousFilePath = "";
 
     @FXML
@@ -32,7 +29,21 @@ public class HeaderLoadController {
     @FXML
     private ProgressIndicator progressIndicator;
 
+    @FXML
+    private Label nameLabel;
 
+    public void setMainController(MenuWindowController MenuWindowController) {
+        this.mainController = MenuWindowController;
+    }
+
+    private void setUsername(String username) {
+        nameLabel.setText(username);
+    }
+
+    @FXML
+    public void initialize() {
+        loadFileButton.setOnAction(event -> handleLoadFileButtonAction());
+    }
     @FXML
     // Handle the Load File button action
     private void handleLoadFileButtonAction() {
@@ -154,7 +165,6 @@ public class HeaderLoadController {
             }
         };
     }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -170,7 +180,6 @@ public class HeaderLoadController {
         return Objects.hash(mainController, loadFileButton, loadedFilePath, progressIndicator);
     }
 
-    public void setMainController(SecondWindowController secondWindowController) {
-        this.mainController = secondWindowController;
-    }
+
+
 }

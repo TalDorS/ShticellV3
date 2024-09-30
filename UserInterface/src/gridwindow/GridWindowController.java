@@ -27,7 +27,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
 import javafx.util.Duration;
-import secondWindow.top.HeaderLoadController;
 import spreadsheet.Spreadsheet;
 import gridwindow.grid.MainGridAreaController;
 import gridwindow.grid.dynamicanalysisdialog.DynamicAnalysisDialogController;

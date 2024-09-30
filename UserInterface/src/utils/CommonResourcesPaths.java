@@ -12,4 +12,5 @@ public class CommonResourcesPaths {
     public static final String WELCOME_FXML = "/manager/welcome.fxml";
     public static final String DYNAMIC_ANALYSIS_FXML= "/gridwindow/grid/dynamicanalysisdialog/DynamicAnalysisDialog.fxml";
     public static final String LOGIN_FXML = "/loginwindow/Login.fxml";
+    public static final String MENU_WINDOW_FXML = "/menuwindow/MenuWindow.fxml";
 }

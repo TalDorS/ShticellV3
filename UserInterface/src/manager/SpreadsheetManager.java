@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import gridwindow.top.Skin;
-import loginwindow.LoginController;
+import menuwindow.MenuWindowController;
 
 import java.io.IOException;
 
@@ -30,9 +30,24 @@ public class SpreadsheetManager {
     public void runApp() {
         // Show the login window before the main app
         //showLoginWindow();
-
+        showMenuWindow();
         //showWelcomeScreen(); //fixme-it shows the loading app screen
-        showMainApp();
+        //showGridWindow();
+    }
+
+    private void showMenuWindow() {
+        try{
+            FXMLLoader menuLoader = new FXMLLoader(getClass().getResource(MENU_WINDOW_FXML));
+            Parent menuRoot = menuLoader.load();
+            MenuWindowController menuWindowController = menuLoader.getController();
+
+            Scene menuScene = new Scene(menuRoot);
+            primaryStage.setTitle("Menu Scene");
+            primaryStage.setScene(menuScene);
+            primaryStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void showWelcomeScreen() {
@@ -72,13 +87,13 @@ public class SpreadsheetManager {
         timeline.setOnFinished(event -> {
             // Once the progress is complete, close the splash screen and load the main app
             splashStage.close();
-            showMainApp();
+            showGridWindow();
         });
 
         timeline.play();
     }
 
-    private void showMainApp() {
+    private void showGridWindow() {
         try {
             // Load the main app FXML and set up the AppController
             FXMLLoader appLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));

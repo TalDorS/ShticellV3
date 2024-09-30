@@ -6,7 +6,7 @@ import javafx.scene.control.Button;
 
 public class BackController {
 
-    @FXML
+
     private GridWindowController mainController;
 
     @FXML
