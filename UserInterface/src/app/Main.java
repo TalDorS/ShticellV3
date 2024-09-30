@@ -1,7 +1,7 @@
 package app;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import gridwindow.manager.SpreadsheetManager;
+import manager.SpreadsheetManager;
 
 
 public class Main  extends Application {
