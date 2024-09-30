@@ -1,8 +1,19 @@
 package menuwindow.rightside;
 
+import gridwindow.GridWindowController;
+import gridwindow.top.Skin;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import menuwindow.MenuWindowController;
+import utils.AlertUtils;
+
+import java.io.IOException;
+
+import static utils.CommonResourcesPaths.GRID_WINDOW_FXML;
 
 public class RightSideController {
 
@@ -33,8 +44,18 @@ public class RightSideController {
     }
 
     private void handleViewSheetButtonAction() {
-        // todo- need here to send the sheet to the gridwindow and open it
+        String selectedFilePath = mainController.getAvailableSheetTableController().getSelectedFilePath();
+
+        if (selectedFilePath != null) {
+            // Open the Grid Window and pass the selected file
+            mainController.showGridWindow(selectedFilePath);
+        } else {
+            // Handle the case where no file is selected, for example, show a warning dialog
+            AlertUtils.showAlert(Alert.AlertType.ERROR, "No File Selected", "Please select a file to view.");
+        }
     }
+
+
 
     public void setMainController(MenuWindowController mainController) {
         this.mainController = mainController;

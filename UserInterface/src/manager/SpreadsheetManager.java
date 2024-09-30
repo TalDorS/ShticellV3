@@ -31,7 +31,7 @@ public class SpreadsheetManager {
         // Show the login window before the main app
         //showLoginWindow();
         showMenuWindow();
-        showLoginWindow();
+        //showLoginWindow();
 
         //showWelcomeScreen(); //fixme-it shows the loading app screen
         //showGridWindow();
