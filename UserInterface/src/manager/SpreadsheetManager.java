@@ -1,7 +1,6 @@
 package manager;
 
 import gridwindow.GridWindowController;
-import app.AppController;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXMLLoader;
