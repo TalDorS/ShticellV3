@@ -2,37 +2,54 @@ package servlets;
 
 import com.google.gson.Gson;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import models.User;
-import okhttp3.Response;
-import utils.ResponseUtils;
-
+import jakarta.servlet.http.*;
+import users.UsersManager;
+import utils.ServletUtils;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
-@WebServlet("/login")
+@WebServlet(name = "LoginServlet", urlPatterns = "/login")
 public class LoginServlet extends HttpServlet {
-    private static final Set<String> users = new HashSet<>();
+    private UsersManager usersManager;
+
+    @Override
+    public void init() {
+        // Initialize UsersManager inside init() where ServletConfig is available
+        usersManager = ServletUtils.getUserManager(getServletContext());
+    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Gson gson = new Gson();
-        String body = req.getReader().lines().reduce("", String::concat);
-        User user = gson.fromJson(body, User.class);
+        String username = req.getParameter("username");
 
-        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
-            ResponseUtils.sendErrorResponse(resp, "Username is required", HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
+        synchronized (usersManager) {
+            // If username is already logged in, send an error response
+            if (usersManager.isUserExist(username)) {
+                resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                resp.getWriter().write(new Gson().toJson("User is already logged in."));
+            } else {
+                // Add user to the active users list
+                try {
+                    usersManager.addUser(username);
 
-        if (users.contains(user.getUsername())) {
-            ResponseUtils.sendErrorResponse(resp, "Username already exists", HttpServletResponse.SC_CONFLICT);
-        } else {
-            users.add(user.getUsername());
-            ResponseUtils.sendSuccessResponse(resp, "Login Successful");
+                    // Create session and store user information
+                    HttpSession session = req.getSession(true);
+                    session.setAttribute("username", username);
+
+                    // Set a session cookie
+                    Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
+                    sessionCookie.setHttpOnly(true);
+                    sessionCookie.setMaxAge(30 * 60); // TODO - check if needed TAL
+                    resp.addCookie(sessionCookie);
+
+                    // Success response
+                    resp.setContentType("application/json");
+                    resp.getWriter().write(new Gson().toJson("Login Successful"));
+                } catch (Exception e) {
+                    // Handle user addition failure
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().write(new Gson().toJson("Failed to log in user."));
+                }
+            }
         }
     }
 }

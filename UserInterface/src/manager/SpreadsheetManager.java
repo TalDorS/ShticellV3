@@ -1,4 +1,4 @@
-package gridwindow.manager;
+package manager;
 
 import app.AppController;
 import javafx.animation.KeyFrame;
@@ -29,10 +29,10 @@ public class SpreadsheetManager {
 
     public void runApp() {
         // Show the login window before the main app
-        //showLoginWindow();
+        showLoginWindow();
 
         //showWelcomeScreen(); //fixme-it shows the loading app screen
-        showMainApp();
+        //showGridWindow();
     }
 
     private void showWelcomeScreen() {
@@ -72,13 +72,13 @@ public class SpreadsheetManager {
         timeline.setOnFinished(event -> {
             // Once the progress is complete, close the splash screen and load the main app
             splashStage.close();
-            showMainApp();
+            showGridWindow();
         });
 
         timeline.play();
     }
 
-    private void showMainApp() {
+    private void showGridWindow() {
         try {
             // Load the main app FXML and set up the AppController
             FXMLLoader appLoader = new FXMLLoader(getClass().getResource(APP_FXML));
@@ -118,16 +118,6 @@ public class SpreadsheetManager {
 
             // Hide the primary stage until login is successful
             primaryStage.hide();
-
-            // After successful login, you can close the login window and show the main app
-            loginController.setOnLoginSuccess(() -> {
-                // Close the login window
-                loginStage.close();
-
-                // Show the main app
-                primaryStage.show();
-                showMainApp();  // Load the main app after login success
-            });
         } catch (IOException e) {
             e.printStackTrace();
         }

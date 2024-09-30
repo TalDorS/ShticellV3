@@ -9,7 +9,7 @@ public class CommonResourcesPaths {
     public static final String FILTER_DIALOG_FXML = "/gridwindow/leftside/filterdialog/FilterDialog.fxml";
     public static final String GRAPH_DIALOG_FXML = "/gridwindow/leftside/graphdialog/GraphDialog.fxml";
     public static final String SORT_DIALOG_FXML = "/gridwindow/leftside/sortdialog/SortDialog.fxml";
-    public static final String WELCOME_FXML = "/gridwindow/manager/welcome.fxml"; // Update with your actual path
+    public static final String WELCOME_FXML = "/manager/welcome.fxml"; // Update with your actual path
     public static final String DYNAMIC_ANALYSIS_FXML= "/gridwindow/grid/dynamicanalysisdialog/DynamicAnalysisDialog.fxml";
     public static final String LOGIN_FXML = "/loginwindow/Login.fxml";
 }
