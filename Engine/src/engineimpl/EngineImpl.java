@@ -21,10 +21,14 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import versions.VersionsManager;
+import client.Client;
 
 //This class implements the api.Engine interface and manages the spreadsheet
 // First version of the spreadsheet will be index 1
 public class EngineImpl implements Engine {
+
+    //todo- manage a list of versions of different sheets per client
+    //private final Map<Client, Map<String, VersionsManager>> clientFilesVersions;
     private final VersionsManager versionsManager;
     private final RangesManager rangesManager;
     private final SpreadsheetFilter spreadsheetFilterer;
