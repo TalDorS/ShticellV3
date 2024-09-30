@@ -9,7 +9,6 @@
     -fx-text-fill: #00ff00;
     -fx-border-radius: 5px;
     -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
-    -fx-font-size: 14px;
 }
 
 .shticell-label{
@@ -17,14 +16,6 @@
     -fx-border-radius: 5px;
     -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
     -fx-font-size: 30px;
-}
-/* Header Button */
-.header-button {
-    -fx-background-color: #404040;
-    -fx-text-fill: #00ff00;
-    -fx-border-color: #ff00ff;
-    -fx-font-size: 14px;
-    -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
 }
 
 /* Header TextField */
@@ -35,12 +26,6 @@
     -fx-border-radius: 5px;
     -fx-font-size: 14px;
     -fx-font-family: "Comic Sans MS", cursive, sans-serif; /* Apply custom font */
-}
-
-/* Header ProgressIndicator */
-.header-progress-indicator {
-    -fx-text-fill: white;
-    -fx-progress-color: #00ff00; /* Retro green */
 }
 
 /* Header MenuButton */
@@ -56,6 +41,4 @@
     -fx-font-size: 14px;
     -fx-fill: #00ff00;
 }
-.header-button:hover {
-    -fx-background-color: #505050;
-}
+

@@ -1,6 +1,6 @@
 package gridwindow.leftside.sortdialog;
 
-import app.AppController;
+import gridwindow.GridWindowController;
 import dto.SpreadsheetDTO;
 import exceptions.engineexceptions.InvalidCellIdFormatException;
 import exceptions.engineexceptions.InvalidColumnException;
@@ -36,7 +36,7 @@ import static utils.CommonResourcesPaths.MAIN_GRID_AREA_CSS;
 import static utils.CommonResourcesPaths.MAIN_GRID_AREA_FXML;
 
 public class SortDialogController {
-    private AppController mainController;
+    private GridWindowController mainController;
 
     @FXML
     private TextField selectedTableArea;
@@ -65,7 +65,7 @@ public class SortDialogController {
     private boolean lastColumnSet; //to track if we can add a new menu button
     private boolean isNewRangeSelected; //to track if a new range is selected
 
-    public void setMainController(AppController mainController) {
+    public void setMainController(GridWindowController mainController) {
         this.mainController = mainController;
     }
 

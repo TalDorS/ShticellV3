@@ -1,4 +1,4 @@
-package app;
+package gridwindow;
 
 import api.Engine;
 import api.Expression;
@@ -11,6 +11,8 @@ import dto.VersionDTO;
 import engineimpl.EngineImpl;
 import exceptions.engineexceptions.*;
 import expressionimpls.LiteralExpression;
+import gridwindow.top.*;
+import gridwindow.top.Skin;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.application.Platform;
@@ -31,11 +33,7 @@ import gridwindow.grid.dynamicanalysisdialog.DynamicAnalysisDialogController;
 import gridwindow.leftside.LeftSideController;
 import gridwindow.leftside.addrangedialog.AddRangeDialogController;
 import gridwindow.leftside.sortdialog.SortDialogController;
-import gridwindow.top.Animation;
-import gridwindow.top.HeaderLoadController;
-import gridwindow.top.OptionsBarController;
 import utils.AlertUtils;
-import gridwindow.top.Skin;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -48,7 +46,7 @@ import static utils.AlertUtils.showAlert;
 import static utils.AlertUtils.showError;
 import static utils.CommonResourcesPaths.*;
 
-public class AppController {
+public class GridWindowController {
 
     private Engine engine;
     private List<FadeTransition> activeFadeTransitions = new ArrayList<>();  // List to store all active transitions
@@ -58,7 +56,7 @@ public class AppController {
     private ScrollPane scrollPane;
 
     @FXML
-    private HeaderLoadController headerLoadComponentController;
+    private TopGridWindowController topGridWindowComponentController;
 
     @FXML
     private OptionsBarController optionsBarComponentController;
@@ -81,9 +79,6 @@ public class AppController {
     @FXML
     public void initialize() {
 
-        if (headerLoadComponentController != null) {
-            headerLoadComponentController.setMainController(this);
-        }
         if (optionsBarComponentController != null) {
             optionsBarComponentController.setMainController(this);
         }
@@ -102,10 +97,14 @@ public class AppController {
         if(dynamicAnalysisComponentController != null){
             dynamicAnalysisComponentController.setMainController(this);
         }
+        if(topGridWindowComponentController!=null){
+            topGridWindowComponentController.setMainController(this);
+        }
 
         engine = new EngineImpl();
     }
 
+    //todo- move to another controller for the sceond screen ??
     public void loadSpreadsheet(String filePath) throws SpreadsheetLoadingException, CellUpdateException, InvalidExpressionException,
             CircularReferenceException, RangeProcessException {
         // Load the spreadsheet and update components on the JavaFX Application Thread
@@ -308,7 +307,7 @@ public class AppController {
                 skin = Skin.DEFAULT; // Fallback to default skin if skin isnt selected
             }
 
-            String[] components = {"HeaderAndLoad.css", "OptionsBar.css", "LeftSide.css", "MainGridArea.css", "App.css"};
+            String[] components = {"TopGridWindow.css", "OptionsBar.css", "LeftSide.css", "MainGridArea.css", "GridWindow.css","Back.css"};
             for (String component : components) {
                 String cssPath = String.format("/gridwindow/styles/%s/%s", skin.getDirectoryName(), component);
                 scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
@@ -572,19 +571,23 @@ public class AppController {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AppController that = (AppController) o;
+        GridWindowController that = (GridWindowController) o;
         return Objects.equals(engine, that.engine) && Objects.equals(scrollPane, that.scrollPane)
-                && Objects.equals(headerLoadComponentController, that.headerLoadComponentController)
                 && Objects.equals(optionsBarComponentController, that.optionsBarComponentController)
                 && Objects.equals(leftSideComponentController, that.leftSideComponentController)
-                && Objects.equals(mainGridAreaComponentController, that.mainGridAreaComponentController);
+                && Objects.equals(mainGridAreaComponentController, that.mainGridAreaComponentController)
+                && Objects.equals(sortDialogController, that.sortDialogController)
+                && Objects.equals(addRangeDialogController, that.addRangeDialogController)
+                && Objects.equals(dynamicAnalysisComponentController, that.dynamicAnalysisComponentController)
+                && Objects.equals(topGridWindowComponentController, that.topGridWindowComponentController);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(engine, scrollPane, headerLoadComponentController,
+        return Objects.hash(engine, scrollPane,
                 optionsBarComponentController, leftSideComponentController,
-                mainGridAreaComponentController);
+                mainGridAreaComponentController, sortDialogController, addRangeDialogController,
+                dynamicAnalysisComponentController, topGridWindowComponentController);
     }
 
     public Expression parseExpression (String input) throws InvalidExpressionException {

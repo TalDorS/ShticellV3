@@ -1,5 +1,6 @@
 package manager;
 
+import gridwindow.GridWindowController;
 import app.AppController;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -11,8 +12,8 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import gridwindow.top.Skin;
+import menuwindow.MenuWindowController;
 import loginwindow.LoginController;
-
 import java.io.IOException;
 
 import static utils.CommonResourcesPaths.*;
@@ -29,11 +30,29 @@ public class SpreadsheetManager {
 
     public void runApp() {
         // Show the login window before the main app
+        //showLoginWindow();
+        showMenuWindow();
         showLoginWindow();
 
         //showWelcomeScreen(); //fixme-it shows the loading app screen
         //showGridWindow();
     }
+
+    private void showMenuWindow() {
+        try{
+            FXMLLoader menuLoader = new FXMLLoader(getClass().getResource(MENU_WINDOW_FXML));
+            Parent menuRoot = menuLoader.load();
+            MenuWindowController menuWindowController = menuLoader.getController();
+
+            Scene menuScene = new Scene(menuRoot);
+            primaryStage.setTitle("Menu Scene");
+            primaryStage.setScene(menuScene);
+            primaryStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private void showWelcomeScreen() {
         try {
@@ -81,14 +100,13 @@ public class SpreadsheetManager {
     private void showGridWindow() {
         try {
             // Load the main app FXML and set up the AppController
-            FXMLLoader appLoader = new FXMLLoader(getClass().getResource(APP_FXML));
+            FXMLLoader appLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
             Parent root = appLoader.load();
-            AppController appController = appLoader.getController();
+            GridWindowController gridWindowController = appLoader.getController();
 
             // Set up the scene and stage for the main application
             Scene scene = new Scene(root);
-            appController.setSkin(Skin.DEFAULT.getDirectoryName());
-
+            gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
             primaryStage.setTitle("Main Scene");
             primaryStage.setScene(scene);
             primaryStage.show();

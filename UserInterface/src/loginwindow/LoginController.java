@@ -7,12 +7,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LoginController {
+
     @FXML
     private TextField usernameField;
 

@@ -20,19 +20,6 @@
     -fx-font-family: 'Ink Free'; /* Apply custom font */
 }
 
-/* Header Button */
-.header-button {
-    -fx-background-color: linear-gradient(to bottom, #007acc, #005c99); /* Gradient for a vibrant effect */
-    -fx-text-fill: #ffffff; /* White text */
-    -fx-border-color: #555555; /* Slight border color */
-    -fx-border-radius: 5px;
-    -fx-font-size: 14px;
-    -fx-font-family: 'Ink Free'; /* Apply custom font */
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.25, 2, 2); /* Subtle shadow */
-    -fx-border-color: transparent; /* Transparent border */
-    -fx-cursor: hand; /* Hand cursor on hover */
-}
-
 /* Header TextField */
 .header-text-field {
     -fx-background-color: #2e2e2e; /* Dark background */
@@ -41,16 +28,6 @@
     -fx-border-radius: 5px;
     -fx-font-size: 14px;
     -fx-font-family: 'Ink Free'; /* Apply custom font */
-}
-.header-button:hover {
-    -fx-background-color: linear-gradient(to bottom, #0099ff, #007acc); /* Lighter blue on hover */
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0.3, 2, 2); /* More pronounced shadow on hover */
-}
-
-/* Header Button Pressed Effect */
-.header-button:pressed {
-    -fx-background-color: #005c99; /* Darker blue when pressed */
-    -fx-effect: none; /* Remove shadow when pressed */
 }
 
 /* Header MenuButton */
@@ -109,8 +86,3 @@
     -fx-effect: none; /* Remove shadow when pressed */
 }
 
-/* Progress Indicator in dark mode */
-.header-progress-indicator {
-    -fx-text-fill: white;
-    -fx-progress-color: #4caf50; /* A green color for the progress indicator */
-}

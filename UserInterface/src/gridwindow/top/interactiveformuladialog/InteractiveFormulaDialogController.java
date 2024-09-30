@@ -9,7 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import app.AppController;
+import gridwindow.GridWindowController;
 import enums.FunctionType;
 import api.Expression;
 import javafx.stage.Modality;
@@ -44,14 +44,14 @@ public class InteractiveFormulaDialogController {
     @FXML
     private Button cancelButton;
 
-    private AppController mainController;
+    private GridWindowController mainController;
     private List<Expression> argumentExpressions = new ArrayList<>();
     private String currentFunctionName; // Store the selected function name
     private List<String> argumentValues = new ArrayList<>(); // Store argument values
     private boolean applied; // Indicates if "Apply" was pressed
     private OptionsBarController parentController;
 
-    public void setMainController(AppController mainController) {
+    public void setMainController(GridWindowController mainController) {
         this.mainController = mainController;
     }
 

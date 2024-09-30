@@ -1,7 +1,6 @@
 package gridwindow.leftside.filterdialog;
 
 import cells.Cell;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,12 +11,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import app.AppController;
+import gridwindow.GridWindowController;
 import spreadsheet.Spreadsheet;
-import utils.AlertUtils;
 import javafx.scene.layout.HBox;
 
 import java.util.*;
@@ -35,7 +32,7 @@ public class FilterDialogController {
     @FXML
     private Button selectValuesButton;
 
-    private AppController mainController;
+    private GridWindowController mainController;
     private Map<String, List<String>> selectedColumnValues = new HashMap<>();
     private Set<String> selectedColumns = new HashSet<>();
 
@@ -58,7 +55,7 @@ public class FilterDialogController {
         });
     }
 
-    public void setMainController(AppController mainController) {
+    public void setMainController(GridWindowController mainController) {
         this.mainController = mainController;
     }
 
