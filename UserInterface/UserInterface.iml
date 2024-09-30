@@ -10,7 +10,12 @@
     <orderEntry type="library" name="lib" level="project" />
     <orderEntry type="module" module-name="Engine" />
     <orderEntry type="module" module-name="DTO" />
-    <orderEntry type="library" exported="" name="annotations-13.0" level="project" />
     <orderEntry type="library" exported="" name="gson-2.1-javadoc" level="project" />
+    <orderEntry type="library" name="gson-2.1" level="project" />
+    <orderEntry type="library" name="okhttp-4.9.1" level="project" />
+    <orderEntry type="library" name="javafx-sdk-22.0" level="project" />
+    <orderEntry type="library" name="javafx.base" level="project" />
+    <orderEntry type="module" module-name="Client" />
+    <orderEntry type="library" name="annotations-13.0" level="project" />
   </component>
 </module>

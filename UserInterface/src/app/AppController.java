@@ -10,9 +10,7 @@ import dto.SpreadsheetDTO;
 import dto.VersionDTO;
 import engineimpl.EngineImpl;
 import exceptions.engineexceptions.*;
-import expressionimpls.FunctionExpression;
 import expressionimpls.LiteralExpression;
-import expressionimpls.ReferenceExpression;
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.application.Platform;
@@ -28,16 +26,16 @@ import javafx.scene.text.Text;
 
 import javafx.util.Duration;
 import spreadsheet.Spreadsheet;
-import ui.grid.MainGridAreaController;
-import ui.grid.dynamicanalysisdialog.DynamicAnalysisDialogController;
-import ui.leftside.LeftSideController;
-import ui.leftside.addrangedialog.AddRangeDialogController;
-import ui.leftside.sortdialog.SortDialogController;
-import ui.top.Animation;
-import ui.top.HeaderLoadController;
-import ui.top.OptionsBarController;
+import gridwindow.grid.MainGridAreaController;
+import gridwindow.grid.dynamicanalysisdialog.DynamicAnalysisDialogController;
+import gridwindow.leftside.LeftSideController;
+import gridwindow.leftside.addrangedialog.AddRangeDialogController;
+import gridwindow.leftside.sortdialog.SortDialogController;
+import gridwindow.top.Animation;
+import gridwindow.top.HeaderLoadController;
+import gridwindow.top.OptionsBarController;
 import utils.AlertUtils;
-import ui.top.Skin;
+import gridwindow.top.Skin;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -156,17 +154,14 @@ public class AppController {
             EngineDTO engineDTO = engine.getEngineData();
             int currentVersionNumber = engineDTO.getCurrentVersionNumber();
             SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
-
             CellDTO currentCellDTO = spreadsheetDTO.getCellById(cellId);
 
             // Update the StringProperty for the cell ID
             StringProperty cellProperty = mainGridAreaComponentController.getCellProperty(cellId);
 
             if (cellProperty != null) {
-
                 cellProperty.set(currentCellDTO.getEffectiveValue().toString());
                 updateSelectedCellInfo(cellId, currentCellDTO.getOriginalValue(), Integer.toString(currentCellDTO.getLastUpdatedVersion()));
-
                 optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber); // Update the current version label
 
                 Object effectiveValue = currentCellDTO.getEffectiveValue();
@@ -178,7 +173,6 @@ public class AppController {
 
                 cellProperty.set(effectiveValueString);
                 optionsBarComponentController.updateCellInfo(cellId, currentCellDTO.getOriginalValue(), Integer.toString(currentCellDTO.getLastUpdatedVersion()));
-
             }
 
             // Update all dependent cells
@@ -208,9 +202,9 @@ public class AppController {
                         if (isDynamicAnalysis) {
                             dependentCell.setEffectiveValue();
                         }
+
                         Object effectiveValue = dependentCell.getEffectiveValue();
                         String effectiveValueString = String.valueOf(effectiveValue);
-
                         if (effectiveValue instanceof Boolean) {
                             effectiveValueString = effectiveValueString.toUpperCase();
                         }
@@ -254,7 +248,7 @@ public class AppController {
         try {
             // Assuming you have a method in the engine to sort the spreadsheet
             Spreadsheet sortedSpreadsheet = new Spreadsheet(engine.getCurrentSpreadsheet());
-            Map<String,String> idMapping= engine.sortSpreadsheet(sortedSpreadsheet, range, columnsToSortBy);
+            Map<String,String> idMapping = engine.sortSpreadsheet(sortedSpreadsheet, range, columnsToSortBy);
 
             // Step 2: Convert the sorted spreadsheet (domain model) to a SpreadsheetDTO
             SpreadsheetDTO sortedSpreadsheetDTO = engine.convertSpreadsheetToDTO(sortedSpreadsheet);
@@ -303,10 +297,10 @@ public class AppController {
 
     public void setSkin(String theme) {
         Scene scene = scrollPane.getScene();
+
         if (scene != null) {
             // Clear existing stylesheets
             scene.getStylesheets().clear();
-
             Skin skin;
             try {
                 skin = Skin.valueOf(theme.toUpperCase());
@@ -316,7 +310,7 @@ public class AppController {
 
             String[] components = {"HeaderAndLoad.css", "OptionsBar.css", "LeftSide.css", "MainGridArea.css", "App.css"};
             for (String component : components) {
-                String cssPath = String.format("/ui/styles/%s/%s", skin.getDirectoryName(), component);
+                String cssPath = String.format("/gridwindow/styles/%s/%s", skin.getDirectoryName(), component);
                 scene.getStylesheets().add(getClass().getResource(cssPath).toExternalForm());
             }
         }
@@ -325,11 +319,12 @@ public class AppController {
     public void setAnimation(String animation) {
         Animation animationEnum = Animation.valueOf(animation.toUpperCase());
         Scene scene = scrollPane.getScene();
+
         if (scene != null) {
             Pane rootPane = (Pane) scene.lookup("#borderPane");
+
             if (rootPane != null) {
                 stopAnimations();
-
                 if (animationEnum != Animation.NONE) {
                     Platform.runLater(() -> {
                         switch (animationEnum) {

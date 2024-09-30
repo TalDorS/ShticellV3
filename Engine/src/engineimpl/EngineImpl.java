@@ -9,23 +9,18 @@ import expressionimpls.*;
 import filter.SpreadsheetFilter;
 import generatedschemafilesv2.*;
 import cells.Cell;
-import javafx.scene.control.Alert;
 import spreadsheet.Spreadsheet;
 import versions.Version;
-import ranges.RangesManager; // Import RangesManager
+import ranges.RangesManager;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import java.io.IOException;
 import java.util.Map;
 import java.io.File;
 import java.util.function.Supplier;
-
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import versions.VersionsManager;
-
 
 //This class implements the api.Engine interface and manages the spreadsheet
 // First version of the spreadsheet will be index 1
