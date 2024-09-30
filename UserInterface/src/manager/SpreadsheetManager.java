@@ -1,6 +1,7 @@
 package manager;
 
 import gridwindow.GridWindowController;
+import app.AppController;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXMLLoader;
@@ -12,7 +13,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import gridwindow.top.Skin;
 import menuwindow.MenuWindowController;
-
+import loginwindow.LoginController;
 import java.io.IOException;
 
 import static utils.CommonResourcesPaths.*;
@@ -31,6 +32,8 @@ public class SpreadsheetManager {
         // Show the login window before the main app
         //showLoginWindow();
         showMenuWindow();
+        showLoginWindow();
+
         //showWelcomeScreen(); //fixme-it shows the loading app screen
         //showGridWindow();
     }
@@ -49,6 +52,7 @@ public class SpreadsheetManager {
             e.printStackTrace();
         }
     }
+
 
     private void showWelcomeScreen() {
         try {
@@ -103,7 +107,6 @@ public class SpreadsheetManager {
             // Set up the scene and stage for the main application
             Scene scene = new Scene(root);
             gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
-
             primaryStage.setTitle("Main Scene");
             primaryStage.setScene(scene);
             primaryStage.show();
@@ -112,39 +115,29 @@ public class SpreadsheetManager {
         }
     }
 
-//    private void showLoginWindow() {
-//        try {
-//            // Load the login FXML
-//            FXMLLoader loginLoader = new FXMLLoader(getClass().getResource(LOGIN_FXML));
-//            Parent loginRoot = loginLoader.load();
-//
-//            // Get the controller
-//            LoginController loginController = loginLoader.getController();
-//
-//            // Create new stage for the login window
-//            Stage loginStage = new Stage();
-//            Scene loginScene = new Scene(loginRoot);
-//
-//            // Login window properties
-//            loginStage.setTitle("Login");
-//            loginStage.setScene(loginScene);
-//            loginStage.initStyle(StageStyle.DECORATED);
-//            loginStage.show();
-//
-//            // Hide the primary stage until login is successful
-//            primaryStage.hide();
-//
-//            // After successful login, you can close the login window and show the main app
-//            loginController.setOnLoginSuccess(() -> {
-//                // Close the login window
-//                loginStage.close();
-//
-//                // Show the main app
-//                primaryStage.show();
-//                showMainApp();  // Load the main app after login success
-//            });
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    private void showLoginWindow() {
+        try {
+            // Load the login FXML
+            FXMLLoader loginLoader = new FXMLLoader(getClass().getResource(LOGIN_FXML));
+            Parent loginRoot = loginLoader.load();
+
+            // Get the controller
+            LoginController loginController = loginLoader.getController();
+
+            // Create new stage for the login window
+            Stage loginStage = new Stage();
+            Scene loginScene = new Scene(loginRoot);
+
+            // Login window properties
+            loginStage.setTitle("Login");
+            loginStage.setScene(loginScene);
+            loginStage.initStyle(StageStyle.DECORATED);
+            loginStage.show();
+
+            // Hide the primary stage until login is successful
+            primaryStage.hide();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
