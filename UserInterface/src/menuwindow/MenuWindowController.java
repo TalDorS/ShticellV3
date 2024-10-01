@@ -116,4 +116,8 @@ public class MenuWindowController {
     public AvailableSheetTableController getAvailableSheetTableController() {
         return availableSheetTableComponentController;
     }
+
+    public void setUserName(String text) {
+        headerLoadComponentController.setUserName(text);
+    }
 }

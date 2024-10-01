@@ -2,9 +2,10 @@ package users;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class UsersManager {
-    private final Set<String> usersSet = new HashSet<>();
+    private Set<String> usersSet = ConcurrentHashMap.newKeySet(); // thread-safe
 
     // Method to add a new user by name
     public synchronized void addUser(String username) throws Exception {

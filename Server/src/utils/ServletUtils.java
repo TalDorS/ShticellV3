@@ -1,19 +1,19 @@
 package utils;
 
 import jakarta.servlet.ServletContext;
-import users.UsersManager;
+import user.UserManager;
 
 public class ServletUtils {
-    private static final String USER_MANAGER_ATTRIBUTE_NAME = "usersManager";
+    private static final String USER_MANAGER_ATTRIBUTE_NAME = "userManager";
     private static final Object userManagerLock = new Object();
 
-    public static UsersManager getUserManager(ServletContext servletContext) {
+    public static UserManager getUserManager(ServletContext servletContext) {
 
         synchronized (userManagerLock) {
             if (servletContext.getAttribute(USER_MANAGER_ATTRIBUTE_NAME) == null) {
-                servletContext.setAttribute(USER_MANAGER_ATTRIBUTE_NAME, new UsersManager());
+                servletContext.setAttribute(USER_MANAGER_ATTRIBUTE_NAME, new UserManager());
             }
         }
-        return (UsersManager) servletContext.getAttribute(USER_MANAGER_ATTRIBUTE_NAME);
+        return (UserManager) servletContext.getAttribute(USER_MANAGER_ATTRIBUTE_NAME);
     }
 }

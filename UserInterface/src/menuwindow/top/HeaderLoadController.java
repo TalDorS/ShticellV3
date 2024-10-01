@@ -36,7 +36,7 @@ public class HeaderLoadController {
         this.mainController = MenuWindowController;
     }
 
-    private void setUsername(String username) {
+    public void setUserName(String username) {
         nameLabel.setText(username);
     }
 
