@@ -35,12 +35,6 @@ public class LoginServlet extends HttpServlet {
                     HttpSession session = req.getSession(true);
                     session.setAttribute("username", username);
 
-                    // Set a session cookie
-                    Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
-                    sessionCookie.setHttpOnly(true);
-                    sessionCookie.setMaxAge(30 * 60); // TODO - check if needed TAL
-                    resp.addCookie(sessionCookie);
-
                     // Success response
                     resp.setContentType("application/json");
                     resp.getWriter().write(new Gson().toJson("Login Successful"));

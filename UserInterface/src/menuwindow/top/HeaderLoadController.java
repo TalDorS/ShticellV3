@@ -36,7 +36,7 @@ public class HeaderLoadController {
         this.mainController = MenuWindowController;
     }
 
-    private void setUsername(String username) {
+    public void setUsername(String username) {
         nameLabel.setText(username);
     }
 
@@ -44,6 +44,7 @@ public class HeaderLoadController {
     public void initialize() {
         loadFileButton.setOnAction(event -> handleLoadFileButtonAction());
     }
+
     @FXML
     // Handle the Load File button action
     private void handleLoadFileButtonAction() {
