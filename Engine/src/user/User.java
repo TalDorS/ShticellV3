@@ -1,15 +1,15 @@
-package client;
+package user;
 
 import versions.VersionsManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Client {
+public class User {
     private String name; // Client's name
     private Map<String, VersionsManager> cachedFilesVersions; // Maps file names (filepath)to their versions manager
 
-    public Client(String name) {
+    public User(String name) {
         this.name = name;
         this.cachedFilesVersions = new HashMap<>();
     }
