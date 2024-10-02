@@ -1,7 +1,7 @@
 package app;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import manager.AppManager;
+import manager.SpreadsheetManager;
 
 
 public class Main  extends Application {
@@ -13,7 +13,7 @@ public class Main  extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        AppManager manager = new AppManager(stage);
+        SpreadsheetManager manager = new SpreadsheetManager(stage);
         manager.runApp();
     }
 }
