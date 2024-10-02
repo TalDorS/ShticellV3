@@ -1,5 +1,7 @@
 package gridwindow.leftside;
 
+import exceptions.engineexceptions.FileNotFoundException;
+import exceptions.engineexceptions.UserNotFoundException;
 import gridwindow.leftside.addrangedialog.AddRangeDialogController;
 import gridwindow.leftside.filterdialog.FilterDialogController;
 import gridwindow.leftside.graphdialog.GraphDialogController;
@@ -113,7 +115,15 @@ public class LeftSideController {
 
         // Create the delete button
         Button deleteButton = new Button("Delete");
-        deleteButton.setOnAction(event -> handleDeleteRange(name));
+        deleteButton.setOnAction(event -> {
+            try {
+                handleDeleteRange(name);
+            } catch (UserNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         // Add mouse hover events to change the background of relevant cells
         rangePane.setOnMouseEntered(event -> handleMouseHover(firstCell, lastCell, true));
@@ -135,13 +145,13 @@ public class LeftSideController {
         mainController.highlightRange(firstCell, lastCell, isHovering); // Delegate to AppController
     }
 
-    private void handleDeleteRange(String rangeName) {
+    private void handleDeleteRange(String rangeName) throws UserNotFoundException, FileNotFoundException {
         mainController.deleteRange(rangeName); // Pass the delete request to the AppController
         refreshRanges(); // Refresh the ranges to update the UI
     }
 
     // Method to refresh the range list in the UI
-    public void refreshRanges() {
+    public void refreshRanges() throws UserNotFoundException, FileNotFoundException {
         // Clear the current list of ranges
         rangesAccordion.getPanes().clear();
 
@@ -234,6 +244,10 @@ public class LeftSideController {
         } catch (IOException e) {
             e.printStackTrace();
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Opening Graph Dialog", e.getMessage());
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

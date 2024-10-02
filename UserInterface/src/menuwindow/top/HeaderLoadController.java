@@ -181,5 +181,7 @@ public class HeaderLoadController {
     }
 
 
-
+    public String getUserName() {
+        return nameLabel.getText();
+    }
 }

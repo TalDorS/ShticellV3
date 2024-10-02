@@ -10,7 +10,6 @@ public class Main extends Application {
     AppManager manager;
 
     public static void main(String[] args) {
-        Thread.currentThread().setName("Main");
         launch(args);
     }
 
@@ -18,7 +17,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         // Start the first client when the application launches
         manager = new AppManager(primaryStage);
-        manager.launchNewClient();
+        manager.runApp();
     }
 
     @Override
@@ -26,5 +25,4 @@ public class Main extends Application {
         HttpClientUtil.shutdown();
         manager.closeApp();
     }
-
 }

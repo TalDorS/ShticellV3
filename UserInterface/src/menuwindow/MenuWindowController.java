@@ -1,32 +1,40 @@
 package menuwindow;
 
 import api.Engine;
-import dto.EngineDTO;
-import dto.SpreadsheetDTO;
 import engineimpl.EngineImpl;
 import exceptions.engineexceptions.*;
 import gridwindow.GridWindowController;
-import gridwindow.top.Skin;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import menuwindow.center.AvailableSheetTableController;
 import menuwindow.rightside.RightSideController;
 import menuwindow.top.HeaderLoadController;
+import okhttp3.*;
+import utils.ClientConstants;
+import utils.SimpleCookieManager;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static utils.CommonResourcesPaths.GRID_WINDOW_FXML;
 
 public class MenuWindowController {
+    private Stage stage; // To hold the stage reference
     private Stage gridWindowStage;
     private Engine engine;
+
+    private OkHttpClient client;
+    private SimpleCookieManager cookieManager;
+
     @FXML
-    private HeaderLoadController headerLoadComponentController;//fixme
+    private HeaderLoadController headerLoadComponentController;
 
     @FXML
     private RightSideController rightSideComponentController;
@@ -37,7 +45,8 @@ public class MenuWindowController {
     @FXML
     public void initialize() {
 
-        if (headerLoadComponentController != null) { //fixme
+
+        if (headerLoadComponentController != null) {
             headerLoadComponentController.setMainController(this);
         }
         if( rightSideComponentController != null){
@@ -46,9 +55,64 @@ public class MenuWindowController {
         if(availableSheetTableComponentController != null){
             availableSheetTableComponentController.setMainController(this);
         }
-
         engine = new EngineImpl();
 
+    }
+
+    public void setOkHttpClient(OkHttpClient client) {
+        this.client = client;
+    }
+
+    public void setCookieManager(SimpleCookieManager cookieManager) {
+        this.cookieManager = cookieManager;
+    }
+
+    // Method to set the stage
+    public void setStage(Stage stage) {
+        this.stage = stage;
+        // Add a listener to the window close event
+        stage.setOnCloseRequest(this::handleWindowClose);
+    }
+
+    // Method to handle the window close event and call the logout servlet
+    private void handleWindowClose(WindowEvent event) {
+        String finalUrl = HttpUrl
+                .parse(ClientConstants.LOGOUT)
+                .url()
+                .toString();
+
+        // Create the logout request without cookies
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .build();
+
+        // Log the cookies being sent
+        System.out.println("Cookies being sent with logout request: " + cookieManager.loadForRequest(HttpUrl.parse(finalUrl)));
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // Optionally log or handle logout failure
+                System.out.println("Logout request failed: " + e.getMessage());
+                Platform.exit(); // Exit after handling response
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    System.out.println("Logout successful");
+                    cookieManager.removeCookiesOf(HttpUrl.parse(finalUrl).host());
+                } else {
+                    System.err.println("Logout failed with response code: " + response.code());
+                }
+                response.close();
+                Platform.exit(); // Exit after handling response
+            }
+        });
+    }
+
+    public String getUserName() {
+        return  headerLoadComponentController.getUserName();
     }
 
     //todo- fix that when pression view sheet button the sheet will be shown
@@ -56,7 +120,8 @@ public class MenuWindowController {
             CircularReferenceException, RangeProcessException {
         // Load the spreadsheet and update components on the JavaFX Application Thread
         try {
-            engine.loadSpreadsheet(filePath);
+            String userName = headerLoadComponentController.getUserName();
+            engine.loadSpreadsheet(filePath, userName);
             if (availableSheetTableComponentController != null) {
                 Platform.runLater(() -> availableSheetTableComponentController.addFilePathToTable(filePath));
             }
@@ -67,7 +132,7 @@ public class MenuWindowController {
         }
     }
 
-    public void showGridWindow(String filePath) {
+    public void showGridWindow(String filePath, String sheetName) {
         try {
             if (gridWindowStage == null) {  // Initialize the stage if it hasn't been created
                 gridWindowStage = new Stage();
@@ -78,7 +143,10 @@ public class MenuWindowController {
 
             // Get the GridWindowController and pass the file path
             GridWindowController gridWindowController = appLoader.getController();
+            gridWindowController.setName(sheetName); //fixme do i need? maybe later we need the file name to be unique
             gridWindowController.setSpreadsheetData(filePath); // Assuming this method exists to set data
+            gridWindowController.setFilePath(filePath);
+            gridWindowController.setUserName(headerLoadComponentController.getUserName());
 
             // Set up the scene and stage for the new Grid Window
             Scene scene = new Scene(root);

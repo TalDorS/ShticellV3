@@ -3,20 +3,21 @@ package filter;
 import api.Engine;
 import cells.Cell;
 import spreadsheet.Spreadsheet;
+import versions.VersionsManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class SpreadsheetFilter {
-    private final Engine engine;
+    private final VersionsManager versionsManager;
 
-    public SpreadsheetFilter(Engine engine) {
-        this.engine = engine;
+    public SpreadsheetFilter(VersionsManager versionsManager) {
+        this.versionsManager = versionsManager;
     }
 
     public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) {
-        Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet();
+        Spreadsheet currentSpreadsheet = versionsManager.getCurrentSpreadsheet();
 
         if (currentSpreadsheet == null) {
             return new ArrayList<>(); // Return empty list if no spreadsheet is loaded
@@ -58,8 +59,8 @@ public class SpreadsheetFilter {
     private int[] getColumnRange(String topLeftCell, String bottomRightCell) {
         String startColumn = topLeftCell.replaceAll("\\d", "");
         String endColumn = bottomRightCell.replaceAll("\\d", "");
-        int startColumnIndex = engine.getColumnIndex(startColumn);
-        int endColumnIndex = engine.getColumnIndex(endColumn);
+        int startColumnIndex = versionsManager.getColumnIndex(startColumn);
+        int endColumnIndex = versionsManager.getColumnIndex(endColumn);
 
         return new int[]{startColumnIndex, endColumnIndex};
     }
@@ -102,7 +103,7 @@ public class SpreadsheetFilter {
     // Determines if a row should be included in the filtered results
     private boolean shouldIncludeRow(Spreadsheet spreadsheet, int row, int[] columnRange, String[] rowData, Map<String, List<String>> selectedColumnValues) {
         for (int colIndex = columnRange[0]; colIndex <= columnRange[1]; colIndex++) {
-            String cellId = engine.getColumnName(colIndex) + row;
+            String cellId = versionsManager.getColumnName(colIndex) + row;
             String cellValue = getCellValue(spreadsheet, cellId);
             rowData[colIndex - columnRange[0]] = cellValue; // Store cell value in row data array
 
@@ -124,7 +125,7 @@ public class SpreadsheetFilter {
 
     // Checks if a cell value matches the filter criteria
     private boolean isCellValueMatching(int[] columnRange, int colIndex, String cellValue, Map<String, List<String>> selectedColumnValues) {
-        String columnName = engine.getColumnName(colIndex);
+        String columnName = versionsManager.getColumnName(colIndex);
 
         if (selectedColumnValues.containsKey(columnName)) {
             List<String> valuesToMatch = selectedColumnValues.get(columnName);

@@ -1,6 +1,8 @@
 package gridwindow.leftside.filterdialog;
 
 import cells.Cell;
+import exceptions.engineexceptions.FileNotFoundException;
+import exceptions.engineexceptions.UserNotFoundException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -40,17 +42,29 @@ public class FilterDialogController {
     public void initialize() {
         // Set the default behavior for the tableAreaField
         tableAreaField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (getValidatedTableArea() != null) {
-                updateRelevantColumns();
-                // Enable and show selectValuesButton
-                selectValuesButton.setDisable(false);
-                selectValuesButton.setOpacity(1.0);
-            } else {
-                clearColumns();
-                // Disable and hide selectValuesButton
-                selectValuesButton.setDisable(true);
-                selectValuesButton.setOpacity(0.3);
+            try {
+                if (getValidatedTableArea() != null) {
+                    try {
+                        updateRelevantColumns();
+                    } catch (UserNotFoundException e) {
+                        throw new RuntimeException(e);
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    // Enable and show selectValuesButton
+                    selectValuesButton.setDisable(false);
+                    selectValuesButton.setOpacity(1.0);
+                } else {
+                    clearColumns();
+                    // Disable and hide selectValuesButton
+                    selectValuesButton.setDisable(true);
+                    selectValuesButton.setOpacity(0.3);
 
+                }
+            } catch (UserNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
             }
         });
     }
@@ -65,7 +79,7 @@ public class FilterDialogController {
         selectedColumnValues.clear();
     }
 
-    private void updateRelevantColumns() {
+    private void updateRelevantColumns() throws UserNotFoundException, FileNotFoundException {
         // Retrieve and validate the table area input from the user
         String tableArea = getValidatedTableArea();
         if (tableArea == null) return; // Exit if validation fails
@@ -84,7 +98,7 @@ public class FilterDialogController {
         updateMenuButtonWithRelevantColumns(startColumnIndex, endColumnIndex);
     }
 
-    private String getValidatedTableArea() {
+    private String getValidatedTableArea() throws UserNotFoundException, FileNotFoundException {
         String tableArea = tableAreaField.getText().trim().toUpperCase();
 
         if (tableArea.isEmpty()) {
@@ -134,7 +148,7 @@ public class FilterDialogController {
         return isCellWithinBounds(cellReference);
     }
 
-    private boolean isValidCellRange(String topLeftCell, String bottomRightCell) {
+    private boolean isValidCellRange(String topLeftCell, String bottomRightCell) throws UserNotFoundException, FileNotFoundException {
         int startRow = Integer.parseInt(topLeftCell.replaceAll("\\D", ""));
         int endRow = Integer.parseInt(bottomRightCell.replaceAll("\\D", ""));
         String startColumn = topLeftCell.replaceAll("\\d", "");
@@ -146,7 +160,7 @@ public class FilterDialogController {
         return (startColumnIndex < endColumnIndex) || (startColumnIndex == endColumnIndex && startRow <= endRow);
     }
 
-    private void updateMenuButtonWithRelevantColumns(int startColumnIndex, int endColumnIndex) {
+    private void updateMenuButtonWithRelevantColumns(int startColumnIndex, int endColumnIndex) throws UserNotFoundException, FileNotFoundException {
         // Clear previous checkboxes
         columnsCheckBoxContainer.getChildren().clear();
         selectedColumns.clear();
@@ -243,7 +257,7 @@ public class FilterDialogController {
     }
 
     @FXML
-    private void handleApplyFilter() {
+    private void handleApplyFilter() throws UserNotFoundException, FileNotFoundException {
         // Parse the table area
         String tableArea = tableAreaField.getText().trim().toUpperCase();
 
@@ -265,7 +279,7 @@ public class FilterDialogController {
         showFilteredResultsGrid(filteredRows);
     }
 
-    private void showFilteredResultsGrid(List<String[][]> filteredRows) {
+    private void showFilteredResultsGrid(List<String[][]> filteredRows) throws UserNotFoundException, FileNotFoundException {
         Stage stage = new Stage();
         stage.setTitle("Filtered Results");
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -379,6 +393,10 @@ public class FilterDialogController {
         } catch (NumberFormatException e) {
             // If row parsing fails, it's an invalid cell ID
             return false;
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

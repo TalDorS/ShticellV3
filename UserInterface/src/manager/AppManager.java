@@ -54,11 +54,11 @@ public class AppManager {
     }
 
     // Method to run a new client after a successful login, spawning a new window (Stage)
-    public void runNewClient() {
-        Stage newStage = new Stage();  // Create a new Stage (window)
-        AppManager newClientManager = new AppManager(newStage);  // Create a new AppManager for the new window
-        newClientManager.showMenuWindow();  // Load the client window (or the app's main window)
-    }
+//    public void runNewClient() {
+//        Stage newStage = new Stage();  // Create a new Stage (window)
+//        AppManager newClientManager = new AppManager(newStage);  // Create a new AppManager for the new window
+//        newClientManager.showMenuWindow();  // Load the client window (or the app's main window)
+//    }
 
     private void showWelcomeScreen() {
         try {
@@ -157,12 +157,12 @@ public class AppManager {
         Platform.exit();  // Shuts down the entire application
     }
 
-    // Method to start a new client thread
-    public void launchNewClient() {
-        Thread clientThread = new Thread(() -> {
-            Platform.runLater(this::showLoginWindow);
-        });
-        clientThread.setDaemon(true); // Set as a daemon thread
-        clientThread.start();
-    }
+//    // Method to start a new client thread
+//    public void launchNewClient() {
+//        Thread clientThread = new Thread(() -> {
+//            Platform.runLater(this::showLoginWindow);
+//        });
+//        clientThread.setDaemon(true); // Set as a daemon thread
+//        clientThread.start();
+//    }
 }

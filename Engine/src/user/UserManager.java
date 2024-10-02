@@ -18,9 +18,6 @@ public class UserManager {
     }
 
     public synchronized void addUser(String username) throws Exception {
-//        if (usersSet.contains(username)) {
-//            throw new Exception("User with the name '" + username + "' already exists.");
-//        }
         usersSet.add(username);
     }
 
@@ -33,7 +30,14 @@ public class UserManager {
     }
 
     public boolean isUserExists(String username) {
-        return usersSet.contains(username);
+
+        // Iterate through the set and check for case-insensitive match
+        for (String existingUser : usersSet) {
+            if (existingUser.equalsIgnoreCase(username)) {
+                return true; // User exists
+            }
+        }
+        return false; // User does not exist
     }
 
 }

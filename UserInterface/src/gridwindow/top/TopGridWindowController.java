@@ -27,8 +27,12 @@ public class TopGridWindowController {
         this.mainController = gridWindowController;
     }
 
-    private void setUsername(String username) {
+    public void setUsername(String username) {
         nameLabel.setText(username);
+    }
+
+    public String getUsername() {
+        return nameLabel.getText();
     }
 
     private void handleColorDisplay() {

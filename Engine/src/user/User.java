@@ -4,31 +4,45 @@ import versions.VersionsManager;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class User {
     private String name; // Client's name
-    private Map<String, VersionsManager> cachedFilesVersions; // Maps file names (filepath)to their versions manager
+   // private Map<String, VersionsManager> cachedFilesVersions; // Maps file names (filepath)to their versions manager
 
     public User(String name) {
         this.name = name;
-        this.cachedFilesVersions = new HashMap<>();
+        //this.cachedFilesVersions = new HashMap<>();
     }
 
-    public String getName() {
+    public String getUserName() {
         return name;
     }
 
-    public Map<String, VersionsManager> getCachedFilesVersions() {
-        return cachedFilesVersions;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(name, user.name);
     }
 
-    public void addCachedFile(String filePath, VersionsManager versionsManager) {
-        cachedFilesVersions.put(filePath, versionsManager);
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
     }
 
-    public void removeCachedFile(String filePath) {
-        cachedFilesVersions.remove(filePath);
-    }
+//    public Map<String, VersionsManager> getCachedFilesVersions() {
+//        return cachedFilesVersions;
+//    }
+
+//    public void addCachedFile(String filePath, VersionsManager versionsManager) {
+//        cachedFilesVersions.put(filePath, versionsManager);
+//    }
+
+//    public void removeCachedFile(String filePath) {
+//        cachedFilesVersions.remove(filePath);
+//    }
 
 }
 

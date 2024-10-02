@@ -2,7 +2,6 @@ package loginwindow;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,20 +10,22 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
-import manager.AppManager;
 import menuwindow.MenuWindowController;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-import utils.Constants;
+import utils.ClientConstants;
 import utils.HttpClientUtil;
+import utils.SimpleCookieManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoginController {
+import static utils.CommonResourcesPaths.MENU_WINDOW_FXML;
 
+public class LoginController {
 
     @FXML
     private TextField userNameField;
@@ -35,25 +36,12 @@ public class LoginController {
     @FXML
     private Label messageLabel;
 
-
-    private CookieJar cookieJar = new CookieJar() {
-        private List<Cookie> cookies = new ArrayList<>();
-
-        @Override
-        public void saveFromResponse(@NotNull HttpUrl httpUrl, @NotNull List<Cookie> cookies) {
-            this.cookies = cookies;
-        }
-
-        @NotNull
-        @Override
-        public List<Cookie> loadForRequest(@NotNull HttpUrl httpUrl) {
-            return cookies != null ? cookies : new ArrayList<>();
-        }
-    };
+    // Create an instance of SimpleCookieManager
+    private SimpleCookieManager cookieManager = new SimpleCookieManager();
 
     private OkHttpClient client = new OkHttpClient
             .Builder()
-            .cookieJar(cookieJar)
+            .cookieJar(cookieManager)
             .build();
 
     @FXML
@@ -65,7 +53,7 @@ public class LoginController {
             return;
         }
         String finalUrl = HttpUrl
-                .parse(Constants.LOGIN_PAGE)
+                .parse(ClientConstants.LOGIN_PAGE)
                 .newBuilder()
                 .addQueryParameter("username", userName)
                 .build()
@@ -86,10 +74,15 @@ public class LoginController {
                             messageLabel.setText("Something went wrong:\n" + responseBody)
                     );
                 } else {
+                    // Extract cookies from response headers
+                    List<Cookie> responseCookies = Cookie.parseAll(HttpUrl.parse(finalUrl), response.headers());
+
+                    // Save cookies in the SimpleCookieManager
+                    cookieManager.saveFromResponse(HttpUrl.parse(finalUrl), responseCookies);
+
                     Platform.runLater(() -> {
                         messageLabel.setText("Login successful");
-
-                        PauseTransition pause = new PauseTransition(Duration.seconds(1)); // Set the delay to 1 seconds
+                        PauseTransition pause = new PauseTransition(Duration.seconds(0.5)); // Set the delay to 1 seconds
                         pause.setOnFinished(event -> proceedToMenuWindow()); // Proceed to the menu window after the pause
                         pause.play(); // Start the pause transition
                     });
@@ -102,18 +95,28 @@ public class LoginController {
     private void proceedToMenuWindow() {
         try {
             // Load the Menu screen
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/menuwindow/MenuWindow.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(MENU_WINDOW_FXML));
             Parent menuRoot = loader.load();
 
             // Set the username in the menu window
             MenuWindowController menuController = loader.getController();
             menuController.setUserName(userNameField.getText());
 
+            // Pass the OkHttpClient instance
+            menuController.setOkHttpClient(client);
+
+            // Pass the SimpleCookieManager instance
+            menuController.setCookieManager(cookieManager);
+
             // Set the scene to the menu
             Stage stage = (Stage) loginButton.getScene().getWindow();  // Get the current window
             stage.setTitle("Menu Window for " + userNameField.getText());
+            // Pass the stage to the menu controller
+            menuController.setStage(stage);
+            // Set the new scene and show it
             Scene menuScene = new Scene(menuRoot);
             stage.setScene(menuScene);
+
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -123,5 +126,39 @@ public class LoginController {
 
     public void setMessageLabel(String message) {
         this.messageLabel.setText(message);
+    }
+
+    // Method to handle the window close event and call the logout servlet
+    private void handleWindowClose(WindowEvent event) {
+        String finalUrl = HttpUrl
+                .parse(ClientConstants.LOGOUT)
+                .url()
+                .toString();
+
+        // Create the logout request
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .build();
+
+        // Make the logout request
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // Optionally log or handle logout failure
+                System.out.println("Logout request failed: " + e.getMessage());
+                Platform.exit(); // Exit after handling response
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    System.out.println("Logout successful");
+                } else {
+                    System.err.println("Logout failed with response code: " + response.code());
+                }
+                response.close();
+                Platform.exit(); // Exit after handling response
+            }
+        });
     }
 }

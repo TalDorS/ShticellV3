@@ -51,6 +51,8 @@ public class GridWindowController {
     private Engine engine;
     private List<FadeTransition> activeFadeTransitions = new ArrayList<>();  // List to store all active transitions
     private List<RotateTransition> activeRotateTransitions = new ArrayList<>();  // List to store all active transitions
+    private String filePath;
+    private String userName;
 
     @FXML
     private ScrollPane scrollPane;
@@ -104,11 +106,17 @@ public class GridWindowController {
         engine = new EngineImpl();
     }
 
+    public void setName(String name) {
+        if (topGridWindowComponentController != null) {
+            topGridWindowComponentController.setUsername(name);
+        }
+    }
+
     public void setSpreadsheetData(String filePath) throws CellUpdateException, InvalidExpressionException,
             SpreadsheetLoadingException, RangeProcessException, CircularReferenceException {
         try{
-            engine.loadSpreadsheet(filePath);
-            EngineDTO engineDTO = engine.getEngineData();
+            engine.loadSpreadsheet(filePath, userName); //
+            EngineDTO engineDTO = engine.getEngineData(userName,filePath);
             int currentVersionNumber = engineDTO.getCurrentVersionNumber();
             SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
 
@@ -124,7 +132,13 @@ public class GridWindowController {
                 mainGridAreaComponentController.start(spreadsheetDTO, false);
 
                 // Refresh any dependent UI elements (ranges, etc.)
-                leftSideComponentController.refreshRanges();
+                try {
+                    leftSideComponentController.refreshRanges();
+                } catch (UserNotFoundException e) {
+                    throw new RuntimeException(e);
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
             });
         }catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
             // Rethrow exceptions to be handled by the calling code or task
@@ -176,9 +190,10 @@ public class GridWindowController {
     // It updates the relevant cell with its new info
     public void updateCellValue(String cellId, String newValue) {
         try {
+
             // Update the value in the engine
-            engine.updateCellValue(cellId, newValue);
-            EngineDTO engineDTO = engine.getEngineData();
+            engine.updateCellValue(userName,filePath,cellId, newValue);
+            EngineDTO engineDTO = engine.getEngineData(userName, filePath);
             int currentVersionNumber = engineDTO.getCurrentVersionNumber();
             SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
             CellDTO currentCellDTO = spreadsheetDTO.getCellById(cellId);
@@ -215,7 +230,7 @@ public class GridWindowController {
     private void updateDependentCells(String cellId, Boolean isDynamicAnalysis) {
         try {
             // Retrieve the map of dependent cells from the current cell
-            Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet();
+            Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet(userName, this.filePath);
             Map<String, Cell> dependentCellsMap = currentSpreadsheet.getCellById(cellId).getDependsOnMe();
 
             if (dependentCellsMap != null) { // Check if there are any dependent cells
@@ -253,7 +268,7 @@ public class GridWindowController {
         try {
             firstCell = firstCell.toUpperCase();
             lastCell = lastCell.toUpperCase();
-            engine.addRange(name, firstCell, lastCell); // Add range to the backend engine
+            engine.addRange(userName,filePath,name, firstCell, lastCell); // Add range to the backend engine
             leftSideComponentController.addRangeToUI(name, firstCell, lastCell); // Update the UI
             AlertUtils.showAlert(Alert.AlertType.INFORMATION, "Success", "Range created successfully.");
         } catch (Exception e) {
@@ -264,7 +279,7 @@ public class GridWindowController {
     public void deleteRange(String rangeName) {
         try {
             // Delete range from the backend engine
-            engine.removeRange(rangeName);
+            engine.removeRange(userName, filePath, rangeName);
             leftSideComponentController.refreshRanges(); // Refresh the ranges in UI
         } catch (Exception e) {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Deleting Range", e.getMessage());
@@ -274,8 +289,8 @@ public class GridWindowController {
     public void handleSortRequest(String range, List<String> columnsToSortBy) {
         try {
             // Assuming you have a method in the engine to sort the spreadsheet
-            Spreadsheet sortedSpreadsheet = new Spreadsheet(engine.getCurrentSpreadsheet());
-            Map<String,String> idMapping = engine.sortSpreadsheet(sortedSpreadsheet, range, columnsToSortBy);
+            Spreadsheet sortedSpreadsheet = new Spreadsheet(engine.getCurrentSpreadsheet(userName,filePath));
+            Map<String,String> idMapping = engine.sortSpreadsheet(userName, filePath, sortedSpreadsheet, range, columnsToSortBy);
 
             // Step 2: Convert the sorted spreadsheet (domain model) to a SpreadsheetDTO
             SpreadsheetDTO sortedSpreadsheetDTO = engine.convertSpreadsheetToDTO(sortedSpreadsheet);
@@ -294,9 +309,9 @@ public class GridWindowController {
     }
 
     // Method to get the current ranges from the backend engine
-    public Map<String, String[]> getRanges() {
+    public Map<String, String[]> getRanges() throws UserNotFoundException, FileNotFoundException {
         // Fetch the ranges from the backend engine
-        Map<String, Range> ranges = engine.getAllRanges();
+        Map<String, Range> ranges = engine.getAllRanges(userName, filePath);
         Map<String, String[]> formattedRanges = new HashMap<>();
 
         // Convert each Range object to a String[] format
@@ -310,7 +325,8 @@ public class GridWindowController {
     }
 
     public List<VersionDTO> getVersionsForMenu() {
-        EngineDTO engineDTO = engine.getEngineData();
+
+        EngineDTO engineDTO = engine.getEngineData(userName, this.filePath);
         Map<Integer, VersionDTO> versionMap = engineDTO.getVersions();
 
         // Convert the map values (VersionDTO) to a list and return it
@@ -319,7 +335,7 @@ public class GridWindowController {
 
 
     public boolean isSpreadsheetLoaded() {
-        return engine.getCurrentSpreadsheet() != null;
+        return engine.getCurrentSpreadsheet(userName,filePath) != null;
     }
 
     public void setSkin(String theme) {
@@ -450,15 +466,15 @@ public class GridWindowController {
     }
 
     public Cell getCellById(String cellId) {
-        return engine.getCurrentSpreadsheet().getCellById(cellId);
+        return engine.getCurrentSpreadsheet(userName,filePath).getCellById(cellId);
     }
 
-    public Spreadsheet getSpreadsheetByVersion(int versionNumber) {
-        return engine.getSpreadsheetByVersion(versionNumber);
+    public Spreadsheet getSpreadsheetByVersion(int versionNumber) throws UserNotFoundException, FileNotFoundException {
+        return engine.getSpreadsheetByVersion(userName, filePath,versionNumber);
     }
 
-    public List<String> getCurrentColumns() {
-        Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet();
+    public List<String> getCurrentColumns() throws UserNotFoundException, FileNotFoundException {
+        Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet(userName,filePath);
         if (currentSpreadsheet == null) {
             return new ArrayList<>(); // Return an empty list if no spreadsheet is loaded
         }
@@ -474,21 +490,21 @@ public class GridWindowController {
     }
 
     // Helper method to convert a zero-based column index to an Excel-style column name (A, B, C, ..., Z, AA, AB, ...)
-    public String getColumnName(int index) {
-        return engine.getColumnName(index);
+    public String getColumnName(int index) throws UserNotFoundException, FileNotFoundException {
+        return engine.getColumnName(userName, filePath,index);
     }
 
     public Spreadsheet getCurrentSpreadsheet() {
-        return engine.getCurrentSpreadsheet();
+        return engine.getCurrentSpreadsheet(userName,filePath);
     }
 
-    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) {
-        return engine.filterTableMultipleColumns(tableArea, selectedColumnValues);
+    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws UserNotFoundException, FileNotFoundException {
+        return engine.filterTableMultipleColumns(userName, filePath, tableArea, selectedColumnValues);
     }
 
     // Helper method to convert a column letter (e.g., "A") to a zero-based index
-    public int getColumnIndex(String columnName) {
-        return engine.getColumnIndex(columnName);
+    public int getColumnIndex(String columnName) throws UserNotFoundException, FileNotFoundException {
+        return engine.getColumnIndex(userName, filePath,columnName);
     }
 
     public void updateDependentCellsForDynamicAnalysis(String cellId, double tempValue) {
@@ -564,9 +580,9 @@ public class GridWindowController {
         }
     }
 
-    public List<String> getRangeNames() {
+    public List<String> getRangeNames() throws UserNotFoundException, FileNotFoundException {
         // Fetch all ranges from the backend engine
-        Map<String, Range> ranges = engine.getAllRanges();
+        Map<String, Range> ranges = engine.getAllRanges(userName, filePath);
 
         // Extract range names and return them as a list
         return new ArrayList<>(ranges.keySet());
@@ -588,11 +604,11 @@ public class GridWindowController {
     }
 
     public EngineDTO getEngine() {
-        return engine.getEngineData();
+        return engine.getEngineData(userName, filePath);
     }
 
-    public void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException {
-        engine.checkForCircularReferences(cellId, newExpression);
+    public void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException, UserNotFoundException, FileNotFoundException {
+        engine.checkForCircularReferences(userName, filePath, cellId, newExpression);
     }
 
     @Override
@@ -618,7 +634,15 @@ public class GridWindowController {
                 dynamicAnalysisComponentController, topGridWindowComponentController);
     }
 
-    public Expression parseExpression (String input) throws InvalidExpressionException {
-        return engine.parseExpression(input);
+    public Expression parseExpression (String input) throws InvalidExpressionException, UserNotFoundException, FileNotFoundException {
+        return engine.parseExpression(userName, filePath, input);
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }
