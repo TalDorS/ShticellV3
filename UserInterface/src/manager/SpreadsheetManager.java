@@ -19,21 +19,25 @@ import static utils.CommonResourcesPaths.*;
 
 
 // This class manages the stages of the application, including the splash screen and the main app.
-public class AppManager {
+public class SpreadsheetManager {
 
-    private Stage loginStage;
     private Stage primaryStage;
-    private Stage gridStage;
 
-    public AppManager(Stage primaryStage) {
+    public SpreadsheetManager(Stage primaryStage) {
         this.primaryStage = primaryStage;
     }
 
     public void runApp() {
+        // Show the login window before the main app
+        //showLoginWindow();
+        showMenuWindow();
         showLoginWindow();
+
+        //showWelcomeScreen(); //fixme-it shows the loading app screen
+        //showGridWindow();
     }
 
-    public void showMenuWindow() {
+    private void showMenuWindow() {
         try{
             FXMLLoader menuLoader = new FXMLLoader(getClass().getResource(MENU_WINDOW_FXML));
             Parent menuRoot = menuLoader.load();
@@ -56,7 +60,7 @@ public class AppManager {
             Parent welcomeRoot = welcomeLoader.load();
 
             // Get the controller from the FXML loader
-            AppManagerController welcomeController = welcomeLoader.getController();
+            SpreadsheetManagerController welcomeController = welcomeLoader.getController();
 
             // Create a new Stage for the splash screen (undecorated)
             Stage splashStage = new Stage();
@@ -73,7 +77,7 @@ public class AppManager {
         }
     }
 
-    private void simulateLoading(AppManagerController welcomeController, Stage splashStage) {
+    private void simulateLoading(SpreadsheetManagerController welcomeController, Stage splashStage) {
         // Simulate progress for 1.5 seconds, then close the splash screen and open the main app
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.ZERO, event -> welcomeController.setProgress(0)),
@@ -118,25 +122,21 @@ public class AppManager {
 
             // Get the controller
             LoginController loginController = loginLoader.getController();
-            loginController.setMainController(this);
 
             // Create new stage for the login window
             Stage loginStage = new Stage();
             Scene loginScene = new Scene(loginRoot);
-            this.loginStage = loginStage;
 
             // Login window properties
             loginStage.setTitle("Login");
             loginStage.setScene(loginScene);
             loginStage.initStyle(StageStyle.DECORATED);
             loginStage.show();
+
+            // Hide the primary stage until login is successful
+            primaryStage.hide();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void moveFromLoginToMenu() {
-        this.loginStage.close();
-        showMenuWindow();
     }
 }

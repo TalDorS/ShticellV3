@@ -1,8 +1,6 @@
 package menuwindow;
 
 import api.Engine;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import dto.EngineDTO;
 import dto.SpreadsheetDTO;
 import engineimpl.EngineImpl;
@@ -12,15 +10,11 @@ import javafx.fxml.FXML;
 import menuwindow.center.AvailableSheetTableController;
 import menuwindow.rightside.RightSideController;
 import menuwindow.top.HeaderLoadController;
-import okhttp3.*;
 
-import java.io.IOException;
 import java.util.Objects;
 
 public class MenuWindowController {
     private Engine engine;
-    private OkHttpClient client = new OkHttpClient();
-
     @FXML
     private HeaderLoadController headerLoadComponentController;//fixme
 
@@ -32,6 +26,7 @@ public class MenuWindowController {
 
     @FXML
     public void initialize() {
+
         if (headerLoadComponentController != null) { //fixme
             headerLoadComponentController.setMainController(this);
         }
@@ -42,11 +37,8 @@ public class MenuWindowController {
             availableSheetTableComponentController.setMainController(this);
         }
 
-        // Initialize Engine
         engine = new EngineImpl();
 
-        // Load username from the server
-        fetchUsernameFromServer();
     }
 
     //todo- fix that when pression view sheet button the sheet will be shown
@@ -75,41 +67,6 @@ public class MenuWindowController {
             // Rethrow exceptions to be handled by the calling code or task
             throw e;
         }
-    }
-
-    private void fetchUsernameFromServer() {
-        Request request = new Request.Builder()
-                .url("http://localhost:8080/Server_Web_exploded/user-details")
-                .get()
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-           @Override
-           public void onFailure(Call call, IOException e) {
-               Platform.runLater(() -> headerLoadComponentController.setUsername("Error fetching username"));
-           }
-
-           @Override
-            public void onResponse(Call call, Response response) throws IOException {
-               if (response.isSuccessful()) {
-                   // Parse the response and get the username
-                   String responseBody = response.body().string();
-                   JsonObject jsonObject = new Gson().fromJson(responseBody, JsonObject.class);
-
-                   // Check if there's an error
-                   if (jsonObject.has("error")) {
-                       String error = jsonObject.get("error").getAsString();
-                       Platform.runLater(() -> headerLoadComponentController.setUsername(error));
-                   } else {
-                       // Set the username from the server
-                       String username = jsonObject.get("username").getAsString();
-                       Platform.runLater(() -> headerLoadComponentController.setUsername(username));
-                   }
-               } else {
-                   Platform.runLater(() -> headerLoadComponentController.setUsername("Failed to get username"));
-               }
-           }
-        });
     }
 
     @Override
