@@ -5,15 +5,25 @@ import dto.EngineDTO;
 import dto.SpreadsheetDTO;
 import engineimpl.EngineImpl;
 import exceptions.engineexceptions.*;
+import gridwindow.GridWindowController;
+import gridwindow.top.Skin;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import menuwindow.center.AvailableSheetTableController;
 import menuwindow.rightside.RightSideController;
 import menuwindow.top.HeaderLoadController;
 
+import java.io.IOException;
 import java.util.Objects;
 
+import static utils.CommonResourcesPaths.GRID_WINDOW_FXML;
+
 public class MenuWindowController {
+    private Stage gridWindowStage;
     private Engine engine;
     @FXML
     private HeaderLoadController headerLoadComponentController;//fixme
@@ -50,22 +60,43 @@ public class MenuWindowController {
             if (availableSheetTableComponentController != null) {
                 Platform.runLater(() -> availableSheetTableComponentController.addFilePathToTable(filePath));
             }
-            EngineDTO engineDTO = engine.getEngineData();
-            int currentVersionNumber = engineDTO.getCurrentVersionNumber();
-            SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
-
-            //todo- update the tableview with the new data, also when pressing the view sheet button the gridwindow will be opened
-            // Ensure UI updates are executed on the JavaFX Application Thread
-            Platform.runLater(() -> {
-                //mainGridAreaComponentController.clearGrid(); // Add a clearGrid() method to your controller if it doesn't exist
-               // optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber); // Update the current version label
-                //mainGridAreaComponentController.start(spreadsheetDTO, false);
-                //leftSideComponentController.refreshRanges();
-            });
 
         } catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
             // Rethrow exceptions to be handled by the calling code or task
             throw e;
+        }
+    }
+
+    public void showGridWindow(String filePath) {
+        try {
+            if (gridWindowStage == null) {  // Initialize the stage if it hasn't been created
+                gridWindowStage = new Stage();
+            }
+            // Load the FXML for the Grid Window
+            FXMLLoader appLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
+            Parent root = appLoader.load();
+
+            // Get the GridWindowController and pass the file path
+            GridWindowController gridWindowController = appLoader.getController();
+            gridWindowController.setSpreadsheetData(filePath); // Assuming this method exists to set data
+
+            // Set up the scene and stage for the new Grid Window
+            Scene scene = new Scene(root);
+            gridWindowStage.setTitle("Grid Scene");
+            gridWindowStage.setScene(scene);
+            gridWindowStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (CellUpdateException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidExpressionException e) {
+            throw new RuntimeException(e);
+        } catch (SpreadsheetLoadingException e) {
+            throw new RuntimeException(e);
+        } catch (RangeProcessException e) {
+            throw new RuntimeException(e);
+        } catch (CircularReferenceException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -80,5 +111,13 @@ public class MenuWindowController {
     @Override
     public int hashCode() {
         return Objects.hash(engine, headerLoadComponentController, rightSideComponentController, availableSheetTableComponentController);
+    }
+
+    public AvailableSheetTableController getAvailableSheetTableController() {
+        return availableSheetTableComponentController;
+    }
+
+    public void setUserName(String text) {
+        headerLoadComponentController.setUserName(text);
     }
 }

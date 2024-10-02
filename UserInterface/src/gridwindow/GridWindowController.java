@@ -104,29 +104,57 @@ public class GridWindowController {
         engine = new EngineImpl();
     }
 
-    //todo- move to another controller for the sceond screen ??
-    public void loadSpreadsheet(String filePath) throws SpreadsheetLoadingException, CellUpdateException, InvalidExpressionException,
-            CircularReferenceException, RangeProcessException {
-        // Load the spreadsheet and update components on the JavaFX Application Thread
-        try {
+    public void setSpreadsheetData(String filePath) throws CellUpdateException, InvalidExpressionException,
+            SpreadsheetLoadingException, RangeProcessException, CircularReferenceException {
+        try{
             engine.loadSpreadsheet(filePath);
             EngineDTO engineDTO = engine.getEngineData();
             int currentVersionNumber = engineDTO.getCurrentVersionNumber();
             SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
 
-            // Ensure UI updates are executed on the JavaFX Application Thread
+            // Update the table view with the new data and open the grid window when the view sheet button is pressed
             Platform.runLater(() -> {
-                mainGridAreaComponentController.clearGrid(); // Add a clearGrid() method to your controller if it doesn't exist
-                optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber); // Update the current version label
+                // Clear the grid (if necessary)
+                mainGridAreaComponentController.clearGrid();
+
+                // Update the current version label in the options bar
+                optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber);
+
+                // Populate the grid with the new spreadsheet data
                 mainGridAreaComponentController.start(spreadsheetDTO, false);
+
+                // Refresh any dependent UI elements (ranges, etc.)
                 leftSideComponentController.refreshRanges();
             });
-
-        } catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
+        }catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
             // Rethrow exceptions to be handled by the calling code or task
             throw e;
         }
     }
+
+    //todo- move to another controller for the sceond screen ??
+//    public void loadSpreadsheet(String filePath) throws SpreadsheetLoadingException, CellUpdateException, InvalidExpressionException,
+//            CircularReferenceException, RangeProcessException {
+//        // Load the spreadsheet and update components on the JavaFX Application Thread
+//        try {
+//            engine.loadSpreadsheet(filePath);
+//            EngineDTO engineDTO = engine.getEngineData();
+//            int currentVersionNumber = engineDTO.getCurrentVersionNumber();
+//            SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
+//
+//            // Ensure UI updates are executed on the JavaFX Application Thread
+//            Platform.runLater(() -> {
+//                mainGridAreaComponentController.clearGrid(); // Add a clearGrid() method to your controller if it doesn't exist
+//                optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber); // Update the current version label
+//                mainGridAreaComponentController.start(spreadsheetDTO, false);
+//                leftSideComponentController.refreshRanges();
+//            });
+//
+//        } catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
+//            // Rethrow exceptions to be handled by the calling code or task
+//            throw e;
+//        }
+//    }
 
     public void highlightRange(String firstCell, String lastCell, boolean isHighlight) {
         // Delegate to the MainGridAreaController

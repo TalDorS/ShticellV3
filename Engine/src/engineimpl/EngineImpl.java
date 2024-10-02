@@ -10,6 +10,7 @@ import filter.SpreadsheetFilter;
 import generatedschemafilesv2.*;
 import cells.Cell;
 import spreadsheet.Spreadsheet;
+import user.User;
 import versions.Version;
 import ranges.RangesManager;
 import java.util.*;
@@ -25,6 +26,8 @@ import versions.VersionsManager;
 //This class implements the api.Engine interface and manages the spreadsheet
 // First version of the spreadsheet will be index 1
 public class EngineImpl implements Engine {
+
+    private final Map<User, Map<String, VersionsManager>> clientFilesVersions;
     private final VersionsManager versionsManager;
     private final RangesManager rangesManager;
     private final SpreadsheetFilter spreadsheetFilterer;
@@ -36,6 +39,7 @@ public class EngineImpl implements Engine {
         this.versionsManager = new VersionsManager();
         this.rangesManager = new RangesManager();
         this.spreadsheetFilterer = new SpreadsheetFilter(this);
+        this.clientFilesVersions = new HashMap<>();
     }
 
     @Override

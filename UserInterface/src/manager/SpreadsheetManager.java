@@ -3,6 +3,7 @@ package manager;
 import gridwindow.GridWindowController;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -30,7 +31,7 @@ public class SpreadsheetManager {
     public void runApp() {
         // Show the login window before the main app
         //showLoginWindow();
-        showMenuWindow();
+        //showMenuWindow();
         showLoginWindow();
 
         //showWelcomeScreen(); //fixme-it shows the loading app screen
@@ -138,5 +139,15 @@ public class SpreadsheetManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void closeApp() {
+        // Close the primary stage
+        if (primaryStage != null) {
+            primaryStage.close();  // Closes the primary window
+        }
+
+        // Optionally exit the whole JavaFX application
+        Platform.exit();  // Shuts down the entire application
     }
 }
