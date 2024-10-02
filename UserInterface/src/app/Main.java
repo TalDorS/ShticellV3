@@ -1,13 +1,13 @@
 package app;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import manager.SpreadsheetManager;
+import manager.AppManager;
 import utils.HttpClientUtil;
 
 
 public class Main extends Application {
 
-    SpreadsheetManager manager;
+    AppManager manager;
 
     public static void main(String[] args) {
         Thread.currentThread().setName("Main");
@@ -15,9 +15,10 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
-        manager = new SpreadsheetManager(stage);
-        manager.runApp();
+    public void start(Stage primaryStage) {
+        // Start the first client when the application launches
+        manager = new AppManager(primaryStage);
+        manager.launchNewClient();
     }
 
     @Override
@@ -25,4 +26,5 @@ public class Main extends Application {
         HttpClientUtil.shutdown();
         manager.closeApp();
     }
+
 }

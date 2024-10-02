@@ -20,11 +20,11 @@ import static utils.CommonResourcesPaths.*;
 
 
 // This class manages the stages of the application, including the splash screen and the main app.
-public class SpreadsheetManager {
+public class AppManager {
 
     private Stage primaryStage;
 
-    public SpreadsheetManager(Stage primaryStage) {
+    public AppManager(Stage primaryStage) {
         this.primaryStage = primaryStage;
     }
 
@@ -53,6 +53,12 @@ public class SpreadsheetManager {
         }
     }
 
+    // Method to run a new client after a successful login, spawning a new window (Stage)
+    public void runNewClient() {
+        Stage newStage = new Stage();  // Create a new Stage (window)
+        AppManager newClientManager = new AppManager(newStage);  // Create a new AppManager for the new window
+        newClientManager.showMenuWindow();  // Load the client window (or the app's main window)
+    }
 
     private void showWelcomeScreen() {
         try {
@@ -61,7 +67,7 @@ public class SpreadsheetManager {
             Parent welcomeRoot = welcomeLoader.load();
 
             // Get the controller from the FXML loader
-            SpreadsheetManagerController welcomeController = welcomeLoader.getController();
+            AppManagerController welcomeController = welcomeLoader.getController();
 
             // Create a new Stage for the splash screen (undecorated)
             Stage splashStage = new Stage();
@@ -78,7 +84,7 @@ public class SpreadsheetManager {
         }
     }
 
-    private void simulateLoading(SpreadsheetManagerController welcomeController, Stage splashStage) {
+    private void simulateLoading(AppManagerController welcomeController, Stage splashStage) {
         // Simulate progress for 1.5 seconds, then close the splash screen and open the main app
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.ZERO, event -> welcomeController.setProgress(0)),
@@ -129,7 +135,7 @@ public class SpreadsheetManager {
             Scene loginScene = new Scene(loginRoot);
 
             // Login window properties
-            loginStage.setTitle("Login");
+            loginStage.setTitle("Login - New Client");
             loginStage.setScene(loginScene);
             loginStage.initStyle(StageStyle.DECORATED);
             loginStage.show();
@@ -149,5 +155,14 @@ public class SpreadsheetManager {
 
         // Optionally exit the whole JavaFX application
         Platform.exit();  // Shuts down the entire application
+    }
+
+    // Method to start a new client thread
+    public void launchNewClient() {
+        Thread clientThread = new Thread(() -> {
+            Platform.runLater(this::showLoginWindow);
+        });
+        clientThread.setDaemon(true); // Set as a daemon thread
+        clientThread.start();
     }
 }

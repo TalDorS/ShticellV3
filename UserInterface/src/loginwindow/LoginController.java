@@ -1,6 +1,8 @@
 package loginwindow;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,6 +11,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import manager.AppManager;
 import menuwindow.MenuWindowController;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +25,7 @@ import java.util.List;
 
 public class LoginController {
 
+
     @FXML
     private TextField userNameField;
 
@@ -29,6 +34,7 @@ public class LoginController {
 
     @FXML
     private Label messageLabel;
+
 
     private CookieJar cookieJar = new CookieJar() {
         private List<Cookie> cookies = new ArrayList<>();
@@ -74,16 +80,18 @@ public class LoginController {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseBody = response.body().string();
                 if (response.code() != 200) {
-                    String responseBody = response.body().string();
                     Platform.runLater(() ->
-                            messageLabel.setText("Something went wrong: " + responseBody)
+                            messageLabel.setText("Something went wrong:\n" + responseBody)
                     );
                 } else {
                     Platform.runLater(() -> {
                         messageLabel.setText("Login successful");
-                        //set the username in the menu window
-                        proceedToMenuWindow();
+
+                        PauseTransition pause = new PauseTransition(Duration.seconds(1)); // Set the delay to 1 seconds
+                        pause.setOnFinished(event -> proceedToMenuWindow()); // Proceed to the menu window after the pause
+                        pause.play(); // Start the pause transition
                     });
                 }
             }
@@ -103,7 +111,7 @@ public class LoginController {
 
             // Set the scene to the menu
             Stage stage = (Stage) loginButton.getScene().getWindow();  // Get the current window
-            stage.setTitle("Menu Scene");
+            stage.setTitle("Menu Window for " + userNameField.getText());
             Scene menuScene = new Scene(menuRoot);
             stage.setScene(menuScene);
             stage.show();
@@ -111,5 +119,9 @@ public class LoginController {
             e.printStackTrace();
             messageLabel.setText("Failed to load the menu.");
         }
+    }
+
+    public void setMessageLabel(String message) {
+        this.messageLabel.setText(message);
     }
 }

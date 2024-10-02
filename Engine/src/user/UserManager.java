@@ -18,9 +18,9 @@ public class UserManager {
     }
 
     public synchronized void addUser(String username) throws Exception {
-        if (usersSet.contains(username)) {
-            throw new Exception("User with the name '" + username + "' already exists.");
-        }
+//        if (usersSet.contains(username)) {
+//            throw new Exception("User with the name '" + username + "' already exists.");
+//        }
         usersSet.add(username);
     }
 

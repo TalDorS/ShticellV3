@@ -26,7 +26,7 @@ public class LoginServlet extends HttpServlet {
 
             String usernameFromParameter = request.getParameter(USERNAME);
 
-            System.out.println("Login request received with username: " + usernameFromParameter);
+            //System.out.println("Login request received with username: " + usernameFromParameter);
             if (usernameFromParameter == null || usernameFromParameter.isEmpty()) {
                 //no username in session and no username in parameter - not standard situation. it's a conflict
                 response.setStatus(HttpServletResponse.SC_CONFLICT);
@@ -36,7 +36,7 @@ public class LoginServlet extends HttpServlet {
 
                 synchronized (this) {
                     if (userManager.isUserExists(usernameFromParameter)) {
-                        String errorMessage = "Username " + usernameFromParameter + " already exists. Please enter a different username.";
+                        String errorMessage = "Username " + usernameFromParameter + " already exists.\n Please enter a different username.";
 
                         // stands for unauthorized as there is already such user with this name
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -71,56 +71,4 @@ public class LoginServlet extends HttpServlet {
 
 }
 
-//@WebServlet(name = "LoginServlet", urlPatterns = "/login")
-//public class LoginServlet extends HttpServlet {
-//    private UsersManager usersManager;
-//
-//    @Override
-//    public void init() {
-//        // Initialize UsersManager inside init() where ServletConfig is available
-//        usersManager = ServletUtils.getUserManager(getServletContext());
-//    }
-//
-//    @Override
-//    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-//        String username = req.getParameter("username");
-//        System.out.println("POST request received with username: " + req.getParameter("username"));
-//
-//        synchronized (usersManager) {
-//            // If username is already logged in, send an error response
-//            if (usersManager.isUserExist(username)) {
-//                resp.setStatus(HttpServletResponse.SC_CONFLICT);
-//                resp.getWriter().write(new Gson().toJson("User is already logged in."));
-//            } else {
-//                // Add user to the active users list
-//                try {
-//                    usersManager.addUser(username);
-//
-//                    // Create session and store user information
-//                    HttpSession session = req.getSession(true);
-//                    session.setAttribute("username", username);
-//
-//                    // Set a session cookie
-//                    Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
-//                    sessionCookie.setHttpOnly(true);
-//                    sessionCookie.setMaxAge(30 * 60); // TODO - check if needed TAL
-//                    resp.addCookie(sessionCookie);
-//
-//                    // Success response
-//                    resp.setContentType("application/json");
-//                    //resp.getWriter().write(new Gson().toJson("Login Successful"));
-//                    resp.getWriter().write("Login Successful");
-//                } catch (Exception e) {
-//                    // Handle user addition failure
-//                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//                    resp.getWriter().write(new Gson().toJson("Failed to log in user."));
-//                }
-//            }
-//        }
-//    }
-
-//    @Override
-//    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-//        resp.getWriter().write("GET request received"); // Test output
-//    }
 
