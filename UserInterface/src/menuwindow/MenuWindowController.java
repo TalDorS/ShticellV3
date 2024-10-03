@@ -22,16 +22,14 @@ import utils.SimpleCookieManager;
 import javafx.util.Pair;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static utils.AlertUtils.showAlert;
 import static utils.CommonResourcesPaths.GRID_WINDOW_FXML;
 
 public class MenuWindowController {
     private Stage stage; // To hold the stage reference
-    private Stage gridWindowStage;
+    private Map<String, Stage> gridWindowsStages = new HashMap<>();
     private Engine engine;
 
     private OkHttpClient client;
@@ -154,25 +152,33 @@ public class MenuWindowController {
 
     public void showGridWindow(String fileName, String userName) {
         try {
-            if (gridWindowStage == null) {  // Initialize the stage if it hasn't been created
-                gridWindowStage = new Stage();
+            if (!gridWindowsStages.containsKey(filePath)) {  // Initialize the stage if it hasn't been created
+                // Insert the new filepath to grid maps
+                gridWindowsStages.put(filePath, new Stage());
+
+                // Get it
+                Stage gridWindowStage = gridWindowsStages.get(filePath);
+
+                // Load the FXML for the Grid Window
+                FXMLLoader appLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
+                Parent root = appLoader.load();
+
+                // Get the GridWindowController and pass the file path
+                GridWindowController gridWindowController = appLoader.getController();
+                //gridWindowController.setName(sheetName); //fixme do i need? maybe later we need the file name to be unique
+                gridWindowController.setFilePath(filePath);
+                gridWindowController.setUserName(userName);
+                gridWindowController.setEngine(engine);
+                gridWindowController.setSpreadsheetData(filePath); // Assuming this method exists to set data
+
+                // Set up the scene and stage for the new Grid Window
+                Scene scene = new Scene(root);
+                gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
+                gridWindowStage.setTitle("Grid Window");
+                gridWindowStage.setScene(scene);
+            } else {
+                gridWindowsStages.get(filePath).show();
             }
-            // Load the FXML for the Grid Window
-            FXMLLoader appLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
-            Parent root = appLoader.load();
-
-            // Get the GridWindowController and pass the file path
-            GridWindowController gridWindowController = appLoader.getController();
-            gridWindowController.setUserName(userName);
-            gridWindowController.setEngine(engine);
-            gridWindowController.setSpreadsheetData(fileName); // set the spreadsheet data also sets fileName
-
-            // Set up the scene and stage for the new Grid Window
-            Scene scene = new Scene(root);
-            gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
-            gridWindowStage.setTitle("Grid Window");
-            gridWindowStage.setScene(scene);
-            gridWindowStage.show();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (CellUpdateException e) {
