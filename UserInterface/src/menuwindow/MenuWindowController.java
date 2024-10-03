@@ -4,11 +4,13 @@ import api.Engine;
 import engineimpl.EngineImpl;
 import exceptions.engineexceptions.*;
 import gridwindow.GridWindowController;
+import gridwindow.top.Skin;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import menuwindow.center.AvailableSheetTableController;
@@ -17,12 +19,14 @@ import menuwindow.top.HeaderLoadController;
 import okhttp3.*;
 import utils.ClientConstants;
 import utils.SimpleCookieManager;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static utils.AlertUtils.showAlert;
 import static utils.CommonResourcesPaths.GRID_WINDOW_FXML;
 
 public class MenuWindowController {
@@ -115,15 +119,29 @@ public class MenuWindowController {
         return  headerLoadComponentController.getUserName();
     }
 
-    //todo- fix that when pression view sheet button the sheet will be shown
+    //todo- fix that when premssion view sheet button the sheet will be shown
     public void loadSpreadsheet(String filePath) throws SpreadsheetLoadingException, CellUpdateException, InvalidExpressionException,
             CircularReferenceException, RangeProcessException {
         // Load the spreadsheet and update components on the JavaFX Application Thread
         try {
             String userName = headerLoadComponentController.getUserName();
-            engine.loadSpreadsheet(userName, filePath);
+            // Load the spreadsheet and get the result
+            Pair<String, Boolean> result = engine.loadSpreadsheet(userName, filePath);
+            String fileName = result.getKey();
+            boolean isNewFile = result.getValue();
+            if (!isNewFile) {
+                Platform.runLater(() -> {
+                    showAlert(Alert.AlertType.ERROR, "File Already Exists", "The file '" + fileName + "' already exists. Please use a different file.");
+                });
+                return; // Stop further processing if it's not a new file
+            }
+            Platform.runLater(() -> {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Spreadsheet loaded successfully.");
+            });
+
+            // Add the file to the available sheet table only if it's a new file
             if (availableSheetTableComponentController != null) {
-                Platform.runLater(() -> availableSheetTableComponentController.addFilePathToTable(filePath));
+                Platform.runLater(() -> availableSheetTableComponentController.addFilePathToTable(fileName));
             }
 
         } catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
@@ -145,15 +163,13 @@ public class MenuWindowController {
 
             // Get the GridWindowController and pass the file path
             GridWindowController gridWindowController = appLoader.getController();
-            //gridWindowController.setName(sheetName); //fixme do i need? maybe later we need the file name to be unique
-            gridWindowController.setFilePath(filePath);
             gridWindowController.setUserName(userName);
             gridWindowController.setEngine(engine);
-            gridWindowController.setSpreadsheetData(filePath); // Assuming this method exists to set data
-
+            gridWindowController.setSpreadsheetData(filePath); // set the spreadsheet data ( we also update file name here)
 
             // Set up the scene and stage for the new Grid Window
             Scene scene = new Scene(root);
+            gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
             gridWindowStage.setTitle("Grid Window");
             gridWindowStage.setScene(scene);
             gridWindowStage.show();
