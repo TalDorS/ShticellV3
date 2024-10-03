@@ -172,7 +172,7 @@ public class MenuWindowController {
                 // Set up the scene and stage for the new Grid Window
                 Scene scene = new Scene(root);
                 gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
-                gridWindowStage.setTitle("Grid Window");
+                gridWindowStage.setTitle("Grid Window"+ " - " + fileName);
                 gridWindowStage.setScene(scene);
             } else {
                 gridWindowsStages.get(fileName).show();
