@@ -14,7 +14,6 @@ import java.util.Arrays;
 @WebServlet(name = "LogoutServlet", urlPatterns = {"/logout"})
 public class LogoutServlet extends HttpServlet {
 
-
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String usernameFromSession = SessionUtils.getUsername(request);
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
@@ -23,7 +22,7 @@ public class LogoutServlet extends HttpServlet {
         if (usernameFromSession != null) {
             System.out.println("Clearing session for " + usernameFromSession);
             userManager.removeUser(usernameFromSession);
-            //todo maybe remove the client from the engine with all of its files
+            //todo maybe remove the client from the engine with all of its files- update the map in engine
             SessionUtils.clearSession(request);
             response.setStatus(HttpServletResponse.SC_OK); // Set response to 200 OK
         } else {

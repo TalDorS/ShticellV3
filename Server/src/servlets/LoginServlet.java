@@ -1,5 +1,6 @@
 package servlets;
 
+import api.Engine;
 import com.google.gson.Gson;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -46,9 +47,7 @@ public class LoginServlet extends HttpServlet {
                         try {
                             //add the new user to the users list
                             userManager.addUser(usernameFromParameter);
-                            //set the username in a session so it will be available on each request
-                            //the true parameter means that if a session object does not exists yet
-                            //create a new one
+
                         }
                         catch(Exception e) {
                             // stands for internal server error

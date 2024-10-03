@@ -12,7 +12,7 @@ import user.User;
 //This engine interface is the logical engine for the program
 //It contains the main logic methods to run the SheetSpread
 public interface Engine {
-   void loadSpreadsheet(String filePath,String userName) throws InvalidExpressionException, SpreadsheetLoadingException, CellUpdateException, CircularReferenceException, RangeProcessException;
+   void loadSpreadsheet(String userName, String filePath) throws Exception;
    void updateCellValue(String userName, String filePath, String cellId, String newValue) throws InvalidExpressionException, CircularReferenceException, CellUpdateException, SpreadsheetLoadingException;
    Spreadsheet getCurrentSpreadsheet(String userName, String filePath);
     Spreadsheet getSpreadsheetByVersion(String userName, String filePath, int versionNumber) throws IndexOutOfBoundsException, FileNotFoundException,UserNotFoundException;

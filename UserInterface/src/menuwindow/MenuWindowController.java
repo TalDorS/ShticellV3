@@ -107,6 +107,7 @@ public class MenuWindowController {
                 }
                 response.close();
                 Platform.exit(); // Exit after handling response
+                System.exit(0);  // Forcefully terminate all threads
             }
         });
     }
@@ -121,7 +122,7 @@ public class MenuWindowController {
         // Load the spreadsheet and update components on the JavaFX Application Thread
         try {
             String userName = headerLoadComponentController.getUserName();
-            engine.loadSpreadsheet(filePath, userName);
+            engine.loadSpreadsheet(userName, filePath);
             if (availableSheetTableComponentController != null) {
                 Platform.runLater(() -> availableSheetTableComponentController.addFilePathToTable(filePath));
             }
@@ -129,10 +130,12 @@ public class MenuWindowController {
         } catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
             // Rethrow exceptions to be handled by the calling code or task
             throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void showGridWindow(String filePath, String sheetName) {
+    public void showGridWindow(String filePath, String userName) {
         try {
             if (gridWindowStage == null) {  // Initialize the stage if it hasn't been created
                 gridWindowStage = new Stage();
@@ -143,10 +146,12 @@ public class MenuWindowController {
 
             // Get the GridWindowController and pass the file path
             GridWindowController gridWindowController = appLoader.getController();
-            gridWindowController.setName(sheetName); //fixme do i need? maybe later we need the file name to be unique
-            gridWindowController.setSpreadsheetData(filePath); // Assuming this method exists to set data
+            //gridWindowController.setName(sheetName); //fixme do i need? maybe later we need the file name to be unique
             gridWindowController.setFilePath(filePath);
-            gridWindowController.setUserName(headerLoadComponentController.getUserName());
+            gridWindowController.setUserName(userName);
+            gridWindowController.setEngine(engine);
+            gridWindowController.setSpreadsheetData(filePath); // Assuming this method exists to set data
+
 
             // Set up the scene and stage for the new Grid Window
             Scene scene = new Scene(root);

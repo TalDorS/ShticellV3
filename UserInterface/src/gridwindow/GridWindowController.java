@@ -26,6 +26,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import spreadsheet.Spreadsheet;
 import gridwindow.grid.MainGridAreaController;
@@ -48,11 +50,11 @@ import static utils.CommonResourcesPaths.*;
 
 public class GridWindowController {
 
-    private Engine engine;
+    private Engine engine; //set by the menu window controller
     private List<FadeTransition> activeFadeTransitions = new ArrayList<>();  // List to store all active transitions
     private List<RotateTransition> activeRotateTransitions = new ArrayList<>();  // List to store all active transitions
-    private String filePath;
-    private String userName;
+    private String filePath; //set by the menu window controller
+    private String userName;//set by the menu window controller
 
     @FXML
     private ScrollPane scrollPane;
@@ -103,7 +105,6 @@ public class GridWindowController {
             topGridWindowComponentController.setMainController(this);
         }
 
-        engine = new EngineImpl();
     }
 
     public void setName(String name) {
@@ -115,7 +116,7 @@ public class GridWindowController {
     public void setSpreadsheetData(String filePath) throws CellUpdateException, InvalidExpressionException,
             SpreadsheetLoadingException, RangeProcessException, CircularReferenceException {
         try{
-            engine.loadSpreadsheet(filePath, userName); //
+            engine.loadSpreadsheet(userName, filePath); //
             EngineDTO engineDTO = engine.getEngineData(userName,filePath);
             int currentVersionNumber = engineDTO.getCurrentVersionNumber();
             SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
@@ -143,6 +144,8 @@ public class GridWindowController {
         }catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
             // Rethrow exceptions to be handled by the calling code or task
             throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -645,4 +648,10 @@ public class GridWindowController {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
+    public void setEngine(Engine engine) {
+        this.engine = engine;
+    }
+
+
 }

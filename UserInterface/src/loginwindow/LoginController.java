@@ -147,6 +147,7 @@ public class LoginController {
                 // Optionally log or handle logout failure
                 System.out.println("Logout request failed: " + e.getMessage());
                 Platform.exit(); // Exit after handling response
+                System.exit(0);  // Forcefully terminate all threads
             }
 
             @Override
@@ -158,6 +159,7 @@ public class LoginController {
                 }
                 response.close();
                 Platform.exit(); // Exit after handling response
+                System.exit(0);  // Forcefully terminate all threads
             }
         });
     }

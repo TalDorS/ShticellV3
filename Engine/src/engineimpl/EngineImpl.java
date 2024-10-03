@@ -46,40 +46,48 @@ public class EngineImpl implements Engine {
         this.userManager = new UserManager();
     }
 
-    public void addUser(String userName) {
+    public void addUser(String userName) throws Exception {
         User user = new User(userName);
+        userManager.addUser(userName);
         clientFilesVersions.putIfAbsent(user, new HashMap<>());
     }
 
+    @Override
     public void loadSpreadsheet(String userName, String filePath) throws
-            SpreadsheetLoadingException, CellUpdateException, CircularReferenceException, RangeProcessException {
+            Exception {
+
+        User currentUser = new User(userName);
+        String normalizedUserName = userName.toLowerCase();
 
         // Check if the file path already exists for any user in the system
         for (Map.Entry<User, Map<String, VersionsManager>> entry : clientFilesVersions.entrySet()) {
             Map<String, VersionsManager> userFiles = entry.getValue();
+
+            // Check if the file path exists for this user
             if (userFiles.containsKey(filePath)) {
-                // File already exists for some user, throw an exception
-                throw new SpreadsheetLoadingException("The file path '" + filePath + "' already exists for another user.");
+                User fileOwner = entry.getKey();
+
+                // If the file is associated with the same user, load it
+                if (fileOwner.getUserName().equalsIgnoreCase(normalizedUserName)) {
+                    VersionsManager versionsManager = userFiles.get(filePath);
+                    versionsManager.loadSpreadsheet(filePath);
+                    return; // File successfully loaded for the current user
+                }
+                // If the file is associated with a different user, throw an exception
+                else {
+                    throw new SpreadsheetLoadingException("The file path '" + filePath + "' already exists for another user.");
+                }
             }
         }
 
-        User user = new User(userName);
-        // Normalize the username to lower case for case-insensitive comparison
-        String normalizedUserName = userName.toLowerCase();
-
-        // Check if the user already exists (case-insensitive)
-        Map<String, VersionsManager> userFiles = null;
-        for (User existingUser : clientFilesVersions.keySet()) {
-            if (existingUser.getUserName().equalsIgnoreCase(user.getUserName())) {
-                userFiles = clientFilesVersions.get(existingUser); // Get the existing user map
-                break;
-            }
-        }
+        // If the file does not exist for any user, add it for the current user
+        Map<String, VersionsManager> userFiles = clientFilesVersions.get(currentUser);
 
         // If the user does not exist, create a new entry
         if (userFiles == null) {
-            userFiles = new HashMap<>(); // Create a new map for the user
-            clientFilesVersions.put(user, userFiles); // Add to the main map with the User object
+            userFiles = new HashMap<>();
+            clientFilesVersions.put(currentUser, userFiles);
+            userManager.addUser(userName);
         }
 
         // Create a new VersionsManager for the user and load the spreadsheet
@@ -89,6 +97,7 @@ public class EngineImpl implements Engine {
         // Load the spreadsheet using the versions manager
         versionsManager.loadSpreadsheet(filePath);
     }
+
 
 //    @Override
 //    public void clearVersions() {
