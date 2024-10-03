@@ -9,6 +9,7 @@ import expressionimpls.*;
 import filter.SpreadsheetFilter;
 import generatedschemafilesv2.*;
 import cells.Cell;
+import javafx.util.Pair;
 import spreadsheet.Spreadsheet;
 import user.User;
 import user.UserManager;
@@ -28,7 +29,7 @@ import versions.VersionsManager;
 // First version of the spreadsheet will be index 1
 public class EngineImpl implements Engine {
 
-    private final Map<User, Map<String, VersionsManager>> clientFilesVersions; //String is the file path
+    private final Map<User, Map<String, VersionsManager>> clientFilesVersions; //String is the file name
     private final UserManager userManager;
 
     // private final VersionsManager versionsManager;
@@ -53,29 +54,30 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void loadSpreadsheet(String userName, String filePath) throws
+    public Pair<String, Boolean> loadSpreadsheet(String userName, String filePath) throws
             Exception {
 
         User currentUser = new User(userName);
         String normalizedUserName = userName.toLowerCase();
+
+        // Load spreadsheet first to get the file name
+        VersionsManager versionsManager = new VersionsManager();
+        versionsManager.loadSpreadsheet(filePath);
+        String fileName = versionsManager.getCurrentSpreadsheet().getName(); // Get the file name after loading
 
         // Check if the file path already exists for any user in the system
         for (Map.Entry<User, Map<String, VersionsManager>> entry : clientFilesVersions.entrySet()) {
             Map<String, VersionsManager> userFiles = entry.getValue();
 
             // Check if the file path exists for this user
-            if (userFiles.containsKey(filePath)) {
+            if (userFiles.containsKey(fileName)) {
                 User fileOwner = entry.getKey();
 
-                // If the file is associated with the same user, load it
-                if (fileOwner.getUserName().equalsIgnoreCase(normalizedUserName)) {
-                    VersionsManager versionsManager = userFiles.get(filePath);
-                    versionsManager.loadSpreadsheet(filePath);
-                    return; // File successfully loaded for the current user
-                }
-                // If the file is associated with a different user, throw an exception
-                else {
-                    throw new SpreadsheetLoadingException("The file path '" + filePath + "' already exists for another user.");
+                if (!fileOwner.getUserName().equalsIgnoreCase(normalizedUserName)) {
+                    throw new SpreadsheetLoadingException("The file name '" + fileName + "' already exists for another user.");
+                } else {
+                    // File exists for this user, return without reloading
+                    return new Pair<>(fileName, false);
                 }
             }
         }
@@ -90,12 +92,9 @@ public class EngineImpl implements Engine {
             userManager.addUser(userName);
         }
 
-        // Create a new VersionsManager for the user and load the spreadsheet
-        VersionsManager versionsManager = new VersionsManager();
-        userFiles.put(filePath, versionsManager);
+        userFiles.put(fileName, versionsManager); //add the version manager and the file name to the user's map
 
-        // Load the spreadsheet using the versions manager
-        versionsManager.loadSpreadsheet(filePath);
+        return new Pair<>(fileName, true); // Return that the file was newly loaded
     }
 
 
@@ -106,7 +105,7 @@ public class EngineImpl implements Engine {
 
     @Override
     // Method to get the engine data using dto
-    public EngineDTO getEngineData(String userName, String filePath) {
+    public EngineDTO getEngineData(String userName, String fileName) {
         if (!userManager.isUserExists(userName)) {
             // If user doesn't exist, remove them from clientFilesVersions
             removeUserFromClientFilesVersions(userName);  // Method to clean up invalid users
@@ -118,7 +117,7 @@ public class EngineImpl implements Engine {
         Map<Integer, VersionDTO> versionDTOMap = new HashMap<>();
 
         if (userFiles != null) {
-            VersionsManager versionsManager = userFiles.get(filePath);
+            VersionsManager versionsManager = userFiles.get(fileName);
             if (versionsManager != null) {
                 // Get the current version of the spreadsheet
                 Spreadsheet spreadsheet = versionsManager.getCurrentSpreadsheet(); // Assume this method exists
@@ -227,7 +226,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public int getCurrentVersion(String userName, String filePath) {
+    public int getCurrentVersion(String userName, String fileName) {
         User user = new User(userName);
 
         // Check if the user exists in the clientFilesVersions map
@@ -236,50 +235,50 @@ public class EngineImpl implements Engine {
             throw new IllegalArgumentException("User not found: " + userName);
         }
         // Retrieve the VersionsManager for the specific filePath
-        VersionsManager versionsManager = userFiles.get(filePath);
+        VersionsManager versionsManager = userFiles.get(fileName);
         if (versionsManager == null) {
-            throw new IllegalArgumentException("File path not found for user: " + filePath);
+            throw new IllegalArgumentException("File path not found for user: " + fileName);
         }
         return versionsManager.getCurrentVersion();
     }
 
     @Override
-    public Spreadsheet getCurrentSpreadsheet(String userName, String filePath) {
+    public Spreadsheet getCurrentSpreadsheet(String userName, String fileName) {
         User user = new User(userName);
         Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
         if (userFiles == null) {
             throw new IllegalArgumentException("User not found: " + userName);
         }
-        VersionsManager versionsManager = userFiles.get(filePath);
+        VersionsManager versionsManager = userFiles.get(fileName);
         if (versionsManager == null) {
-            throw new IllegalArgumentException("File path not found for user: " + filePath);
+            throw new IllegalArgumentException("File path not found for user: " + fileName);
         }
         return versionsManager.getCurrentSpreadsheet();
     }
 
     @Override
-    public void updateCellValue(String userName, String filePath, String cellId, String newValue)
-            throws CircularReferenceException, CellUpdateException, SpreadsheetLoadingException {
+    public void updateCellValue(String userName, String fileName, String cellId, String newValue)
+            throws CircularReferenceException, CellUpdateException, FileNotFoundException, UserNotFoundException {
         User user = new User(userName);
         Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
         // Check if the userFiles map exists
         if (userFiles != null) {
             // Retrieve the VersionsManager for the specified filePath
-            VersionsManager versionsManager = userFiles.get(filePath);
+            VersionsManager versionsManager = userFiles.get(fileName);
 
             // Check if the VersionsManager exists
             if (versionsManager != null) {
                 // Update the cell value in the VersionsManager
                 versionsManager.updateCellValue(cellId, newValue);
             } else {
-                throw new SpreadsheetLoadingException("The specified file does not exist for this user.");
+                throw new FileNotFoundException("The specified file does not exist for this user.");
             }
         } else {
-            throw new SpreadsheetLoadingException("The user does not exist.");
+            throw new UserNotFoundException("The user does not exist.");
         }
     }
     @Override
-    public void addRange(String userName, String filePath, String rangeName, String firstCell, String lastCell) throws Exception {
+    public void addRange(String userName, String fileName, String rangeName, String firstCell, String lastCell) throws Exception {
         // Create a User object with the provided userName
         User user = new User(userName);
 
@@ -289,7 +288,7 @@ public class EngineImpl implements Engine {
         // Check if the userFiles map exists
         if (userFiles != null) {
             // Retrieve the VersionsManager for the specified filePath
-            VersionsManager versionsManager = userFiles.get(filePath);
+            VersionsManager versionsManager = userFiles.get(fileName);
 
             // Check if the VersionsManager exists
             if (versionsManager != null) {
@@ -304,7 +303,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void removeRange(String userName, String filePath, String rangeName) throws Exception {
+    public void removeRange(String userName, String fileName, String rangeName) throws Exception {
         // Create a User object with the provided userName
         User user = new User(userName);
 
@@ -314,7 +313,7 @@ public class EngineImpl implements Engine {
         // Check if the userFiles map exists
         if (userFiles != null) {
             // Retrieve the VersionsManager for the specified filePath
-            VersionsManager versionsManager = userFiles.get(filePath);
+            VersionsManager versionsManager = userFiles.get(fileName);
 
             // Check if the VersionsManager exists
             if (versionsManager != null) {
@@ -330,7 +329,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Map<String, String> sortSpreadsheet(String userName, String filePath, Spreadsheet spreadsheet, String range, List<String> columnsToSortBy)
+    public Map<String, String> sortSpreadsheet(String userName, String fileName, Spreadsheet spreadsheet, String range, List<String> columnsToSortBy)
             throws InvalidColumnException, FileNotFoundException, UserNotFoundException {
         // Create a User object with the provided userName
         User user = new User(userName);
@@ -341,7 +340,7 @@ public class EngineImpl implements Engine {
         // Check if the userFiles map exists
         if (userFiles != null) {
             // Retrieve the VersionsManager for the specified filePath
-            VersionsManager versionsManager = userFiles.get(filePath);
+            VersionsManager versionsManager = userFiles.get(fileName);
 
             // Check if the VersionsManager exists
             if (versionsManager != null) {
@@ -356,7 +355,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Map<String, Range> getAllRanges(String userName, String filePath) throws FileNotFoundException, UserNotFoundException {
+    public Map<String, Range> getAllRanges(String userName, String fileName) throws FileNotFoundException, UserNotFoundException {
         // Create a User object with the provided userName
         User user = new User(userName);
 
@@ -366,7 +365,7 @@ public class EngineImpl implements Engine {
         // Check if the userFiles map exists
         if (userFiles != null) {
             // Retrieve the VersionsManager for the specified filePath
-            VersionsManager versionsManager = userFiles.get(filePath);
+            VersionsManager versionsManager = userFiles.get(fileName);
 
             // Check if the VersionsManager exists
             if (versionsManager != null) {
@@ -381,13 +380,13 @@ public class EngineImpl implements Engine {
     }
 
         // Method to check for circular references in the new expression
-    public void checkForCircularReferences(String userName, String filePath, String cellId, Expression newExpression) throws CircularReferenceException, FileNotFoundException, UserNotFoundException {
+    public void checkForCircularReferences(String userName, String fileName, String cellId, Expression newExpression) throws CircularReferenceException, FileNotFoundException, UserNotFoundException {
 
         User user = new User(userName);
         Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
 
         if(userFiles != null) {
-            VersionsManager versionsManager = userFiles.get(filePath);
+            VersionsManager versionsManager = userFiles.get(fileName);
             if (versionsManager != null) {
                 versionsManager.checkForCircularReferences(cellId, newExpression);
             } else {
@@ -399,7 +398,7 @@ public class EngineImpl implements Engine {
         }
     }
     @Override
-    public String getColumnName(String userName, String filePath, int index) throws FileNotFoundException, UserNotFoundException {
+    public String getColumnName(String userName, String fileName, int index) throws FileNotFoundException, UserNotFoundException {
         // Create a User object based on the provided username
         User user = new User(userName);
 
@@ -408,7 +407,7 @@ public class EngineImpl implements Engine {
 
         if (userFiles != null) {
             // Retrieve the VersionsManager for the specified file path
-            VersionsManager versionsManager = userFiles.get(filePath);
+            VersionsManager versionsManager = userFiles.get(fileName);
 
             if (versionsManager != null) {
                 // Call the getColumnName method from the VersionsManager
@@ -424,7 +423,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public List<String[][]> filterTableMultipleColumns(String userName, String filePath, String tableArea, Map<String, List<String>> selectedColumnValues)
+    public List<String[][]> filterTableMultipleColumns(String userName, String fileName, String tableArea, Map<String, List<String>> selectedColumnValues)
             throws FileNotFoundException, UserNotFoundException {
 
         // Create a User object based on the provided username
@@ -435,7 +434,7 @@ public class EngineImpl implements Engine {
 
         if (userFiles != null) {
             // Retrieve the VersionsManager for the specified file path
-            VersionsManager versionsManager = userFiles.get(filePath);
+            VersionsManager versionsManager = userFiles.get(fileName);
 
             if (versionsManager != null) {
                 // Call the filterTableMultipleColumns method from the VersionsManager
@@ -478,7 +477,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Expression parseExpression(String userName, String filePath, String input)
+    public Expression parseExpression(String userName, String fileName, String input)
             throws InvalidExpressionException, FileNotFoundException, UserNotFoundException {
 
         // Create a User object based on the provided username
@@ -489,7 +488,7 @@ public class EngineImpl implements Engine {
 
         if (userFiles != null) {
             // Retrieve the VersionsManager for the specified file path
-            VersionsManager versionsManager = userFiles.get(filePath);
+            VersionsManager versionsManager = userFiles.get(fileName);
 
             if (versionsManager != null) {
                 // Call the parseExpression method from the VersionsManager
@@ -505,7 +504,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Spreadsheet getSpreadsheetByVersion(String userName, String filePath, int versionNumber)
+    public Spreadsheet getSpreadsheetByVersion(String userName, String fileName, int versionNumber)
             throws IndexOutOfBoundsException, FileNotFoundException, UserNotFoundException {
 
         // Create a User object based on the provided username
@@ -516,7 +515,7 @@ public class EngineImpl implements Engine {
 
         if (userFiles != null) {
             // Retrieve the VersionsManager for the specified file path
-            VersionsManager versionsManager = userFiles.get(filePath);
+            VersionsManager versionsManager = userFiles.get(fileName);
 
             if (versionsManager != null) {
                 // Call the getSpreadsheetByVersion method from the VersionsManager
