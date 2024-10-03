@@ -56,7 +56,6 @@ public class MenuWindowController {
             availableSheetTableComponentController.setMainController(this);
         }
         engine = new EngineImpl();
-
     }
 
     public void setOkHttpClient(OkHttpClient client) {
@@ -155,7 +154,7 @@ public class MenuWindowController {
 
             // Set up the scene and stage for the new Grid Window
             Scene scene = new Scene(root);
-            gridWindowStage.setTitle("Grid Scene");
+            gridWindowStage.setTitle("Grid Window");
             gridWindowStage.setScene(scene);
             gridWindowStage.show();
         } catch (IOException e) {
