@@ -26,6 +26,7 @@ public class HeaderLoadController {
 
     @FXML
     private TextField loadedFilePath;
+
     @FXML
     private ProgressIndicator progressIndicator;
 

@@ -101,7 +101,7 @@ public class GridWindowController {
         if(dynamicAnalysisComponentController != null){
             dynamicAnalysisComponentController.setMainController(this);
         }
-        if(topGridWindowComponentController!=null){
+        if(topGridWindowComponentController != null){
             topGridWindowComponentController.setMainController(this);
         }
 
@@ -647,6 +647,7 @@ public class GridWindowController {
 
     public void setUserName(String userName) {
         this.userName = userName;
+        topGridWindowComponentController.setUsername(userName);
     }
 
     public void setEngine(Engine engine) {
