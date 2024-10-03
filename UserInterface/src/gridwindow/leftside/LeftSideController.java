@@ -70,6 +70,10 @@ public class LeftSideController {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Adding New Range", e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -98,6 +102,10 @@ public class LeftSideController {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Opening Filter Dialog", e.getMessage());
         } catch (IllegalStateException e) {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Adding New Range", e.getMessage());
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

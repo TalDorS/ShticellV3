@@ -822,6 +822,9 @@ public class VersionsManager implements Serializable {
         return ExpressionParser.parse(input, spreadsheetSupplier, rangesManager);
     }
 
+    public String getSpreadsheetName() {
+        return getCurrentSpreadsheet().getName();
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

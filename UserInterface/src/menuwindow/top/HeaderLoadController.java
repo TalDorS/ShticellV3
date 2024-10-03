@@ -137,9 +137,6 @@ public class HeaderLoadController {
             protected void succeeded() {
                 super.succeeded();
                 Platform.runLater(() -> {
-                    if (isSuccess) {
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "Spreadsheet loaded successfully.");
-                    }
                     progressIndicator.setVisible(false);
                 });
             }

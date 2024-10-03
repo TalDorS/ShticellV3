@@ -1,6 +1,8 @@
 package gridwindow.top;
 
 import dto.VersionDTO;
+import exceptions.engineexceptions.FileNotFoundException;
+import exceptions.engineexceptions.UserNotFoundException;
 import gridwindow.top.interactiveformuladialog.InteractiveFormulaDialogController;
 import javafx.fxml.FXML;
 
@@ -187,6 +189,10 @@ public class OptionsBarController {
             stage.showAndWait();
         } catch (IOException | IllegalStateException e) {
             AlertUtils.showError("Failed to open interactive formula builder: " + e.getMessage());
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
