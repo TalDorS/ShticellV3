@@ -114,12 +114,10 @@ public class GridWindowController {
         }
     }
 
-    public void setSpreadsheetData(String filePath) throws CellUpdateException, InvalidExpressionException,
+    public void setSpreadsheetData(String fileName) throws CellUpdateException, InvalidExpressionException,
             SpreadsheetLoadingException, RangeProcessException, CircularReferenceException {
         try{
-            Pair<String, Boolean> result = engine.loadSpreadsheet(userName, filePath);
-            String fileName = result.getKey(); // Get the file name from the Pair
-            this.fileName = fileName; // Save the file name for future reference
+            this.fileName = fileName;
             EngineDTO engineDTO = engine.getEngineData(userName, fileName);
             int currentVersionNumber = engineDTO.getCurrentVersionNumber();
             SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
@@ -144,9 +142,6 @@ public class GridWindowController {
                     throw new RuntimeException(e);
                 }
             });
-        }catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
-            // Rethrow exceptions to be handled by the calling code or task
-            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -46,12 +46,12 @@ public class RightSideController {
 
 //todo- change to file name instead of file path?? not sureee
     private void handleViewSheetButtonAction() {
-        String selectedFilePath = mainController.getAvailableSheetTableController().getSelectedFilePath();
+        String selectedFileName = mainController.getAvailableSheetTableController().getSelectedFileName();
         String userName = mainController.getUserName();
 
-        if (selectedFilePath != null && userName != null) {
+        if (selectedFileName != null && userName != null) {
             // Open the Grid Window and pass the selected file
-            mainController.showGridWindow(selectedFilePath, userName);
+            mainController.showGridWindow(selectedFileName, userName);
         } else {
             // Handle the case where no file is selected, for example, show a warning dialog
             AlertUtils.showAlert(Alert.AlertType.ERROR, "No File Selected", "Please select a file to view.");

@@ -141,7 +141,7 @@ public class MenuWindowController {
 
             // Add the file to the available sheet table only if it's a new file
             if (availableSheetTableComponentController != null) {
-                Platform.runLater(() -> availableSheetTableComponentController.addFilePathToTable(fileName));
+                Platform.runLater(() -> availableSheetTableComponentController.addFileNameToTable(fileName));
             }
 
         } catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
@@ -152,7 +152,7 @@ public class MenuWindowController {
         }
     }
 
-    public void showGridWindow(String filePath, String userName) {
+    public void showGridWindow(String fileName, String userName) {
         try {
             if (gridWindowStage == null) {  // Initialize the stage if it hasn't been created
                 gridWindowStage = new Stage();
@@ -165,7 +165,7 @@ public class MenuWindowController {
             GridWindowController gridWindowController = appLoader.getController();
             gridWindowController.setUserName(userName);
             gridWindowController.setEngine(engine);
-            gridWindowController.setSpreadsheetData(filePath); // set the spreadsheet data ( we also update file name here)
+            gridWindowController.setSpreadsheetData(fileName); // set the spreadsheet data also sets fileName
 
             // Set up the scene and stage for the new Grid Window
             Scene scene = new Scene(root);

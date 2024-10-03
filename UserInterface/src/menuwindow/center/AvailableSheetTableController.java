@@ -35,12 +35,12 @@ public class AvailableSheetTableController {
     }
 
     @FXML
-    public String getSelectedFilePath() {
+    public String getSelectedFileName() {
         return fileTableView.getSelectionModel().getSelectedItem();
     }
 
     // Method to add file path to the table
-    public void addFilePathToTable(String filePath) {
+    public void addFileNameToTable(String filePath) {
         // Add the file path to the ObservableList
         filePaths.add(filePath);
     }
