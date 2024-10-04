@@ -1,6 +1,8 @@
 package menuwindow;
 
 import api.Engine;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import engineimpl.EngineImpl;
 import exceptions.engineexceptions.*;
 import gridwindow.GridWindowController;
@@ -18,6 +20,7 @@ import menuwindow.rightside.RightSideController;
 import menuwindow.top.HeaderLoadController;
 import okhttp3.*;
 import utils.ClientConstants;
+import utils.HttpClientUtil;
 import utils.SimpleCookieManager;
 import javafx.util.Pair;
 
@@ -25,6 +28,8 @@ import java.io.IOException;
 import java.util.*;
 
 import static utils.AlertUtils.showAlert;
+import static utils.ClientConstants.JSON;
+import static utils.ClientConstants.LOAD_SPREADSHEET;
 import static utils.CommonResourcesPaths.GRID_WINDOW_FXML;
 
 public class MenuWindowController {
@@ -117,38 +122,96 @@ public class MenuWindowController {
         return  headerLoadComponentController.getUserName();
     }
 
-    //todo- fix that when premssion view sheet button the sheet will be shown
-    public void loadSpreadsheet(String filePath) throws SpreadsheetLoadingException, CellUpdateException, InvalidExpressionException,
-            CircularReferenceException, RangeProcessException {
-        // Load the spreadsheet and update components on the JavaFX Application Thread
-        try {
-            String userName = headerLoadComponentController.getUserName();
-            // Load the spreadsheet and get the result
-            Pair<String, Boolean> result = engine.loadSpreadsheet(userName, filePath);
-            String fileName = result.getKey();
-            boolean isNewFile = result.getValue();
-            if (!isNewFile) {
+    // Method to load the spreadsheet from the client side
+    public void loadSpreadsheet(String filePath) {
+        String userName = getUserName(); // Assuming this method retrieves the logged-in username
+
+        String finalUrl = ClientConstants.LOAD_SPREADSHEET;
+
+        // Build the URL with the filePath as a query parameter
+//        String finalUrl = HttpUrl
+//                .parse(ClientConstants.LOAD_SPREADSHEET) // Your endpoint for loading spreadsheets
+//                .newBuilder()
+//                .addQueryParameter("filePath", filePath)
+//                .build()
+//                .toString();
+
+        // Create a form body to send in the POST request
+        RequestBody body = new FormBody.Builder()
+                .add("filePath", filePath)
+                .build();
+
+        System.out.println("Sending request to: " + finalUrl);
+
+        // Execute the request asynchronously
+        HttpClientUtil.runAsyncPost(finalUrl, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
                 Platform.runLater(() -> {
-                    showAlert(Alert.AlertType.ERROR, "File Already Exists", "The file '" + fileName + "' already exists. Please use a different file.");
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
+                    System.err.println("Request failed: " + e.getMessage()); // Log error message
                 });
-                return; // Stop further processing if it's not a new file
-            }
-            Platform.runLater(() -> {
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Spreadsheet loaded successfully.");
-            });
-
-            // Add the file to the available sheet table only if it's a new file
-            if (availableSheetTableComponentController != null) {
-                Platform.runLater(() -> availableSheetTableComponentController.addFileNameToTable(fileName));
             }
 
-        } catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
-            // Rethrow exceptions to be handled by the calling code or task
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                System.out.println("Received response code: " + response.code());
+
+                String responseBody = response.body().string();
+
+                if (response.isSuccessful()) {
+                    Platform.runLater(() -> {
+                        // Manually parse the response for success
+                        String fileName = responseBody;
+                        if (fileName != null) {
+                            availableSheetTableComponentController.addFileNameToTable(fileName);
+                            showAlert(Alert.AlertType.INFORMATION, "Success", "Spreadsheet loaded successfully.");
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        String errorMessage = responseBody;
+                        showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+                        System.err.println("Error response: " + errorMessage); // Log error response
+                    });
+
+                }
+            }
+        });
     }
+
+    //todo- fix that when premssion view sheet button the sheet will be shown
+//    public void loadSpreadsheet(String filePath) throws SpreadsheetLoadingException, CellUpdateException, InvalidExpressionException,
+//            CircularReferenceException, RangeProcessException {
+//        // Load the spreadsheet and update components on the JavaFX Application Thread
+//        try {
+//            String userName = headerLoadComponentController.getUserName();
+//            // Load the spreadsheet and get the result
+//            Pair<String, Boolean> result = engine.loadSpreadsheet(userName, filePath);
+//            String fileName = result.getKey();
+//            boolean isNewFile = result.getValue();
+//            if (!isNewFile) {
+//                Platform.runLater(() -> {
+//                    showAlert(Alert.AlertType.ERROR, "File Already Exists", "The file '" + fileName + "' already exists. Please use a different file.");
+//                });
+//                return; // Stop further processing if it's not a new file
+//            }
+//            Platform.runLater(() -> {
+//                showAlert(Alert.AlertType.INFORMATION, "Success", "Spreadsheet loaded successfully.");
+//            });
+//
+//            // Add the file to the available sheet table only if it's a new file
+//            if (availableSheetTableComponentController != null) {
+//                Platform.runLater(() -> availableSheetTableComponentController.addFileNameToTable(fileName));
+//            }
+//
+//        } catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
+//            // Rethrow exceptions to be handled by the calling code or task
+//            throw e;
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     public void showGridWindow(String fileName, String userName) {
         try {

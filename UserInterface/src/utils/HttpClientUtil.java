@@ -1,9 +1,6 @@
 package utils;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
+import okhttp3.*;
 
 import java.util.function.Consumer;
 
@@ -32,6 +29,16 @@ public class HttpClientUtil {
         Call call = HttpClientUtil.HTTP_CLIENT.newCall(request);
 
         call.enqueue(callback);
+    }
+
+    public static void runAsyncPost(String finalUrl, RequestBody body, Callback callback) {
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .post(body) // Specify the POST method with the request body
+                .build();
+
+        Call call = HttpClientUtil.HTTP_CLIENT.newCall(request);
+        call.enqueue(callback); // Execute the request asynchronously
     }
 
     public static void shutdown() {
