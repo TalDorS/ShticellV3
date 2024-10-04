@@ -13,7 +13,7 @@ import user.User;
 //This engine interface is the logical engine for the program
 //It contains the main logic methods to run the SheetSpread
 public interface Engine {
-    Pair<String, Boolean> loadSpreadsheet(String userName, String filePath) throws Exception;
+    String loadSpreadsheet(String userName, String filePath) throws Exception;
    void updateCellValue(String userName, String filePath, String cellId, String newValue) throws InvalidExpressionException, CircularReferenceException, CellUpdateException, SpreadsheetLoadingException, FileNotFoundException, UserNotFoundException;
    Spreadsheet getCurrentSpreadsheet(String userName, String fileName);
     Spreadsheet getSpreadsheetByVersion(String userName, String fileName, int versionNumber) throws IndexOutOfBoundsException, FileNotFoundException,UserNotFoundException;
@@ -34,4 +34,5 @@ public interface Engine {
     Expression parseExpression (String userName, String fileName, String input) throws InvalidExpressionException, FileNotFoundException, UserNotFoundException;
     void checkForCircularReferences(String userName, String fileName, String cellId, Expression newExpression) throws CircularReferenceException, FileNotFoundException, UserNotFoundException;
    public SpreadsheetDTO convertSpreadsheetToDTO(Spreadsheet spreadsheet);
+   void addUser(String userName) throws Exception;
     }

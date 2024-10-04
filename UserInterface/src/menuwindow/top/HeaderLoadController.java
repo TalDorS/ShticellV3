@@ -87,43 +87,42 @@ public class HeaderLoadController {
 
             @Override
             protected Void call() {
-                try {
-                    simulateLoading(); // Simulate loading process
-
                     // Perform spreadsheet loading on the background thread
-                    try {
-                        loadSpreadsheet(filePath);
-                        isSuccess = true;
-                    } catch (IllegalArgumentException e) {
-                        updateMessage("Invalid file path:\n " + e.getMessage());
-                        cancel(); // Attempt to cancel
-                    } catch (SpreadsheetLoadingException e) {
-                        updateMessage("Error loading spreadsheet:\n " + e.getMessage());
-                        cancel(); // Attempt to cancel
-                    } catch (Exception e) {
-                        updateMessage("Unexpected error:\n " + e.getMessage());
-                        cancel(); // Attempt to cancel
-                    }
+                try {
+                    System.out.println("Starting to load spreadsheet: " + filePath);
 
+                    simulateLoading(); // Simulate loading process
+                    loadSpreadsheet(filePath);
+                    isSuccess = true;
+                } catch (IllegalArgumentException e) {
+                    updateMessage("Invalid file path:\n " + e.getMessage());
+                    cancel(); // Attempt to cancel
+                } catch (SpreadsheetLoadingException e) {
+                    updateMessage("Error loading spreadsheet:\n " + e.getMessage());
+                    cancel(); // Attempt to cancel
                 } catch (Exception e) {
-                    updateMessage("Unexpected error: \n" + e.getMessage());
-                    cancel();
+                    updateMessage("Unexpected error:\n " + e.getMessage());
+                    cancel(); // Attempt to cancel
                 }
+
                 return null;
             }
 
             private void simulateLoading() throws InterruptedException {
                 for (int i = 0; i <= 100; i++) {
                     if (isCancelled()) {
+                        System.out.println("Loading was cancelled.");
                         return;
                     }
                     Thread.sleep(20); // Simulate work
                     updateProgress(i, 100);
+                    System.out.println("Loading progress: " + i + "%");
                 }
             }
 
             private void loadSpreadsheet(String filePath) throws Exception {
                 if (mainController != null) {
+                    System.out.println("Main controller is available, calling loadSpreadsheet.");
                     try {
                         mainController.loadSpreadsheet(filePath);
                     } catch (Exception e) {

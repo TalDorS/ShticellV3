@@ -47,14 +47,15 @@ public class EngineImpl implements Engine {
         this.userManager = new UserManager();
     }
 
-    public void addUser(String userName) throws Exception {
+    @Override
+    public synchronized void addUser(String userName) throws Exception {
         User user = new User(userName);
         userManager.addUser(userName);
         clientFilesVersions.putIfAbsent(user, new HashMap<>());
     }
 
     @Override
-    public Pair<String, Boolean> loadSpreadsheet(String userName, String filePath) throws
+    public String loadSpreadsheet(String userName, String filePath) throws
             Exception {
 
         User currentUser = new User(userName);
@@ -71,14 +72,8 @@ public class EngineImpl implements Engine {
 
             // Check if the file path exists for this user
             if (userFiles.containsKey(fileName)) {
-                User fileOwner = entry.getKey();
-
-                if (!fileOwner.getUserName().equalsIgnoreCase(normalizedUserName)) {
-                    throw new SpreadsheetLoadingException("The file name '" + fileName + "' already exists for another user.");
-                } else {
-                    // File exists for this user, return without reloading
-                    return new Pair<>(fileName, false);
-                }
+                // File already exists for another user, throw exception
+                throw new SpreadsheetLoadingException("The file name '" + fileName + "' already exists for another user.");
             }
         }
 
@@ -94,7 +89,7 @@ public class EngineImpl implements Engine {
 
         userFiles.put(fileName, versionsManager); //add the version manager and the file name to the user's map
 
-        return new Pair<>(fileName, true); // Return that the file was newly loaded
+        return fileName; // Return that the file was newly loaded
     }
 
 

@@ -2,11 +2,13 @@ package servlets;
 
 import api.Engine;
 import com.google.gson.Gson;
+import engineimpl.EngineImpl;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import user.UserManager;
 import utils.Constants;
 import utils.ServletUtils;
+import utils.ServletUtils.*;
 import utils.SessionUtils;
 
 import java.io.IOException;
@@ -22,6 +24,7 @@ public class LoginServlet extends HttpServlet {
 
         String usernameFromSession = SessionUtils.getUsername(request);
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
+        EngineImpl engine = (EngineImpl) ServletUtils.getEngine(getServletContext());
 
         if (usernameFromSession == null) { //user is not logged in yet
 
@@ -47,7 +50,7 @@ public class LoginServlet extends HttpServlet {
                         try {
                             //add the new user to the users list
                             userManager.addUser(usernameFromParameter);
-
+                            engine.addUser(usernameFromParameter);
                         }
                         catch(Exception e) {
                             // stands for internal server error
