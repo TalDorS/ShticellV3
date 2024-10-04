@@ -8,8 +8,8 @@ public class CellDTO {
     private String originalValue;
     private Object effectiveValue;
     private int lastUpdatedVersion;
-    private final Map<String, CellDTO> dependsOnThem; // Cells this cell depends on
-    private final Map<String, CellDTO> dependsOnMe; // Cells that depend on this cell
+    private transient final Map<String, CellDTO> dependsOnThem; // Cells this cell depends on
+    private transient final Map<String, CellDTO> dependsOnMe; // Cells that depend on this cell
 
     public CellDTO(String originalValue, Object effectiveValue, int lastUpdatedVersion, Map<String, CellDTO> dependsOnThem, Map<String, CellDTO> dependsOnMe) {
         this.originalValue = originalValue;

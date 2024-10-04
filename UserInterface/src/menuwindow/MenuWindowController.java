@@ -149,7 +149,6 @@ public class MenuWindowController {
             public void onFailure(Call call, IOException e) {
                 Platform.runLater(() -> {
                     showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
-                    System.err.println("Request failed: " + e.getMessage()); // Log error message
                 });
             }
 
@@ -172,9 +171,7 @@ public class MenuWindowController {
                     Platform.runLater(() -> {
                         String errorMessage = responseBody;
                         showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-                        System.err.println("Error response: " + errorMessage); // Log error response
                     });
-
                 }
             }
         });
@@ -215,12 +212,14 @@ public class MenuWindowController {
 
     public void showGridWindow(String fileName, String userName) {
         try {
-            if (!gridWindowsStages.containsKey(fileName)) {  // Initialize the stage if it hasn't been created
-                // Insert the new filepath to grid maps
-                gridWindowsStages.put(fileName, new Stage());
+            Stage gridWindowStage;
 
-                // Get it
-                Stage gridWindowStage = gridWindowsStages.get(fileName);
+            // Check if the stage already exists; if not, create it
+            if (!gridWindowsStages.containsKey(fileName)) {
+                gridWindowStage = new Stage(); // Initialize the stage
+
+                // Insert the new file path into grid maps
+                gridWindowsStages.put(fileName, gridWindowStage);
 
                 // Load the FXML for the Grid Window
                 FXMLLoader appLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
@@ -232,30 +231,27 @@ public class MenuWindowController {
                 gridWindowController.setEngine(engine);
                 gridWindowController.setSpreadsheetData(fileName); // set the spreadsheet data also sets fileName
 
-                // Set up the scene and stage for the new Grid Window
+                // Set up the scene for the new Grid Window
                 Scene scene = new Scene(root);
-                gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
-                gridWindowStage.setTitle("Grid Window"+ " - " + fileName);
                 gridWindowStage.setScene(scene);
+                gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
+                gridWindowStage.setTitle("Grid Window" + " - " + fileName);
+
+                // Show the grid window immediately after creation
+                gridWindowStage.show();
             } else {
+                // If the stage already exists, just show it
                 gridWindowsStages.get(fileName).show();
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (CellUpdateException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidExpressionException e) {
-            throw new RuntimeException(e);
-        } catch (SpreadsheetLoadingException e) {
-            throw new RuntimeException(e);
-        } catch (RangeProcessException e) {
-            throw new RuntimeException(e);
-        } catch (CircularReferenceException e) {
+        } catch (CellUpdateException | InvalidExpressionException | SpreadsheetLoadingException | RangeProcessException | CircularReferenceException e) {
             throw new RuntimeException(e);
         }
     }
 
-//    public void showGridWindow(String fileName, String userName) {
+
+    //    public void showGridWindow(String fileName, String userName) {
 //        try {
 //            if (gridWindowStage == null) {  // Initialize the stage if it hasn't been created
 //                gridWindowStage = new Stage();

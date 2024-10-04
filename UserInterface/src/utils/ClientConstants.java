@@ -13,4 +13,5 @@ public class ClientConstants {
     public final static String LOGOUT = FULL_SERVER_PATH + "/logout";
     public final static String LOGIN_PAGE = FULL_SERVER_PATH + "/login";
     public final static String LOAD_SPREADSHEET = FULL_SERVER_PATH + "/loadSpreadsheet";
+    public final static String GET_ENGINE_DATA = FULL_SERVER_PATH + "/getEngineData";
 }
