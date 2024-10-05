@@ -5,8 +5,8 @@ import api.Expression;
 import api.Range;
 import cells.Cell;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import dto.*;
-import engineimpl.EngineImpl;
 import exceptions.engineexceptions.*;
 import expressionimpls.LiteralExpression;
 import gridwindow.top.*;
@@ -23,16 +23,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
+import okhttp3.*;
 import utils.ClientConstants;
 
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Duration;
-import javafx.util.Pair;
-import okhttp3.HttpUrl;
 import spreadsheet.Spreadsheet;
 import gridwindow.grid.MainGridAreaController;
 import gridwindow.grid.dynamicanalysisdialog.DynamicAnalysisDialogController;
@@ -43,6 +37,10 @@ import utils.AlertUtils;
 import utils.HttpClientUtil;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.text.NumberFormat;
 import java.util.*;
 
@@ -251,45 +249,98 @@ public class GridWindowController {
         }
     }
 
-    // Method that occurs when we try to update a cell in Options Bar Controller.
-    // It updates the relevant cell with its new info
     public void updateCellValue(String cellId, String newValue) {
-        try {
+        String userName = this.userName ;
+        String fileName = this.fileName;
+        String finalUrl = ClientConstants.UPDATE_CELL_VALUE; // The endpoint for updating the cell
 
-            // Update the value in the engine
-            engine.updateCellValue(userName,fileName,cellId, newValue);
-            EngineDTO engineDTO = engine.getEngineData(userName, fileName);
-            int currentVersionNumber = engineDTO.getCurrentVersionNumber();
-            SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
-            CellDTO currentCellDTO = spreadsheetDTO.getCellById(cellId);
+        // Create a form body to send the POST request with cell info
+        RequestBody body = new FormBody.Builder()
+                .add("userName", userName)
+                .add("fileName", fileName)
+                .add("cellId", cellId)
+                .add("newValue", newValue)
+                .build();
 
-            // Update the StringProperty for the cell ID
-            StringProperty cellProperty = mainGridAreaComponentController.getCellProperty(cellId);
+        System.out.println("Sending request to: " + finalUrl);
 
-            if (cellProperty != null) {
-                cellProperty.set(currentCellDTO.getEffectiveValue().toString());
-                updateSelectedCellInfo(cellId, currentCellDTO.getOriginalValue(), Integer.toString(currentCellDTO.getLastUpdatedVersion()));
-                optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber); // Update the current version label
-
-                Object effectiveValue = currentCellDTO.getEffectiveValue();
-                String effectiveValueString = String.valueOf(effectiveValue);
-
-                if (effectiveValue instanceof Boolean) {
-                    effectiveValueString = effectiveValueString.toUpperCase();
-                }
-
-                cellProperty.set(effectiveValueString);
-                optionsBarComponentController.updateCellInfo(cellId, currentCellDTO.getOriginalValue(), Integer.toString(currentCellDTO.getLastUpdatedVersion()));
+        // Execute the request asynchronously
+        HttpClientUtil.runAsyncPost(finalUrl, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Platform.runLater(() -> {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
+                });
             }
 
-            // Update all dependent cells
-            updateDependentCells(cellId,false);
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                System.out.println("Received response code: " + response.code());
 
-        } catch (Exception e) { // Catch any exceptions thrown during the update
-            // Show an error alert with the exception message
-            showAlert(Alert.AlertType.ERROR, "Error Updating Cell", e.getMessage());
-        }
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+
+                    // If the cell update is successful, now retrieve the updated spreadsheet data
+                    Platform.runLater(() -> {
+                        try {
+                            setSpreadsheetData(fileName); // Retrieve the full spreadsheet data after the cell update
+                            //showAlert(Alert.AlertType.INFORMATION, "Success", "Cell updated successfully and spreadsheet reloaded.");
+                            System.out.println("Cell updated successfully and spreadsheet reloaded.");
+                        } catch (Exception e) {
+                            showAlert(Alert.AlertType.ERROR, "Error", "Error while reloading the spreadsheet: " + e.getMessage());
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        String errorMessage = String.valueOf(response);
+                        showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+                        System.err.println("Error response: " + errorMessage); // Log error response
+                    });
+                }
+            }
+        });
     }
+
+
+    // Method that occurs when we try to update a cell in Options Bar Controller.
+//    // It updates the relevant cell with its new info
+//    public void updateCellValue(String cellId, String newValue) {
+//        try {
+//
+//            // Update the value in the engine
+//            engine.updateCellValue(userName,fileName,cellId, newValue);
+//            EngineDTO engineDTO = engine.getEngineData(userName, fileName);
+//            int currentVersionNumber = engineDTO.getCurrentVersionNumber();
+//            SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
+//            CellDTO currentCellDTO = spreadsheetDTO.getCellById(cellId);
+//
+//            // Update the StringProperty for the cell ID
+//            StringProperty cellProperty = mainGridAreaComponentController.getCellProperty(cellId);
+//
+//            if (cellProperty != null) {
+//                cellProperty.set(currentCellDTO.getEffectiveValue().toString());
+//                updateSelectedCellInfo(cellId, currentCellDTO.getOriginalValue(), Integer.toString(currentCellDTO.getLastUpdatedVersion()));
+//                optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber); // Update the current version label
+//
+//                Object effectiveValue = currentCellDTO.getEffectiveValue();
+//                String effectiveValueString = String.valueOf(effectiveValue);
+//
+//                if (effectiveValue instanceof Boolean) {
+//                    effectiveValueString = effectiveValueString.toUpperCase();
+//                }
+//
+//                cellProperty.set(effectiveValueString);
+//                optionsBarComponentController.updateCellInfo(cellId, currentCellDTO.getOriginalValue(), Integer.toString(currentCellDTO.getLastUpdatedVersion()));
+//            }
+//
+//            // Update all dependent cells
+//            updateDependentCells(cellId,false);
+//
+//        } catch (Exception e) { // Catch any exceptions thrown during the update
+//            // Show an error alert with the exception message
+//            showAlert(Alert.AlertType.ERROR, "Error Updating Cell", e.getMessage());
+//        }
+//    }
 
     // Method to update all dependent cells
     private void updateDependentCells(String cellId, Boolean isDynamicAnalysis) {
@@ -389,13 +440,61 @@ public class GridWindowController {
         return formattedRanges;
     }
 
-    public List<VersionDTO> getVersionsForMenu() {
+//    public List<VersionDTO> getVersionsForMenu() {
+//
+//        EngineDTO engineDTO = engine.getEngineData(userName, fileName);
+//        Map<Integer, VersionDTO> versionMap = engineDTO.getVersions();
+//
+//        // Convert the map values (VersionDTO) to a list and return it
+//        return versionMap.values().stream().collect(Collectors.toList());
+//    }
 
-        EngineDTO engineDTO = engine.getEngineData(userName, fileName);
-        Map<Integer, VersionDTO> versionMap = engineDTO.getVersions();
+    public List<VersionDTO> getVersions() {
+        // Build the URL for the GET request to retrieve versions
+        String finalUrl = HttpUrl
+                .parse(ClientConstants.GET_VERSIONS) // Use your constant URL
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("fileName", fileName)
+                .build()
+                .toString();
 
-        // Convert the map values (VersionDTO) to a list and return it
-        return versionMap.values().stream().collect(Collectors.toList());
+        System.out.println("Sending request to: " + finalUrl);
+
+        // Create a new HttpClient
+        HttpClient httpClient = HttpClient.newHttpClient();
+
+        // Create a new HttpRequest
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(finalUrl))
+                .GET()
+                .build();
+
+        try {
+            // Send the request synchronously
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // Check if the response is successful
+            if (response.statusCode() == 200) {
+                String responseBody = response.body();
+
+                // Parse the JSON response into List<VersionDTO>
+                Gson gson = new Gson();
+                List<VersionDTO> versionsDTO = gson.fromJson(responseBody, new TypeToken<List<VersionDTO>>() {}.getType()); // Deserialize JSON
+                return versionsDTO; // Return the list of VersionDTO
+            } else {
+                String errorMessage = "Failed to load versions: " + response.body();
+                showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+                System.err.println("Error response: " + errorMessage); // Log error response
+                return null; // Return null on error
+            }
+        } catch (IOException | InterruptedException e) {
+            // Handle the failure case
+            String errorMessage = "Failed to connect to the server: " + e.getMessage();
+            showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+            System.err.println("Request failed: " + e.getMessage());
+            return null; // Return null on failure
+        }
     }
 
 
@@ -531,12 +630,111 @@ public class GridWindowController {
     }
 
     public Cell getCellById(String cellId) {
-        return engine.getCurrentSpreadsheet(userName, fileName).getCellById(cellId);
+        // Build the URL for the GET request to retrieve cell data
+        String finalUrl = HttpUrl
+                .parse(ClientConstants.GET_CELL_BY_ID)
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("fileName", fileName)
+                .addQueryParameter("cellId", cellId)
+                .build()
+                .toString();
+
+        System.out.println("Sending request to: " + finalUrl);
+
+        // Create a new HttpClient
+        HttpClient httpClient = HttpClient.newHttpClient();
+
+        // Create a new HttpRequest
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(finalUrl))
+                .GET()
+                .build();
+
+        try {
+            // Send the request synchronously
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // Check if the response is successful
+            if (response.statusCode() == 200) {
+                String responseBody = response.body();
+
+                // Parse the JSON response into Cell
+                Gson gson = new Gson();
+                Cell cell = gson.fromJson(responseBody, Cell.class); // Deserialize JSON to Cell
+                return cell; // Return the Cell object
+            } else {
+                String errorMessage = "Failed to load cell data: " + response.body();
+                showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+                System.err.println("Error response: " + errorMessage); // Log error response
+                return null; // Return null on error
+            }
+        } catch (IOException | InterruptedException e) {
+            // Handle the failure
+            String errorMessage = "Failed to connect to the server: " + e.getMessage();
+            showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+            System.err.println("Request failed: " + e.getMessage());
+            return null; // Return null on failure
+        }
     }
 
-    public Spreadsheet getSpreadsheetByVersion(int versionNumber) throws UserNotFoundException, FileNotFoundException {
-        return engine.getSpreadsheetByVersion(userName, fileName, versionNumber);
+
+//    public Cell getCellById(String cellId) {
+//        return engine.getCurrentSpreadsheet(userName, fileName).getCellById(cellId);
+//    }
+
+    public SpreadsheetDTO getSpreadsheetByVersion(int versionNumber) {
+        // Build the URL for the GET request to retrieve spreadsheet data
+        String finalUrl = HttpUrl
+                .parse(ClientConstants.GET_SPREADSHEET_BY_VERSION) // Use your constant URL
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("fileName", fileName)
+                .addQueryParameter("versionNumber", String.valueOf(versionNumber))
+                .build()
+                .toString();
+
+        System.out.println("Sending request to: " + finalUrl);
+
+        // Create a new HttpClient
+        HttpClient httpClient = HttpClient.newHttpClient();
+
+        // Create a new HttpRequest
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(finalUrl))
+                .GET()
+                .build();
+
+        try {
+            // Send the request synchronously
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // Check if the response is successful
+            if (response.statusCode() == 200) {
+                String responseBody = response.body();
+
+                // Parse the JSON response into SpreadsheetDTO
+                Gson gson = new Gson();
+                SpreadsheetDTO spreadsheetDTO = gson.fromJson(responseBody, SpreadsheetDTO.class); // Deserialize JSON
+                return spreadsheetDTO; // Return the SpreadsheetDTO object
+            } else {
+                String errorMessage = "Failed to load spreadsheet: " + response.body();
+                showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+                System.err.println("Error response: " + errorMessage); // Log error response
+                return null; // Return null on error
+            }
+        } catch (IOException | InterruptedException e) {
+            // Handle the failure case
+            String errorMessage = "Failed to connect to the server: " + e.getMessage();
+            showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+            System.err.println("Request failed: " + e.getMessage());
+            return null; // Return null on failure
+        }
     }
+
+//    public Spreadsheet getSpreadsheetByVersion(int versionNumber) throws UserNotFoundException, FileNotFoundException {
+//        return engine.getSpreadsheetByVersion(userName, fileName, versionNumber);
+//    }
 
     public List<String> getCurrentColumns() throws UserNotFoundException, FileNotFoundException {
         Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet(userName, fileName);
@@ -668,9 +866,9 @@ public class GridWindowController {
         return mainGridAreaComponentController.getTextFieldMap();
     }
 
-    public EngineDTO getEngine() {
-        return engine.getEngineData(userName, fileName);
-    }
+//    public EngineDTO getEngine() {
+//        return engine.getEngineData(userName, fileName);
+//    }
 
     public void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException, UserNotFoundException, FileNotFoundException {
         engine.checkForCircularReferences(userName, fileName, cellId, newExpression);

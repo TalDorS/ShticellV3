@@ -1,6 +1,7 @@
 package dto;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // This class is for creating the spreadsheet data transfer object
 public class SpreadsheetDTO {
@@ -50,4 +51,5 @@ public class SpreadsheetDTO {
     }
 
     public int getVersionNumber() { return versionNumber;}
+
 }

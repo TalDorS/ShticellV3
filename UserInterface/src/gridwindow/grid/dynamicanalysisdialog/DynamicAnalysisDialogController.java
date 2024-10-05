@@ -33,6 +33,33 @@ public class DynamicAnalysisDialogController {
     public void setMainController(GridWindowController gridWindowController) {
         this.gridWindowController = gridWindowController;
     }
+//    public void openDynamicAnalysisDialog(String cellId) {
+//        this.cellId = cellId;
+//
+//        // Fetch the cell asynchronously
+//        gridWindowController.fetchCellById(cellId, new GridWindowController.CellCallback() {
+//            @Override
+//            public void onCellReceived(Cell cell) {
+//                if (cell == null || !(cell.getEffectiveValue() instanceof Number)) {
+//                    showError("Dynamic Analysis can only be performed on cells with numeric values.");
+//                    return;
+//                }
+//                if (cell.getExpression() instanceof FunctionExpression) {
+//                    showError("Dynamic Analysis cannot be performed on numbers made out of functions.");
+//                    return;
+//                }
+//
+//                originalValue = Double.parseDouble(cell.getEffectiveValue().toString());
+//
+//                // Set listeners for dynamic behavior
+//                setListeners();
+//
+//                // Show the dialog
+//                createAndShowDialog();
+//            }
+//        });
+//    }
+
 
     public void openDynamicAnalysisDialog(String cellId) {
         this.cellId = cellId;

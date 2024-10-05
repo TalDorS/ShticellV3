@@ -14,7 +14,7 @@ import utils.ServletUtils;
 import java.io.IOException;
 
 @WebServlet(name = "EngineDataServlet", urlPatterns = "/getEngineData")
-public class EngineDataServlet extends HttpServlet {
+public class GetEngineDataServlet extends HttpServlet {
 
     Gson gson = new GsonBuilder()
             .disableHtmlEscaping()  // Slightly improve speed

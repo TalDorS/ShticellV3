@@ -295,6 +295,26 @@ public class MainGridAreaController implements SpreadsheetController {
             }
         }
     }
+//    private void handleCellClick(String cellId) {
+//        if (isPopup) {
+//            return;
+//        }
+//
+//        // Fetch the cell asynchronously
+//        mainController.fetchCellById(cellId, new GridWindowController.CellCallback() {
+//            @Override
+//            public void onCellReceived(Cell currentCell) {
+//                if (currentCell != null) {
+//                    highlightDependencies(currentCell);
+//                }
+//
+//                String lastUpdateVersion = (currentCell != null) ? Integer.toString(currentCell.getLastUpdatedVersion()) : "1";
+//                String cellOriginalValue = (currentCell != null) ? String.valueOf(currentCell.getOriginalValue()) : "";
+//
+//                mainController.updateSelectedCellInfo(cellId, cellOriginalValue, lastUpdateVersion);
+//            }
+//        });
+//    }
 
     private void handleCellClick(String cellId) {
         if (isPopup) {
