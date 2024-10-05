@@ -77,27 +77,25 @@ public class VersionsManager implements Serializable {
                     cell.getOriginalValue(),
                     cell.getEffectiveValue(),
                     cell.getLastUpdatedVersion(),
-                    new HashMap<>(),  // Placeholder for dependsOnThem
-                    new HashMap<>()   // Placeholder for dependsOnMe
+                    new ArrayList<>(), // Placeholder for dependsOnThemIds
+                    new ArrayList<>()  // Placeholder for dependsOnMeIds
             );
             cellDTOMap.put(entry.getKey(), cellDTO);
         }
-        // Update the dependencies in the CellDTOs
+        // Second pass: Populate dependencies by adding cell IDs
         for (Map.Entry<String, Cell> entry : cells.entrySet()) {
             String cellId = entry.getKey();
             Cell cell = entry.getValue();
             CellDTO cellDTO = cellDTOMap.get(cellId);
 
-            // Deep copy for dependsOnThem
-            for (Map.Entry<String, Cell> dependsOnThemEntry : cell.getDependsOnThem().entrySet()) {
-                String dependsOnId = dependsOnThemEntry.getKey();
-                cellDTO.getDependsOnThem().put(dependsOnId, cellDTOMap.get(dependsOnId));
+            // Populate dependsOnThemIds
+            for (String dependsOnId : cell.getDependsOnThem().keySet()) {
+                cellDTO.getDependsOnThemIds().add(dependsOnId);
             }
 
-            // Deep copy for dependsOnMe
-            for (Map.Entry<String, Cell> dependsOnMeEntry : cell.getDependsOnMe().entrySet()) {
-                String dependsOnId = dependsOnMeEntry.getKey();
-                cellDTO.getDependsOnMe().put(dependsOnId, cellDTOMap.get(dependsOnId));
+            // Populate dependsOnMeIds
+            for (String dependsOnMeId : cell.getDependsOnMe().keySet()) {
+                cellDTO.getDependsOnMeIds().add(dependsOnMeId);
             }
         }
 

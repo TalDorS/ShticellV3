@@ -1,5 +1,6 @@
 package servlets;
 
+import engineimpl.EngineImpl;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,11 +18,13 @@ public class LogoutServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String usernameFromSession = SessionUtils.getUsername(request);
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
-        System.out.println("Cookies received: " + Arrays.toString(request.getCookies())); // Debugging statement
+        EngineImpl engine = (EngineImpl) ServletUtils.getEngine(getServletContext());
 
+        System.out.println("Cookies received: " + Arrays.toString(request.getCookies())); // Debugging statement
         if (usernameFromSession != null) {
             System.out.println("Clearing session for " + usernameFromSession);
             userManager.removeUser(usernameFromSession);
+            engine.removeUser(usernameFromSession);
             //todo maybe remove the client from the engine with all of its files- update the map in engine
             SessionUtils.clearSession(request);
             response.setStatus(HttpServletResponse.SC_OK); // Set response to 200 OK

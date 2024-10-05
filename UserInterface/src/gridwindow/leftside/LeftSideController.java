@@ -1,5 +1,6 @@
 package gridwindow.leftside;
 
+import dto.RangeDTO;
 import exceptions.engineexceptions.FileNotFoundException;
 import exceptions.engineexceptions.UserNotFoundException;
 import gridwindow.leftside.addrangedialog.AddRangeDialogController;
@@ -171,6 +172,21 @@ public class LeftSideController {
             String name = entry.getKey();
             String firstCell = entry.getValue()[0];
             String lastCell = entry.getValue()[1];
+
+            addRangeToUI(name, firstCell, lastCell);
+        }
+    }
+
+    // Method to refresh the range list in the UI for displaying rangesDTO
+    public void refreshRanges(List<RangeDTO> rangesDTO) {
+        // Clear the current list of ranges
+        rangesAccordion.getPanes().clear();
+
+        // Rebuild the range list in the UI using the rangesDTO list
+        for (RangeDTO rangeDTO : rangesDTO) {
+            String name = rangeDTO.getName();
+            String firstCell = rangeDTO.getStartCell();
+            String lastCell = rangeDTO.getEndCell();
 
             addRangeToUI(name, firstCell, lastCell);
         }

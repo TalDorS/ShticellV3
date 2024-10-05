@@ -1,5 +1,7 @@
 package dto;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -8,16 +10,18 @@ public class CellDTO {
     private String originalValue;
     private Object effectiveValue;
     private int lastUpdatedVersion;
-    private transient final Map<String, CellDTO> dependsOnThem; // Cells this cell depends on
-    private transient final Map<String, CellDTO> dependsOnMe; // Cells that depend on this cell
+    private final List<String> dependsOnThemIds; // Cell IDs this cell depends on
+    private final List<String> dependsOnMeIds; // Cell IDs that depend on this cell
 
-    public CellDTO(String originalValue, Object effectiveValue, int lastUpdatedVersion, Map<String, CellDTO> dependsOnThem, Map<String, CellDTO> dependsOnMe) {
+
+    public CellDTO(String originalValue, Object effectiveValue, int lastUpdatedVersion, List<String> dependsOnThemIds, List<String> dependsOnMeIds) {
         this.originalValue = originalValue;
         this.effectiveValue = effectiveValue;
         this.lastUpdatedVersion = lastUpdatedVersion;
-        this.dependsOnThem = dependsOnThem;
-        this.dependsOnMe = dependsOnMe;
+        this.dependsOnThemIds = dependsOnThemIds;
+        this.dependsOnMeIds = dependsOnMeIds;
     }
+
 
     // Getters and Setters
     public String getOriginalValue() {
@@ -44,16 +48,16 @@ public class CellDTO {
         this.lastUpdatedVersion = lastUpdatedVersion;
     }
 
-    public int getNumOfDependOnMe() {return dependsOnMe.size();}
+    public int getNumOfDependOnMeIds() {return dependsOnMeIds.size();}
 
-    public int getNumOfDependsOnThem() {return dependsOnThem.size();}
+    public int getNumOfDependsOnThemIds() {return dependsOnThemIds.size();}
 
-    public Map<String, CellDTO> getDependsOnThem() {
-        return dependsOnThem;
+    public List<String> getDependsOnThemIds() {
+        return dependsOnThemIds;
     }
 
-    public Map<String, CellDTO> getDependsOnMe() {
-        return dependsOnMe;
+    public List<String> getDependsOnMeIds() {
+        return dependsOnMeIds;
     }
 
     // Override toString to show only the keys (IDs) in dependsOnThem and dependsOnMe
@@ -62,13 +66,12 @@ public class CellDTO {
         return  "Original Value = " + originalValue + "\n" +
                 "Effective Value = " + effectiveValue + "\n" +
                 "Last Update Version = " + lastUpdatedVersion + "\n" +
-                "Cells that this cell depends on = " + mapKeysToString(dependsOnThem) + "\n" +
-                "Cells that depend on this cell = " + mapKeysToString(dependsOnMe) + "\n";
+                "Cells that this cell depends on = " +  listToString(dependsOnThemIds) + "\n" +
+                "Cells that depend on this cell = " + listToString(dependsOnMeIds)  + "\n";
     }
 
-    // Helper method to convert the keys of a map to a string
-    private String mapKeysToString(Map<String, CellDTO> map) {
-        return map.keySet().stream()
-                .collect(Collectors.joining(", ", "{", "}"));
+    // Helper method to convert the list of IDs to a string
+    private String listToString(List<String> list) {
+        return list.stream().collect(Collectors.joining(", ", "{", "}"));
     }
 }

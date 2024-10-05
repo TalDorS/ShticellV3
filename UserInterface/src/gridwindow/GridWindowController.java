@@ -5,10 +5,7 @@ import api.Expression;
 import api.Range;
 import cells.Cell;
 import com.google.gson.Gson;
-import dto.CellDTO;
-import dto.EngineDTO;
-import dto.SpreadsheetDTO;
-import dto.VersionDTO;
+import dto.*;
 import engineimpl.EngineImpl;
 import exceptions.engineexceptions.*;
 import expressionimpls.LiteralExpression;
@@ -158,7 +155,7 @@ public class GridWindowController {
                     // Now, use the data as before
                     int currentVersionNumber = engineDTO.getCurrentVersionNumber();
                     SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
-
+                    List<RangeDTO> rangesDTO = engineDTO.getRanges();
                     // Update the table view and UI
                     Platform.runLater(() -> {
                         mainGridAreaComponentController.clearGrid();
@@ -166,11 +163,7 @@ public class GridWindowController {
                         mainGridAreaComponentController.start(spreadsheetDTO, false);
 
                         // Refresh dependent UI elements
-//                        try {
-//                            leftSideComponentController.refreshRanges();
-//                        } catch (UserNotFoundException | FileNotFoundException e) {
-//                            throw new RuntimeException(e);
-//                        }
+                        leftSideComponentController.refreshRanges(rangesDTO);  // Pass the rangesDTO to refreshRanges method
                     });
                 } else {
                     Platform.runLater(() -> {
@@ -183,6 +176,7 @@ public class GridWindowController {
         });
 
     }
+
 
 //    public void setSpreadsheetData(String fileName) throws CellUpdateException, InvalidExpressionException,
 //            SpreadsheetLoadingException, RangeProcessException, CircularReferenceException {
