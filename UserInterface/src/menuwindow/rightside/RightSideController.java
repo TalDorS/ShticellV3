@@ -30,7 +30,7 @@ public class RightSideController {
 
     @FXML
     private void initialize() {
-        viewSheetButton.setOnAction(event -> handleViewSheetButtonAction());
+        //viewSheetButton.setOnAction(event -> handleViewSheetButtonAction()); // TODO get out of comment
 
         requestPermissionButton.setOnAction(event -> handleRequestPermissionButtonAction());
 
@@ -44,19 +44,20 @@ public class RightSideController {
 
     }
 
+    // TODO get out of comment
 //todo- change to file name instead of file path?? not sureee
-    private void handleViewSheetButtonAction() {
-        String selectedFileName = mainController.getAvailableSheetTableController().getSelectedFileName();
-        String userName = mainController.getUserName();
-
-        if (selectedFileName != null && userName != null) {
-            // Open the Grid Window and pass the selected file
-            mainController.showGridWindow(selectedFileName, userName);
-        } else {
-            // Handle the case where no file is selected, for example, show a warning dialog
-            AlertUtils.showAlert(Alert.AlertType.ERROR, "No File Selected", "Please select a file to view.");
-        }
-    }
+//    private void handleViewSheetButtonAction() {
+//        String selectedFileName = mainController.getAvailableSheetTableController().getSelectedFileName();
+//        String userName = mainController.getUserName();
+//
+//        if (selectedFileName != null && userName != null) {
+//            // Open the Grid Window and pass the selected file
+//            mainController.showGridWindow(selectedFileName, userName);
+//        } else {
+//            // Handle the case where no file is selected, for example, show a warning dialog
+//            AlertUtils.showAlert(Alert.AlertType.ERROR, "No File Selected", "Please select a file to view.");
+//        }
+//    }
 
     public void setMainController(MenuWindowController mainController) {
         this.mainController = mainController;

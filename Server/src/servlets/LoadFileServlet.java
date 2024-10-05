@@ -21,7 +21,6 @@ public class LoadFileServlet extends HttpServlet {
         // Get user session and the engine
 
         String usernameFromSession = SessionUtils.getUsername(request);
-        UserManager userManager = ServletUtils.getUserManager(getServletContext());
         Engine engine = ServletUtils.getEngine(getServletContext());
 
         if (usernameFromSession == null) {

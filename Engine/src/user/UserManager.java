@@ -1,8 +1,6 @@
 package user;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /*
 Adding and retrieving users is synchronized and in that manner - these actions are thread safe
@@ -11,33 +9,26 @@ of the user of this class to handle the synchronization of isUserExists with oth
  */
 public class UserManager {
 
-    private final Set<String> usersSet;
+    private final Map<String, User> usersMap;
 
     public UserManager() {
-        usersSet = new HashSet<>();
+        usersMap = new HashMap<>();
     }
 
     public synchronized void addUser(String username) throws Exception {
-        usersSet.add(username);
+        usersMap.put(username, new User(username));
     }
 
     public synchronized void removeUser(String username) {
-        usersSet.remove(username);
+        usersMap.remove(username);
     }
 
-    public synchronized Set<String> getUsers() {
-        return Collections.unmodifiableSet(usersSet);
+    public synchronized User getUser(String username) {
+        return usersMap.get(username);
     }
 
     public boolean isUserExists(String username) {
-
-        // Iterate through the set and check for case-insensitive match
-        for (String existingUser : usersSet) {
-            if (existingUser.equalsIgnoreCase(username)) {
-                return true; // User exists
-            }
-        }
-        return false; // User does not exist
+        return usersMap.containsKey(username);
     }
 
 }

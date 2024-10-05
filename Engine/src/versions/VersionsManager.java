@@ -26,19 +26,21 @@ public class VersionsManager implements Serializable {
     private final Map<Integer, Version> versions;
     private final RangesManager rangesManager;
     private final SpreadsheetFilter spreadsheetFilterer;
+    private final String uploaderName;
     private static final int MAX_ROWS = 50;
     private static final int MAX_COLS = 20;
     private Supplier<Spreadsheet> spreadsheetSupplier = this::getCurrentSpreadsheet;
     private int currentVersionNumber;
 
-    public VersionsManager(RangesManager rangesManager, SpreadsheetFilter spreadsheetFilterer) {
-        this.rangesManager = rangesManager;
-        this.spreadsheetFilterer = spreadsheetFilterer;
-        this.versions = new HashMap<>();
-        this.currentVersionNumber = 0;
-    }
+//    public VersionsManager(RangesManager rangesManager, SpreadsheetFilter spreadsheetFilterer) {
+//        this.rangesManager = rangesManager;
+//        this.spreadsheetFilterer = spreadsheetFilterer;
+//        this.versions = new HashMap<>();
+//        this.currentVersionNumber = 0;
+//    }
 
-    public VersionsManager(){
+    public VersionsManager(String username) {
+        this.uploaderName = username;
         this.rangesManager = new RangesManager();
         this.spreadsheetFilterer = new SpreadsheetFilter(this);
         this.versions = new HashMap<>();
@@ -818,6 +820,18 @@ public class VersionsManager implements Serializable {
 
     public Expression parseExpression (String input) throws InvalidExpressionException {
         return ExpressionParser.parse(input, spreadsheetSupplier, rangesManager);
+    }
+
+    public String getUploaderName() {
+        return uploaderName;
+    }
+
+    public int getRows() {
+        return getCurrentSpreadsheet().getRows();
+    }
+
+    public int getCols() {
+        return getCurrentSpreadsheet().getColumns();
     }
 
     public String getSpreadsheetName() {

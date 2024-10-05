@@ -23,8 +23,7 @@ public class LoginServlet extends HttpServlet {
         response.setContentType("text/plain;charset=UTF-8");
 
         String usernameFromSession = SessionUtils.getUsername(request);
-        UserManager userManager = ServletUtils.getUserManager(getServletContext());
-        EngineImpl engine = (EngineImpl) ServletUtils.getEngine(getServletContext());
+        Engine engine = (EngineImpl) ServletUtils.getEngine(getServletContext());
 
         if (usernameFromSession == null) { //user is not logged in yet
 
@@ -39,7 +38,7 @@ public class LoginServlet extends HttpServlet {
                 usernameFromParameter = usernameFromParameter.trim();
 
                 synchronized (this) {
-                    if (userManager.isUserExists(usernameFromParameter)) {
+                    if (engine.isUserExist(usernameFromParameter)) {
                         String errorMessage = "Username " + usernameFromParameter + " already exists.\n Please enter a different username.";
 
                         // stands for unauthorized as there is already such user with this name
@@ -49,7 +48,6 @@ public class LoginServlet extends HttpServlet {
                     else {
                         try {
                             //add the new user to the users list
-                            userManager.addUser(usernameFromParameter);
                             engine.addUser(usernameFromParameter);
                         }
                         catch(Exception e) {
