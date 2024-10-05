@@ -18,7 +18,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 public class AvailableSheetTableController {
-
     private MenuWindowController mainController;
 
     @FXML
@@ -94,5 +93,16 @@ public class AvailableSheetTableController {
 
     public void setMainController(MenuWindowController mainController) {
         this.mainController = mainController;
+    }
+
+    // Return the sheet name of the currently selected row
+    public String getSelectedFileName() {
+        SheetDetails selectedSheet = sheetTableView.getSelectionModel().getSelectedItem(); // Get the selected item
+
+        if (selectedSheet != null) {
+            return selectedSheet.getSheetName(); // Return the sheet name of the selected item
+        }
+
+        return null; // Return null if no row is selected
     }
 }
