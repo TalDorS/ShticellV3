@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+
+<TableView fx:id="sheetTableView" prefHeight="295.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="menuwindow.center.sheettable.AvailableSheetTableController">
+  <columns>
+      <TableColumn fx:id="sheetNameColumn" prefWidth="150" text="Spreadsheet Name" />
+      <TableColumn fx:id="userColumn" prefWidth="150" text="Uploader Name" />
+      <TableColumn fx:id="sheetSizeColumn" prefWidth="100" text="Spreadsheet Size" />
+      <TableColumn fx:id="permissionColumn" prefWidth="100" text="Permission" />
+  </columns>
+</TableView>

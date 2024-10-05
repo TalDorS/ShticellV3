@@ -21,7 +21,7 @@ public class HttpClientUtil {
         simpleCookieManager.removeCookiesOf(domain);
     }
 
-    public static void runAsync(String finalUrl, Callback callback) {
+    public static void runAsyncGet(String finalUrl, Callback callback) {
         Request request = new Request.Builder()
                 .url(finalUrl)
                 .build();

@@ -17,5 +17,7 @@
     <orderEntry type="library" name="kotlin-stdlib-1.4.10" level="project" />
     <orderEntry type="library" name="okhttp-4.9.1" level="project" />
     <orderEntry type="library" name="okio-2.8.0" level="project" />
+    <orderEntry type="library" name="gson-2.1" level="project" />
+    <orderEntry type="library" name="angus-activation" level="project" />
   </component>
 </module>

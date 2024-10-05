@@ -1,8 +1,6 @@
 package menuwindow;
 
 import api.Engine;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import engineimpl.EngineImpl;
 import exceptions.engineexceptions.*;
 import gridwindow.GridWindowController;
@@ -15,21 +13,18 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import menuwindow.center.AvailableSheetTableController;
+import menuwindow.center.sheettable.AvailableSheetTableController;
 import menuwindow.rightside.RightSideController;
 import menuwindow.top.HeaderLoadController;
 import okhttp3.*;
 import utils.ClientConstants;
 import utils.HttpClientUtil;
 import utils.SimpleCookieManager;
-import javafx.util.Pair;
 
 import java.io.IOException;
 import java.util.*;
 
 import static utils.AlertUtils.showAlert;
-import static utils.ClientConstants.JSON;
-import static utils.ClientConstants.LOAD_SPREADSHEET;
 import static utils.CommonResourcesPaths.GRID_WINDOW_FXML;
 
 public class MenuWindowController {
@@ -164,7 +159,7 @@ public class MenuWindowController {
                         // Manually parse the response for success
                         String fileName = responseBody;
                         if (fileName != null) {
-                            availableSheetTableComponentController.addFileNameToTable(fileName);
+                            availableSheetTableComponentController.updateSheetDetails();
                             showAlert(Alert.AlertType.INFORMATION, "Success", "Spreadsheet loaded successfully.");
                         }
                     });

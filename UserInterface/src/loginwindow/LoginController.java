@@ -20,7 +20,6 @@ import utils.HttpClientUtil;
 import utils.SimpleCookieManager;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static utils.CommonResourcesPaths.MENU_WINDOW_FXML;
@@ -59,7 +58,7 @@ public class LoginController {
                 .build()
                 .toString();
 
-        HttpClientUtil.runAsync(finalUrl, new Callback() {
+        HttpClientUtil.runAsyncGet(finalUrl, new Callback() {
 
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
