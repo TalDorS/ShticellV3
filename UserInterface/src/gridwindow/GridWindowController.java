@@ -134,7 +134,7 @@ public class GridWindowController {
         System.out.println("Sending request to: " + finalUrl);
 
         // Send the GET request asynchronously
-        HttpClientUtil.runAsync(finalUrl, new Callback() {
+        HttpClientUtil.runAsyncGet(finalUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Platform.runLater(() -> {
