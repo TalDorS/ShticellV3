@@ -4,6 +4,7 @@ import dto.VersionDTO;
 import exceptions.engineexceptions.FileNotFoundException;
 import exceptions.engineexceptions.UserNotFoundException;
 import gridwindow.top.interactiveformuladialog.InteractiveFormulaDialogController;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 
 import java.io.IOException;
@@ -85,9 +86,11 @@ public class OptionsBarController {
         currentVersionLabel.setText("Current Version: " + versionNumber);
     }
 
+
     @FXML
     private void handleVersionSelectorButtonAction() {
-        List<VersionDTO> versions = mainController.getVersionsForMenu();
+
+        List<VersionDTO> versions = mainController.getVersions();
         versionSelectorButton.getItems().clear(); // Clear the previous menu items
 
         if(versions == null || versions.isEmpty()) {
@@ -124,7 +127,7 @@ public class OptionsBarController {
             gridController.setMainController(mainController);
 
             // Set the engine and initialize the grid for the correct version
-            gridController.start(mainController.getEngine().getSpreadsheetByVersion(versionNumber), true);
+            gridController.start(mainController.getSpreadsheetByVersion(versionNumber), true);
 
             // Create a new stage (window)
             Stage popupStage = new Stage();
