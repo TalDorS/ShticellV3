@@ -23,5 +23,6 @@
     <orderEntry type="library" exported="" name="gson-2.1-javadoc" level="project" />
     <orderEntry type="module" module-name="Engine" exported="" />
     <orderEntry type="library" exported="" name="angus-activation" level="project" />
+    <orderEntry type="module" module-name="DTO" exported="" />
   </component>
 </module>

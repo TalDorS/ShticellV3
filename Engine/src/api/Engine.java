@@ -31,6 +31,8 @@ public interface Engine {
     void checkForCircularReferences(String userName, String fileName, String cellId, Expression newExpression) throws CircularReferenceException, FileNotFoundException, UserNotFoundException;
     SpreadsheetDTO convertSpreadsheetToDTO(Spreadsheet spreadsheet);
     void addUser(String userName) throws Exception;
+    void removeUser(String userName) throws Exception;
     boolean isUserExist(String userName);
     Map<String, VersionsManager> getClientFilesVersions(String username);
 }
+

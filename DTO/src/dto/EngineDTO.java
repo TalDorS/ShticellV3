@@ -1,6 +1,7 @@
 package dto;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 // This class is for creating the engine data transfer object
@@ -38,5 +39,9 @@ public class EngineDTO {
         }
 
         return versions.get(versionNumber).getSpreadsheet();    //minus 1 due to user compatibility
+    }
+
+    public List<RangeDTO> getRanges(){
+        return versions.get(currentVersionNumber).getRanges();
     }
 }

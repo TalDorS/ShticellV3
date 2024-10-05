@@ -88,7 +88,6 @@ public class HeaderLoadController {
             protected Void call() {
                     // Perform spreadsheet loading on the background thread
                 try {
-                    System.out.println("Starting to load spreadsheet: " + filePath);
 
                     simulateLoading(); // Simulate loading process
                     loadSpreadsheet(filePath);
@@ -115,13 +114,11 @@ public class HeaderLoadController {
                     }
                     Thread.sleep(20); // Simulate work
                     updateProgress(i, 100);
-                    System.out.println("Loading progress: " + i + "%");
                 }
             }
 
             private void loadSpreadsheet(String filePath) throws Exception {
                 if (mainController != null) {
-                    System.out.println("Main controller is available, calling loadSpreadsheet.");
                     try {
                         mainController.loadSpreadsheet(filePath);
                     } catch (Exception e) {

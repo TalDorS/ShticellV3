@@ -4,10 +4,8 @@ import api.Engine;
 import api.Expression;
 import api.Range;
 import cells.Cell;
-import dto.CellDTO;
-import dto.EngineDTO;
-import dto.SpreadsheetDTO;
-import dto.VersionDTO;
+import com.google.gson.Gson;
+import dto.*;
 import engineimpl.EngineImpl;
 import exceptions.engineexceptions.*;
 import expressionimpls.LiteralExpression;
@@ -25,11 +23,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+import utils.ClientConstants;
 
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import javafx.util.Pair;
+import okhttp3.HttpUrl;
 import spreadsheet.Spreadsheet;
 import gridwindow.grid.MainGridAreaController;
 import gridwindow.grid.dynamicanalysisdialog.DynamicAnalysisDialogController;
@@ -37,6 +40,7 @@ import gridwindow.leftside.LeftSideController;
 import gridwindow.leftside.addrangedialog.AddRangeDialogController;
 import gridwindow.leftside.sortdialog.SortDialogController;
 import utils.AlertUtils;
+import utils.HttpClientUtil;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -116,36 +120,96 @@ public class GridWindowController {
 
     public void setSpreadsheetData(String fileName) throws CellUpdateException, InvalidExpressionException,
             SpreadsheetLoadingException, RangeProcessException, CircularReferenceException {
-        try{
-            this.fileName = fileName;
-            EngineDTO engineDTO = engine.getEngineData(userName, fileName);
-            int currentVersionNumber = engineDTO.getCurrentVersionNumber();
-            SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
+        this.fileName = fileName;
 
-            // Update the table view with the new data and open the grid window when the view sheet button is pressed
-            Platform.runLater(() -> {
-                // Clear the grid (if necessary)
-                mainGridAreaComponentController.clearGrid();
+        // Build the URL for the GET request to retrieve engine data
+        String finalUrl = HttpUrl
+                .parse(ClientConstants.GET_ENGINE_DATA) // URL of the servlet you created
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("fileName", fileName)
+                .build()
+                .toString();
 
-                // Update the current version label in the options bar
-                optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber);
+        System.out.println("Sending request to: " + finalUrl);
 
-                // Populate the grid with the new spreadsheet data
-                mainGridAreaComponentController.start(spreadsheetDTO, false);
+        // Send the GET request asynchronously
+        HttpClientUtil.runAsync(finalUrl, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Platform.runLater(() -> {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
+                    System.err.println("Request failed: " + e.getMessage());
+                });
+            }
 
-                // Refresh any dependent UI elements (ranges, etc.)
-                try {
-                    leftSideComponentController.refreshRanges();
-                } catch (UserNotFoundException e) {
-                    throw new RuntimeException(e);
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+
+                    // Parse the JSON response into EngineDTO
+                    Gson gson = new Gson();
+                    EngineDTO engineDTO = gson.fromJson(responseBody, EngineDTO.class);
+
+                    // Now, use the data as before
+                    int currentVersionNumber = engineDTO.getCurrentVersionNumber();
+                    SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
+                    List<RangeDTO> rangesDTO = engineDTO.getRanges();
+                    // Update the table view and UI
+                    Platform.runLater(() -> {
+                        mainGridAreaComponentController.clearGrid();
+                        optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber);
+                        mainGridAreaComponentController.start(spreadsheetDTO, false);
+
+                        // Refresh dependent UI elements
+                        leftSideComponentController.refreshRanges(rangesDTO);  // Pass the rangesDTO to refreshRanges method
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        String errorMessage = String.valueOf(response);
+                        showAlert(Alert.AlertType.ERROR, "Error", "Failed to load engine data: " + errorMessage);
+                        System.err.println("Error response: " + errorMessage); // Log error response
+                    });
                 }
-            });
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+            }
+        });
+
     }
+
+
+//    public void setSpreadsheetData(String fileName) throws CellUpdateException, InvalidExpressionException,
+//            SpreadsheetLoadingException, RangeProcessException, CircularReferenceException {
+//        try{
+//            this.fileName = fileName;
+//            EngineDTO engineDTO = engine.getEngineData(userName, fileName);
+//            int currentVersionNumber = engineDTO.getCurrentVersionNumber();
+//            SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
+//
+//            // Update the table view with the new data and open the grid window when the view sheet button is pressed
+//            Platform.runLater(() -> {
+//                // Clear the grid (if necessary)
+//                mainGridAreaComponentController.clearGrid();
+//
+//                // Update the current version label in the options bar
+//                optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber);
+//
+//                // Populate the grid with the new spreadsheet data
+//                mainGridAreaComponentController.start(spreadsheetDTO, false);
+//
+//                // Refresh any dependent UI elements (ranges, etc.)
+//                try {
+//                    leftSideComponentController.refreshRanges();
+//                } catch (UserNotFoundException e) {
+//                    throw new RuntimeException(e);
+//                } catch (FileNotFoundException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            });
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     //todo- move to another controller for the sceond screen
 //    public void loadSpreadsheet(String filePath) throws SpreadsheetLoadingException, CellUpdateException, InvalidExpressionException,
