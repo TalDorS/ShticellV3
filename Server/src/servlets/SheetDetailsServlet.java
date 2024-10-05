@@ -35,18 +35,18 @@ public class SheetDetailsServlet extends HttpServlet {
         }
 
         synchronized (this) {
-            Map<String, VersionsManager> clientFilesVersions = engine.getClientFilesVersions(usernameFromSession);
+            Map<String, VersionsManager> spreadsheetsMap = engine.getSpreadsheetsMap();
 
             // Iterate through the map entries (key-value pairs)
-            for (Map.Entry<String, VersionsManager> entry : clientFilesVersions.entrySet()) {
-                String fileName = entry.getKey(); // Get the key (file name)
+            for (Map.Entry<String, VersionsManager> entry : spreadsheetsMap.entrySet()) {
+                String spreadsheetName = entry.getKey(); // Get the key
                 VersionsManager versionManager = entry.getValue(); // Get the value (VersionsManager)
 
                 // Get required details from the VersionsManager
                 String sheetName = versionManager.getSpreadsheetName();
                 String uploaderName = versionManager.getUploaderName();
                 String sheetSize = versionManager.getRows() + "x" + versionManager.getCols();
-                String permission = ""; // TODO- ADD PERMISSIONS TRACKER
+                String permission = versionManager.getUserPermission(usernameFromSession);
 
                 // Add the sheet details to the list
                 sheets.add(new SheetDetails(sheetName, uploaderName, sheetSize, permission));

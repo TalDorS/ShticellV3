@@ -5,40 +5,32 @@ import api.Range;
 import dto.*;
 import dto.VersionDTO;
 import exceptions.engineexceptions.*;
-import expressionimpls.*;
-import filter.SpreadsheetFilter;
-import generatedschemafilesv2.*;
 import cells.Cell;
 import spreadsheet.Spreadsheet;
 import user.User;
 import user.UserManager;
 import versions.Version;
-import ranges.RangesManager;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Map;
-import java.io.File;
-import java.util.function.Supplier;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
+
 import versions.VersionsManager;
 
 //This class implements the api.Engine interface and manages the spreadsheet
 // First version of the spreadsheet will be index 1
 public class EngineImpl implements Engine {
-    private final Map<User, Map<String, VersionsManager>> clientFilesVersions; //String is the file name
+    private final Map<String, VersionsManager> spreadsheetsMap; // Map of spreadsheet name to it's version manager
     private final UserManager userManager;
 
     public EngineImpl() {
-        this.clientFilesVersions = new HashMap<>();
+        this.spreadsheetsMap = new HashMap<>();
         this.userManager = new UserManager();
     }
 
     @Override
     public synchronized void addUser(String userName) throws Exception {
         userManager.addUser(userName);
-        clientFilesVersions.putIfAbsent(userManager.getUser(userName), new HashMap<>());
     }
 
     @Override
@@ -48,38 +40,21 @@ public class EngineImpl implements Engine {
 
     @Override
     public String loadSpreadsheet(String userName, String filePath) throws Exception {
-        User currentUser = userManager.getUser(userName);;
-        String normalizedUserName = userName.toLowerCase();
-
-        // Load spreadsheet first to get the file name
+        // Load spreadsheet to get the spreadsheet name
         VersionsManager versionsManager = new VersionsManager(userName);
         versionsManager.loadSpreadsheet(filePath);
-        String fileName = versionsManager.getCurrentSpreadsheet().getName(); // Get the file name after loading
+        String spreadsheetName = versionsManager.getCurrentSpreadsheet().getName(); // Get the file name after loading
 
-        // Check if the file path already exists for any user in the system
-        for (Map.Entry<User, Map<String, VersionsManager>> entry : clientFilesVersions.entrySet()) {
-            Map<String, VersionsManager> userFiles = entry.getValue();
-
-            // Check if the file path exists for this user
-            if (userFiles.containsKey(fileName)) {
-                // File already exists for another user, throw exception
-                throw new SpreadsheetLoadingException("The file name '" + fileName + "' already exists for another user.");
-            }
+        // Check if the spreadsheet name already exists for any user in the system
+        if (spreadsheetsMap.containsKey(spreadsheetName)) {
+            // File already exists for another user, throw exception
+            throw new SpreadsheetLoadingException("The file name '" + spreadsheetName + "' already exists for another user.");
         }
 
         // If the file does not exist for any user, add it for the current user
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(currentUser);
+        spreadsheetsMap.put(spreadsheetName, versionsManager);
 
-        // If the user does not exist, create a new entry
-        if (userFiles == null) {
-            userFiles = new HashMap<>();
-            clientFilesVersions.put(currentUser, userFiles);
-            userManager.addUser(userName);
-        }
-
-        userFiles.put(fileName, versionsManager); //add the version manager and the file name to the user's map
-
-        return fileName; // Return that the file was newly loaded
+        return spreadsheetName; // Return that the file was newly loaded
     }
 
 
@@ -94,16 +69,16 @@ public class EngineImpl implements Engine {
         if (!userManager.isUserExists(userName)) {
             // If user doesn't exist, remove them from clientFilesVersions
             removeUser(userName);  // Method to clean up invalid users
+
             return new EngineDTO(Collections.emptyMap(),  0); // Return empty DTO or handle appropriately
         }
 
         User user = userManager.getUser(userName);
 
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
         Map<Integer, VersionDTO> versionDTOMap = new HashMap<>();
 
-        if (userFiles != null) {
-            VersionsManager versionsManager = userFiles.get(fileName);
+        if (spreadsheetsMap != null) {
+            VersionsManager versionsManager = spreadsheetsMap.get(fileName);
 
             if (versionsManager != null) {
                 // Get the current version of the spreadsheet
@@ -141,7 +116,19 @@ public class EngineImpl implements Engine {
     }
 
     public void removeUser(String userName) {
-        clientFilesVersions.remove(userManager.getUser(userName));
+        // Remove the user from the user manager
+        userManager.removeUser(userName);
+
+        // Iterate through the spreadsheets map and remove spreadsheets owned by the user
+        synchronized (spreadsheetsMap) {
+            // Remove all entries where the owner is the given userName
+            spreadsheetsMap.entrySet().removeIf(entry -> {
+                VersionsManager versionsManager = entry.getValue();
+                String usersPermission = versionsManager.getUserPermission(userName);
+
+                return usersPermission.equals("OWNER");
+            });
+        }
     }
 
     @Override
@@ -213,300 +200,202 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public int getCurrentVersion(String userName, String fileName) {
-        User user = userManager.getUser(userName);
+    public int getCurrentVersion(String userName, String spreadsheetName) {
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
-        // Check if the user exists in the clientFilesVersions map
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
-        if (userFiles == null) {
-            throw new IllegalArgumentException("User not found: " + userName);
-        }
-        // Retrieve the VersionsManager for the specific filePath
-        VersionsManager versionsManager = userFiles.get(fileName);
         if (versionsManager == null) {
-            throw new IllegalArgumentException("File path not found for user: " + fileName);
+            throw new IllegalArgumentException("File path not found for user: " + spreadsheetName);
         }
+
         return versionsManager.getCurrentVersion();
     }
 
     @Override
-    public Spreadsheet getCurrentSpreadsheet(String userName, String fileName) {
-        User user = userManager.getUser(userName);
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
-        if (userFiles == null) {
-            throw new IllegalArgumentException("User not found: " + userName);
-        }
-        VersionsManager versionsManager = userFiles.get(fileName);
+    public Spreadsheet getCurrentSpreadsheet(String userName, String spreadsheetName) {
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
+
         if (versionsManager == null) {
-            throw new IllegalArgumentException("File path not found for user: " + fileName);
+            throw new IllegalArgumentException("File path not found for user: " + spreadsheetName);
         }
+
         return versionsManager.getCurrentSpreadsheet();
     }
 
     @Override
-    public void updateCellValue(String userName, String fileName, String cellId, String newValue)
+    public void updateCellValue(String userName, String spreadsheetName, String cellId, String newValue)
             throws CircularReferenceException, CellUpdateException, FileNotFoundException, UserNotFoundException {
-        User user = userManager.getUser(userName);
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
-        // Check if the userFiles map exists
-        if (userFiles != null) {
-            // Retrieve the VersionsManager for the specified filePath
-            VersionsManager versionsManager = userFiles.get(fileName);
+        // Retrieve the VersionsManager for the specified filePath
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
-            // Check if the VersionsManager exists
-            if (versionsManager != null) {
-                // Update the cell value in the VersionsManager
-                versionsManager.updateCellValue(cellId, newValue);
-            } else {
-                throw new FileNotFoundException("The specified file does not exist for this user.");
-            }
+        // Check if the VersionsManager exists
+        if (versionsManager != null) {
+            // Update the cell value in the VersionsManager
+            versionsManager.updateCellValue(cellId, newValue);
         } else {
-            throw new UserNotFoundException("The user does not exist.");
-        }
-    }
-    @Override
-    public void addRange(String userName, String fileName, String rangeName, String firstCell, String lastCell) throws Exception {
-        User user = userManager.getUser(userName);
-
-        // Retrieve the map of files for the specified user
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
-
-        // Check if the userFiles map exists
-        if (userFiles != null) {
-            // Retrieve the VersionsManager for the specified filePath
-            VersionsManager versionsManager = userFiles.get(fileName);
-
-            // Check if the VersionsManager exists
-            if (versionsManager != null) {
-                // Call the existing addRange method from VersionsManager
-                versionsManager.addRange(rangeName, firstCell, lastCell);
-            } else {
-                throw new FileNotFoundException("The specified file does not exist for this user.");
-            }
-        } else {
-            throw new UserNotFoundException("The user does not exist.");
+            throw new FileNotFoundException("The specified file does not exist for this user.");
         }
     }
 
     @Override
-    public void removeRange(String userName, String fileName, String rangeName) throws Exception {
-        User user = userManager.getUser(userName);
+    public void addRange(String userName, String spreadsheetName, String rangeName, String firstCell, String lastCell) throws Exception {
+        // Retrieve the VersionsManager for the specified filePath
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
-        // Retrieve the map of files for the specified user
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
-
-        // Check if the userFiles map exists
-        if (userFiles != null) {
-            // Retrieve the VersionsManager for the specified filePath
-            VersionsManager versionsManager = userFiles.get(fileName);
-
-            // Check if the VersionsManager exists
-            if (versionsManager != null) {
-
-                // Call the existing removeRange method from VersionsManager
-                versionsManager.removeRange(rangeName.toUpperCase());
-            } else {
-                throw new FileNotFoundException("The specified file does not exist for this user.");
-            }
+        // Check if the VersionsManager exists
+        if (versionsManager != null) {
+            // Call the existing addRange method from VersionsManager
+            versionsManager.addRange(rangeName, firstCell, lastCell);
         } else {
-            throw new UserNotFoundException("The user does not exist.");
+            throw new FileNotFoundException("The specified file does not exist for this user.");
         }
     }
 
     @Override
-    public Map<String, String> sortSpreadsheet(String userName, String fileName, Spreadsheet spreadsheet, String range, List<String> columnsToSortBy)
+    public void removeRange(String userName, String spreadsheetName, String rangeName) throws Exception {
+        // Retrieve the VersionsManager for the specified filePath
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
+
+        // Check if the VersionsManager exists
+        if (versionsManager != null) {
+
+            // Call the existing removeRange method from VersionsManager
+            versionsManager.removeRange(rangeName.toUpperCase());
+        } else {
+            throw new FileNotFoundException("The specified file does not exist for this user.");
+        }
+    }
+
+    @Override
+    public Map<String, String> sortSpreadsheet(String userName, String spreadsheetName, Spreadsheet spreadsheet, String range, List<String> columnsToSortBy)
             throws InvalidColumnException, FileNotFoundException, UserNotFoundException {
-        User user = userManager.getUser(userName);
+        // Retrieve the VersionsManager for the specified filePath
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
-        // Retrieve the map of files for the specified user
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
-
-        // Check if the userFiles map exists
-        if (userFiles != null) {
-            // Retrieve the VersionsManager for the specified filePath
-            VersionsManager versionsManager = userFiles.get(fileName);
-
-            // Check if the VersionsManager exists
-            if (versionsManager != null) {
-                // Perform sorting on the provided spreadsheet
-                return versionsManager.sortSpreadsheet(spreadsheet, range, columnsToSortBy);
-            } else {
-                throw new FileNotFoundException("The specified file does not exist for this user.");
-            }
+        // Check if the VersionsManager exists
+        if (versionsManager != null) {
+            // Perform sorting on the provided spreadsheet
+            return versionsManager.sortSpreadsheet(spreadsheet, range, columnsToSortBy);
         } else {
-            throw new UserNotFoundException("The user does not exist.");
+            throw new FileNotFoundException("The specified file does not exist for this user.");
         }
     }
 
     @Override
-    public Map<String, Range> getAllRanges(String userName, String fileName) throws FileNotFoundException, UserNotFoundException {
-        User user = userManager.getUser(userName);
+    public Map<String, Range> getAllRanges(String userName, String spreadsheetName) throws FileNotFoundException, UserNotFoundException {
+        // Retrieve the VersionsManager for the specified filePath
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
-        // Retrieve the map of files for the specified user
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
-
-        // Check if the userFiles map exists
-        if (userFiles != null) {
-            // Retrieve the VersionsManager for the specified filePath
-            VersionsManager versionsManager = userFiles.get(fileName);
-
-            // Check if the VersionsManager exists
-            if (versionsManager != null) {
-                // Call the getAllRanges method from the VersionsManager
-                return versionsManager.getAllRanges();
-            } else {
-                throw new FileNotFoundException("The specified file does not exist for this user.");
-            }
+        // Check if the VersionsManager exists
+        if (versionsManager != null) {
+            // Call the getAllRanges method from the VersionsManager
+            return versionsManager.getAllRanges();
         } else {
-            throw new UserNotFoundException("The user does not exist.");
+            throw new FileNotFoundException("The specified file does not exist for this user.");
         }
     }
 
     // Method to check for circular references in the new expression
-    public void checkForCircularReferences(String userName, String fileName, String cellId, Expression newExpression) throws CircularReferenceException, FileNotFoundException, UserNotFoundException {
-        User user = userManager.getUser(userName);
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
+    public void checkForCircularReferences(String userName, String spreadsheetName, String cellId, Expression newExpression) throws CircularReferenceException, FileNotFoundException, UserNotFoundException {
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
-        if(userFiles != null) {
-            VersionsManager versionsManager = userFiles.get(fileName);
-            if (versionsManager != null) {
-                versionsManager.checkForCircularReferences(cellId, newExpression);
-            } else {
-                throw new FileNotFoundException("The specified file does not exist for this user.");
-
-            }
-        } else{
-            throw new UserNotFoundException("The user does not exist.");
-        }
-    }
-
-    @Override
-    public String getColumnName(String userName, String fileName, int index) throws FileNotFoundException, UserNotFoundException {
-        User user = userManager.getUser(userName);
-
-        // Retrieve the map of version managers associated with the user
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
-
-        if (userFiles != null) {
-            // Retrieve the VersionsManager for the specified file path
-            VersionsManager versionsManager = userFiles.get(fileName);
-
-            if (versionsManager != null) {
-                // Call the getColumnName method from the VersionsManager
-                return versionsManager.getColumnName(index);
-            } else {
-                // Throw an exception if the specified file does not exist for the user
-                throw new FileNotFoundException("The specified file does not exist for this user.");
-            }
+        if (versionsManager != null) {
+            versionsManager.checkForCircularReferences(cellId, newExpression);
         } else {
-            // Throw an exception if the user does not exist
-            throw new UserNotFoundException("The user does not exist.");
+            throw new FileNotFoundException("The specified file does not exist for this user.");
+
         }
     }
 
     @Override
-    public List<String[][]> filterTableMultipleColumns(String userName, String fileName, String tableArea, Map<String, List<String>> selectedColumnValues)
+    public String getColumnName(String userName, String spreadsheetName, int index) throws FileNotFoundException, UserNotFoundException {
+        // Retrieve the VersionsManager for the specified file path
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
+
+        if (versionsManager != null) {
+            // Call the getColumnName method from the VersionsManager
+            return versionsManager.getColumnName(index);
+        } else {
+            // Throw an exception if the specified file does not exist for the user
+            throw new FileNotFoundException("The specified file does not exist for this user.");
+        }
+    }
+
+    @Override
+    public List<String[][]> filterTableMultipleColumns(String userName, String spreadsheetName, String tableArea, Map<String, List<String>> selectedColumnValues)
             throws FileNotFoundException, UserNotFoundException {
-        User user = userManager.getUser(userName);
+        // Retrieve the VersionsManager for the specified file path
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
-        // Retrieve the map of version managers associated with the user
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
-
-        if (userFiles != null) {
-            // Retrieve the VersionsManager for the specified file path
-            VersionsManager versionsManager = userFiles.get(fileName);
-
-            if (versionsManager != null) {
-                // Call the filterTableMultipleColumns method from the VersionsManager
-                return versionsManager.filterTableMultipleColumns(tableArea, selectedColumnValues);
-            } else {
-                // Throw an exception if the specified file does not exist for the user
-                throw new FileNotFoundException("The specified file does not exist for this user.");
-            }
+        if (versionsManager != null) {
+            // Call the filterTableMultipleColumns method from the VersionsManager
+            return versionsManager.filterTableMultipleColumns(tableArea, selectedColumnValues);
         } else {
-            // Throw an exception if the user does not exist
-            throw new UserNotFoundException("The user does not exist.");
+            // Throw an exception if the specified file does not exist for the user
+            throw new FileNotFoundException("The specified file does not exist for this user.");
         }
     }
 
     @Override
-    public int getColumnIndex(String userName, String filePath, String columnName)
+    public int getColumnIndex(String userName, String spreadsheetName, String columnName)
             throws FileNotFoundException, UserNotFoundException {
-        User user = userManager.getUser(userName);
+        // Retrieve the VersionsManager for the specified Spreadsheet Name
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
-        // Retrieve the map of version managers associated with the user
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
-
-        if (userFiles != null) {
-            // Retrieve the VersionsManager for the specified file path
-            VersionsManager versionsManager = userFiles.get(filePath);
-
-            if (versionsManager != null) {
-                // Call the getColumnIndex method from the VersionsManager
-                return versionsManager.getColumnIndex(columnName);
-            } else {
-                // Throw an exception if the specified file does not exist for the user
-                throw new FileNotFoundException("The specified file does not exist for this user.");
-            }
+        if (versionsManager != null) {
+            // Call the getColumnIndex method from the VersionsManager
+            return versionsManager.getColumnIndex(columnName);
         } else {
-            // Throw an exception if the user does not exist
-            throw new UserNotFoundException("The user does not exist.");
+            // Throw an exception if the specified file does not exist for the user
+            throw new FileNotFoundException("The specified file does not exist for this user.");
         }
     }
 
     @Override
-    public Expression parseExpression(String userName, String fileName, String input)
+    public Expression parseExpression(String userName, String spreadsheetName, String input)
             throws InvalidExpressionException, FileNotFoundException, UserNotFoundException {
-        User user = userManager.getUser(userName);
+        // Retrieve the VersionsManager for the specified file path
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
-        // Retrieve the map of version managers associated with the user
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
-
-        if (userFiles != null) {
-            // Retrieve the VersionsManager for the specified file path
-            VersionsManager versionsManager = userFiles.get(fileName);
-
-            if (versionsManager != null) {
-                // Call the parseExpression method from the VersionsManager
-                return versionsManager.parseExpression(input);
-            } else {
-                // Throw an exception if the specified file does not exist for the user
-                throw new FileNotFoundException("The specified file does not exist for this user.");
-            }
+        if (versionsManager != null) {
+            // Call the parseExpression method from the VersionsManager
+            return versionsManager.parseExpression(input);
         } else {
-            // Throw an exception if the user does not exist
-            throw new UserNotFoundException("The user does not exist.");
+            // Throw an exception if the specified file does not exist for the user
+            throw new FileNotFoundException("The specified file does not exist for this user.");
         }
     }
 
     @Override
-    public Spreadsheet getSpreadsheetByVersion(String userName, String fileName, int versionNumber)
+    public Spreadsheet getSpreadsheetByVersion(String userName, String spreadsheetName, int versionNumber)
             throws IndexOutOfBoundsException, FileNotFoundException, UserNotFoundException {
-        // Create a User object based on the provided username
-        User user = userManager.getUser(userName);
+        // Retrieve the VersionsManager for the specified file path
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
-        // Retrieve the map of version managers associated with the user
-        Map<String, VersionsManager> userFiles = clientFilesVersions.get(user);
-
-        if (userFiles != null) {
-            // Retrieve the VersionsManager for the specified file path
-            VersionsManager versionsManager = userFiles.get(fileName);
-
-            if (versionsManager != null) {
-                // Call the getSpreadsheetByVersion method from the VersionsManager
-                return versionsManager.getSpreadsheetByVersion(versionNumber);
-            } else {
-                // Throw an exception if the specified file does not exist for the user
-                throw new FileNotFoundException("The specified file does not exist for this user.");
-            }
+        if (versionsManager != null) {
+            // Call the getSpreadsheetByVersion method from the VersionsManager
+            return versionsManager.getSpreadsheetByVersion(versionNumber);
         } else {
-            // Throw an exception if the user does not exist
-            throw new UserNotFoundException("The user does not exist.");
+            // Throw an exception if the specified file does not exist for the user
+            throw new FileNotFoundException("The specified file does not exist for this user.");
         }
     }
 
-    public Map<String, VersionsManager> getClientFilesVersions(String username) {
-        return clientFilesVersions.get(userManager.getUser(username));
+    @Override
+    public String getUserPermission(String username, String spreadsheetName) throws FileNotFoundException {
+        // Retrieve the VersionsManager for the specified file path
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
+
+        if (versionsManager != null) {
+            // Call the getSpreadsheetByVersion method from the VersionsManager
+            return versionsManager.getUserPermission(username);
+        } else {
+            // Throw an exception if the specified file does not exist for the user
+            throw new FileNotFoundException("Couldn't find the spreadsheet in the system");
+        }
+    }
+
+    public Map<String, VersionsManager> getSpreadsheetsMap() {
+        return spreadsheetsMap;
     }
 
     @Override
@@ -514,11 +403,11 @@ public class EngineImpl implements Engine {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EngineImpl engine = (EngineImpl) o;
-        return Objects.equals(clientFilesVersions, engine.clientFilesVersions) && Objects.equals(userManager, engine.userManager);
+        return Objects.equals(spreadsheetsMap, engine.spreadsheetsMap) && Objects.equals(userManager, engine.userManager);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(clientFilesVersions, userManager);
+        return Objects.hash(spreadsheetsMap, userManager);
     }
 }

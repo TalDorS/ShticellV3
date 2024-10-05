@@ -1,20 +1,10 @@
 package menuwindow.rightside;
 
-import gridwindow.GridWindowController;
-import gridwindow.top.Skin;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import menuwindow.MenuWindowController;
 import utils.AlertUtils;
-
-import java.io.File;
-import java.io.IOException;
-
-import static utils.CommonResourcesPaths.GRID_WINDOW_FXML;
 
 public class RightSideController {
 
@@ -46,7 +36,7 @@ public class RightSideController {
 
     //todo- change to file name instead of file path?? not sureee
     private void handleViewSheetButtonAction() {
-        String selectedFileName = mainController.getAvailableSheetTableController().getSelectedFileName();
+        String selectedFileName = mainController.getAvailableSheetTableController().getSelectedSpreadsheetName();
         String userName = mainController.getUserName();
 
         if (selectedFileName != null && userName != null) {
