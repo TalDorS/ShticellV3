@@ -149,7 +149,7 @@ public class LeftSideController {
     }
 
 
-    private void handleDeleteRange(String rangeName) throws UserNotFoundException, FileNotFoundException, IOException {
+    private void handleDeleteRange(String rangeName) throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
         mainController.removeRange(rangeName); // Pass the delete request to the AppController refersh is done here
         //refreshRanges(); // Refresh the ranges to update the UI
     }
