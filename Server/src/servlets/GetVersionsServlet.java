@@ -31,12 +31,12 @@ public class GetVersionsServlet extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
 
         String userName = request.getParameter("userName");
-        String fileName = request.getParameter("fileName");
+        String spreadsheetName = request.getParameter("spreadsheetName");
 
         Engine engine = ServletUtils.getEngine(getServletContext());
 
         try {
-            EngineDTO engineDTO = engine.getEngineData(userName, fileName);
+            EngineDTO engineDTO = engine.getEngineData(userName, spreadsheetName);
             Map<Integer, VersionDTO> versionMap = engineDTO.getVersions();
 
             // Convert the map values (VersionDTO) to a list

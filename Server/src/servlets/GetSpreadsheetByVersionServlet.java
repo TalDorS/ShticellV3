@@ -29,7 +29,7 @@ public class GetSpreadsheetByVersionServlet extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
 
         String userName = request.getParameter("userName");
-        String fileName = request.getParameter("fileName");
+        String spreadsheetName = request.getParameter("spreadsheetName");
         String versionNumberStr = request.getParameter("versionNumber");
 
         // Parse version number
@@ -45,7 +45,7 @@ public class GetSpreadsheetByVersionServlet extends HttpServlet {
         Engine engine = ServletUtils.getEngine(getServletContext());
 
         try {
-            EngineDTO engineDTO = engine.getEngineData(userName, fileName);
+            EngineDTO engineDTO = engine.getEngineData(userName, spreadsheetName);
             // Fetch the spreadsheet by version number
             SpreadsheetDTO spreadsheetDTO = engineDTO.getSpreadsheetByVersion(versionNumber);
 

@@ -156,8 +156,8 @@ public class MenuWindowController {
                 if (response.isSuccessful()) {
                     Platform.runLater(() -> {
                         // Manually parse the response for success
-                        String fileName = responseBody;
-                        if (fileName != null) {
+                        String spreadsheetName = responseBody;
+                        if (spreadsheetName != null) {
                             availableSheetTableComponentController.updateSheetDetails();
                             showAlert(Alert.AlertType.INFORMATION, "Success", "Spreadsheet loaded successfully.");
                         }
@@ -180,11 +180,11 @@ public class MenuWindowController {
 //            String userName = headerLoadComponentController.getUserName();
 //            // Load the spreadsheet and get the result
 //            Pair<String, Boolean> result = engine.loadSpreadsheet(userName, filePath);
-//            String fileName = result.getKey();
+//            String spreadsheetName = result.getKey();
 //            boolean isNewFile = result.getValue();
 //            if (!isNewFile) {
 //                Platform.runLater(() -> {
-//                    showAlert(Alert.AlertType.ERROR, "File Already Exists", "The file '" + fileName + "' already exists. Please use a different file.");
+//                    showAlert(Alert.AlertType.ERROR, "File Already Exists", "The file '" + spreadsheetName + "' already exists. Please use a different file.");
 //                });
 //                return; // Stop further processing if it's not a new file
 //            }
@@ -194,7 +194,7 @@ public class MenuWindowController {
 //
 //            // Add the file to the available sheet table only if it's a new file
 //            if (availableSheetTableComponentController != null) {
-//                Platform.runLater(() -> availableSheetTableComponentController.addFileNameToTable(fileName));
+//                Platform.runLater(() -> availableSheetTableComponentController.addFileNameToTable(spreadsheetName));
 //            }
 //
 //        } catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
@@ -205,16 +205,16 @@ public class MenuWindowController {
 //        }
 //    }
 
-    public void showGridWindow(String fileName, String userName) {
+    public void showGridWindow(String spreadsheetName, String userName) {
         try {
             Stage gridWindowStage;
 
             // Check if the stage already exists; if not, create it
-            if (!gridWindowsStages.containsKey(fileName)) {
+            if (!gridWindowsStages.containsKey(spreadsheetName)) {
                 gridWindowStage = new Stage(); // Initialize the stage
 
                 // Insert the new file path into grid maps
-                gridWindowsStages.put(fileName, gridWindowStage);
+                gridWindowsStages.put(spreadsheetName, gridWindowStage);
 
                 // Load the FXML for the Grid Window
                 FXMLLoader appLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
@@ -224,19 +224,19 @@ public class MenuWindowController {
                 GridWindowController gridWindowController = appLoader.getController();
                 gridWindowController.setUserName(userName);
                 gridWindowController.setEngine(engine);
-                gridWindowController.setSpreadsheetData(fileName); // set the spreadsheet data also sets fileName
+                gridWindowController.setSpreadsheetData(spreadsheetName); // set the spreadsheet data also sets spreadsheetName
 
                 // Set up the scene for the new Grid Window
                 Scene scene = new Scene(root);
                 gridWindowStage.setScene(scene);
                 gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
-                gridWindowStage.setTitle("Grid Window" + " - " + fileName);
+                gridWindowStage.setTitle("Grid Window" + " - " + spreadsheetName);
 
                 // Show the grid window immediately after creation
                 gridWindowStage.show();
             } else {
                 // If the stage already exists, just show it
-                gridWindowsStages.get(fileName).show();
+                gridWindowsStages.get(spreadsheetName).show();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -246,7 +246,7 @@ public class MenuWindowController {
     }
 
 
-    //    public void showGridWindow(String fileName, String userName) {
+    //    public void showGridWindow(String spreadsheetName, String userName) {
 //        try {
 //            if (gridWindowStage == null) {  // Initialize the stage if it hasn't been created
 //                gridWindowStage = new Stage();
@@ -259,7 +259,7 @@ public class MenuWindowController {
 //            GridWindowController gridWindowController = appLoader.getController();
 //            gridWindowController.setUserName(userName);
 //            gridWindowController.setEngine(engine);
-//            gridWindowController.setSpreadsheetData(fileName); // set the spreadsheet data also sets fileName
+//            gridWindowController.setSpreadsheetData(spreadsheetName); // set the spreadsheet data also sets spreadsheetName
 //
 //            // Set up the scene and stage for the new Grid Window
 //            Scene scene = new Scene(root);

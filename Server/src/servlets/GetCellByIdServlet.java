@@ -1,6 +1,7 @@
 package servlets;
 
 import api.Engine;
+import api.Expression;
 import cells.Cell;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,16 +11,16 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import utils.ServletUtils;
-
 import java.io.IOException;
 
 @WebServlet("/getCellById") // This URL maps to the servlet
 public class GetCellByIdServlet extends HttpServlet {
 
+
     Gson gson = new GsonBuilder()
             .disableHtmlEscaping()  // Slightly improve speed
             .serializeNulls()       // Handle null values more explicitly
-            .setPrettyPrinting()    // Optional: for readable output
+            .setPrettyPrinting()    // for readable output
             .create();
 
     @Override
@@ -28,14 +29,14 @@ public class GetCellByIdServlet extends HttpServlet {
 
         // Get parameters from the request
         String userName = request.getParameter("userName");
-        String fileName = request.getParameter("fileName");
+        String spreadsheetName = request.getParameter("spreadsheetName");
         String cellId = request.getParameter("cellId");
 
         Engine engine = ServletUtils.getEngine(getServletContext());
 
         try {
             // Fetch the current spreadsheet and then the cell data
-            Cell cell = engine.getCurrentSpreadsheet(userName, fileName).getCellById(cellId);
+            Cell cell = engine.getCurrentSpreadsheet(userName, spreadsheetName).getCellById(cellId);
             // If cell is found, convert it to JSON and send it back
             String jsonResponse = gson.toJson(cell);
             System.out.println( "GetCellByIdServlet: " + jsonResponse);
