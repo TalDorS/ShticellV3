@@ -1,7 +1,9 @@
 package menuwindow;
 
 import api.Engine;
+import com.google.gson.Gson;
 import engineimpl.EngineImpl;
+import enums.PermissionType;
 import exceptions.engineexceptions.*;
 import gridwindow.GridWindowController;
 import gridwindow.top.Skin;
@@ -24,8 +26,10 @@ import utils.SimpleCookieManager;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 import static utils.AlertUtils.showAlert;
+import static utils.AlertUtils.showError;
 import static utils.CommonResourcesPaths.GRID_WINDOW_FXML;
 
 public class MenuWindowController {
@@ -47,6 +51,8 @@ public class MenuWindowController {
 
     @FXML
     private PermissionsTableController permissionsTableComponentController;
+
+    GridWindowController gridWindowController;
 
     @FXML
     public void initialize() {
@@ -253,7 +259,7 @@ public class MenuWindowController {
 //        }
 //    }
 
-        public void showGridWindow(String spreadsheetName, String userName) {
+        public void showGridWindow(String spreadsheetName, String username) {
         try {
             if (gridWindowStage == null) {  // Initialize the stage if it hasn't been created
                 gridWindowStage = new Stage();
@@ -263,20 +269,23 @@ public class MenuWindowController {
             Parent root = appLoader.load();
 
              //Get the GridWindowController and pass the file path
-                GridWindowController gridWindowController = appLoader.getController();
-                gridWindowController.setUserName(userName);
-                //gridWindowController.setEngine(engine); to do remove this when finished
-                gridWindowController.setClient(client); //not sure yet
-                gridWindowController.setSpreadsheetData(spreadsheetName); // set the spreadsheet data also sets spreadsheetName
+            gridWindowController = appLoader.getController();
+            gridWindowController.setUserName(username);
+            //gridWindowController.setEngine(engine); to do remove this when finished
+            gridWindowController.setClient(client); //not sure yet
+            gridWindowController.setSpreadsheetData(spreadsheetName); // set the spreadsheet data also sets spreadsheetName
 
             // Set up the scene for the new Grid Window
-                Scene scene = new Scene(root);
-                gridWindowStage.setScene(scene);
-                gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
-                gridWindowStage.setTitle("Grid Window" + " - " + spreadsheetName);
+            Scene scene = new Scene(root);
+            gridWindowStage.setScene(scene);
+            gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
+            gridWindowStage.setTitle("Grid Window" + " - " + spreadsheetName);
 
-                // Show the grid window immediately after creation
-                gridWindowStage.show();
+            // Get the user's permission for this spreadsheet. If he has reader permission only, disable the editing buttons
+            getUserPermissionAndLockGridIfNeedBe(spreadsheetName, username);
+
+            // Show the grid window immediately after creation
+            gridWindowStage.show();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (CellUpdateException e) {
@@ -334,6 +343,53 @@ public class MenuWindowController {
         }
     }
 
+    public void getUserPermissionAndLockGridIfNeedBe(String spreadsheetName, String username) {
+        // URL for the GET request
+        String finalUrl = HttpUrl.parse("http://localhost:8080/Server_Web_exploded/get-user-permission")
+                .newBuilder()
+                .addQueryParameter("spreadsheetName", spreadsheetName)
+                .addQueryParameter("username", username)
+                .build()
+                .toString();
+
+        // Create a request object
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .build();
+
+        // Run the async GET request
+        HttpClientUtil.runAsyncGet(finalUrl, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Platform.runLater(() -> showError("Failed to fetch permission: " + e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    // Parse the response to get the PermissionType using Gson
+                    String jsonResponse = response.body().string();
+                    Gson gson = new Gson();
+                    PermissionType permissionType = gson.fromJson(jsonResponse, PermissionType.class);
+
+                    // Check if the PermissionType is READER, then disable the edit buttons
+                    Platform.runLater(() -> {
+                        if (permissionType.equals(PermissionType.READER)) {
+                            disableGridEditButtons();
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> showError("Error: " + response.message()));
+                }
+            }
+        });
+    }
+
+    private void disableGridEditButtons() {
+        if (gridWindowController != null) {
+            this.gridWindowController.disableEditButtons();
+        }
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -33,6 +33,9 @@ public class LeftSideController {
     private Accordion rangesAccordion; // Container for range items
 
     @FXML
+    private Button addRangeButton;
+
+    @FXML
     public void initialize() {
         // Initialization logic here
     }
@@ -265,6 +268,10 @@ public class LeftSideController {
             e.printStackTrace();
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Opening Graph Dialog", e.getMessage());
         }
+    }
+
+    public void disableEditButtons() {
+        addRangeButton.setDisable(true);
     }
 
     @Override

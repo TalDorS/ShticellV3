@@ -15,6 +15,7 @@ import utils.HttpClientUtil;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 import static utils.AlertUtils.showAlert;
 import static utils.AlertUtils.showError;
@@ -198,15 +199,21 @@ public class RightSideController {
     //todo- change to file name instead of file path?? not sureee
     private void handleViewSheetButtonAction() {
         String selectedFileName = mainController.getAvailableSheetTableController().getSelectedSpreadsheetName();
+        String permission = mainController.getAvailableSheetTableController().getSelectedSpreadsheetPermission();
         String userName = mainController.getUserName();
 
-        if (selectedFileName != null && userName != null) {
-            // Open the Grid Window and pass the selected file
-            mainController.showGridWindow(selectedFileName, userName);
-        } else {
+        if (selectedFileName == null || userName == null) {
             // Handle the case where no file is selected, for example, show a warning dialog
             showAlert(Alert.AlertType.ERROR, "No File Selected", "Please select a file to view.");
+            return;
         }
+        if (permission.equals("NONE")) {
+            showError("You do not have permission to view this spreadsheet.");
+            return;
+        }
+
+        // Open the Grid Window and pass the selected file
+        mainController.showGridWindow(selectedFileName, userName);
     }
 
     public void setMainController(MenuWindowController mainController) {

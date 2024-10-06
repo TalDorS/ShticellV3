@@ -1063,6 +1063,15 @@ public class GridWindowController {
         engine.checkForCircularReferences(userName, spreadsheetName, cellId, newExpression);
     }
 
+    public void disableEditButtons() {
+        if (optionsBarComponentController != null) {
+            optionsBarComponentController.disableEditButtons();
+        }
+        if (leftSideComponentController != null) {
+            leftSideComponentController.disableEditButtons();
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

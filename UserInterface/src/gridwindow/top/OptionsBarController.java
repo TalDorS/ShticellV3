@@ -202,6 +202,10 @@ public class OptionsBarController {
         return selectedCellId.getText();
     }
 
+    public void disableEditButtons() {
+        this.updateValueButton.setDisable(true);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

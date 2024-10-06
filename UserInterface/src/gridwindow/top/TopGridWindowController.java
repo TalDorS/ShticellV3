@@ -10,8 +10,10 @@ import javafx.scene.control.TextField;
 public class TopGridWindowController {
     @FXML
     private Label nameLabel;
+
     @FXML
     private MenuButton colorDisplay;
+
     @FXML
     private MenuButton animationDisplay;
 
@@ -57,6 +59,7 @@ public class TopGridWindowController {
             animationDisplay.getItems().add(menuItem);
         }
     }
+
     private void handleAnimationChange(Animation animation) {
         mainController.setAnimation(animation.getIdentifier());
         animationDisplay.setText(animation.getDisplayName());

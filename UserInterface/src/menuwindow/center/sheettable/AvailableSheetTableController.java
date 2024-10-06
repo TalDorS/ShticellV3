@@ -153,4 +153,15 @@ public class AvailableSheetTableController {
 
         return null; // Return null if no row is selected
     }
+
+    // Return the username of the currently selected row
+    public String getSelectedSpreadsheetPermission() {
+        SheetDetails selectedSheet = sheetTableView.getSelectionModel().getSelectedItem(); // Get the selected item
+
+        if (selectedSheet != null) {
+            return selectedSheet.getPermission(); // Return the sheet name of the selected item
+        }
+
+        return null; // Return null if no row is selected
+    }
 }
