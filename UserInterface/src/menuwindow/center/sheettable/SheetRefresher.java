@@ -3,6 +3,7 @@ package menuwindow.center.sheettable;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
+import menuwindow.center.sheettable.models.SheetDetails;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;

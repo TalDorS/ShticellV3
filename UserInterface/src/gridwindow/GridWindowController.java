@@ -503,6 +503,7 @@ public class GridWindowController {
         }
     }
 
+
     public List<RangeDTO> getRanges() throws IOException {
         String finalUrl = HttpUrl
                 .parse(ClientConstants.GET_RANGES) // Replace with the actual URL to your servlet/API endpoint
@@ -908,6 +909,7 @@ public class GridWindowController {
 //        return engine.getSpreadsheetByVersion(userName, spreadsheetName, versionNumber);
 //    }
 
+
     public List<String> getCurrentColumns() throws UserNotFoundException, FileNotFoundException {
         Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet(userName, spreadsheetName);
         if (currentSpreadsheet == null) {
@@ -925,21 +927,21 @@ public class GridWindowController {
     }
 
     // Helper method to convert a zero-based column index to an Excel-style column name (A, B, C, ..., Z, AA, AB, ...)
-    public String getColumnName(int index) throws UserNotFoundException, FileNotFoundException {
-        return engine.getColumnName(userName, spreadsheetName, index);
+    public String getColumnName(int index) throws UserNotFoundException, SpreadsheetNotFoundException {
+        return engine.getColumnName(userName, fileName, index);
     }
 
     public Spreadsheet getCurrentSpreadsheet() {
         return engine.getCurrentSpreadsheet(userName, spreadsheetName);
     }
 
-    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws UserNotFoundException, FileNotFoundException {
-        return engine.filterTableMultipleColumns(userName, spreadsheetName, tableArea, selectedColumnValues);
+    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws UserNotFoundException, SpreadsheetNotFoundException {
+        return engine.filterTableMultipleColumns(userName, fileName, tableArea, selectedColumnValues);
     }
 
     // Helper method to convert a column letter (e.g., "A") to a zero-based index
-    public int getColumnIndex(String columnName) throws UserNotFoundException, FileNotFoundException {
-        return engine.getColumnIndex(userName, spreadsheetName, columnName);
+    public int getColumnIndex(String columnName) throws UserNotFoundException, SpreadsheetNotFoundException {
+        return engine.getColumnIndex(userName, fileName, columnName);
     }
 
     public void updateDependentCellsForDynamicAnalysis(String cellId, double tempValue) {
@@ -1015,10 +1017,12 @@ public class GridWindowController {
         }
     }
 
+
+=======
     public List<String> getRangeNames() throws IOException {
         // Call the getRanges() method to retrieve the list of RangeDTOs
         List<RangeDTO> rangesDTO = getRanges();
-
+  
         // Extract range names and return them as a list
         List<String> rangeNames = new ArrayList<>();
         for (RangeDTO range : rangesDTO) {
@@ -1055,6 +1059,8 @@ public class GridWindowController {
 //        return engine.getEngineData(userName, spreadsheetName);
 //    }
 
+
+
     public void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException, UserNotFoundException, FileNotFoundException {
         engine.checkForCircularReferences(userName, spreadsheetName, cellId, newExpression);
     }
@@ -1081,6 +1087,7 @@ public class GridWindowController {
                 mainGridAreaComponentController, sortDialogController, addRangeDialogController,
                 dynamicAnalysisComponentController, topGridWindowComponentController);
     }
+
 
     public Expression parseExpression (String input) throws InvalidExpressionException, UserNotFoundException, FileNotFoundException {
         return engine.parseExpression(userName, spreadsheetName, input);

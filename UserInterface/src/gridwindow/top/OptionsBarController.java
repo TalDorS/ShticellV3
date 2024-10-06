@@ -1,10 +1,9 @@
 package gridwindow.top;
 
 import dto.VersionDTO;
-import exceptions.engineexceptions.FileNotFoundException;
+import exceptions.engineexceptions.SpreadsheetNotFoundException;
 import exceptions.engineexceptions.UserNotFoundException;
 import gridwindow.top.interactiveformuladialog.InteractiveFormulaDialogController;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 
 import java.io.IOException;

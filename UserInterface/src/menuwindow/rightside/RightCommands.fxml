@@ -30,7 +30,7 @@
             <Insets top="30.0" />
          </VBox.margin>
       </Button>
-      <Button fx:id="ackOrDenyPermissionRequestButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="398.0" text="Ack \ Deny Permission Resquest">
+      <Button fx:id="ackOrDenyPermissionRequestButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="398.0" text="Ack\Deny Permission Resquest">
          <font>
             <Font size="15.0" />
          </font>

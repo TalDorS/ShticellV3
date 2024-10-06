@@ -3,7 +3,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 
-<TableView fx:id="sheetTableView" prefHeight="295.0" prefWidth="600.0" stylesheets="@PermissionsTable.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="menuwindow.center.permissionstable.PermissionsTableController">
+<TableView fx:id="permissionsTableView" prefHeight="295.0" prefWidth="600.0" stylesheets="@PermissionsTable.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="menuwindow.center.permissionstable.PermissionsTableController">
   <columns>
     <TableColumn fx:id="usernameColumn" text="User Name" />
     <TableColumn fx:id="permissionTypeColumn" text="Permission Type" />

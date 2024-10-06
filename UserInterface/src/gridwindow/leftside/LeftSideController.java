@@ -1,7 +1,7 @@
 package gridwindow.leftside;
 
 import dto.RangeDTO;
-import exceptions.engineexceptions.FileNotFoundException;
+import exceptions.engineexceptions.SpreadsheetNotFoundException;
 import exceptions.engineexceptions.UserNotFoundException;
 import gridwindow.leftside.addrangedialog.AddRangeDialogController;
 import gridwindow.leftside.filterdialog.FilterDialogController;
@@ -121,7 +121,7 @@ public class LeftSideController {
                 handleDeleteRange(name);
             } catch (UserNotFoundException e) {
                 throw new RuntimeException(e);
-            } catch (FileNotFoundException e) {
+            } catch (SpreadsheetNotFoundException e) {
                 throw new RuntimeException(e);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -148,6 +148,7 @@ public class LeftSideController {
         mainController.highlightRange(firstCell, lastCell, isHovering); // Delegate to AppController
     }
 
+
     private void handleDeleteRange(String rangeName) throws UserNotFoundException, FileNotFoundException, IOException {
         mainController.removeRange(rangeName); // Pass the delete request to the AppController refersh is done here
         //refreshRanges(); // Refresh the ranges to update the UI
@@ -170,6 +171,7 @@ public class LeftSideController {
 //            addRangeToUI(name, firstCell, lastCell);
 //        }
 //    }
+
 
     // Method to refresh the range list in the UI for displaying rangesDTO
     public void refreshRanges(List<RangeDTO> rangesDTO) {

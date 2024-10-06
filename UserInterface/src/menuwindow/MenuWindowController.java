@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import menuwindow.center.permissionstable.PermissionsTableController;
 import menuwindow.center.sheettable.AvailableSheetTableController;
 import menuwindow.rightside.RightSideController;
 import menuwindow.top.HeaderLoadController;
@@ -45,6 +46,9 @@ public class MenuWindowController {
     private AvailableSheetTableController availableSheetTableComponentController;
 
     @FXML
+    private PermissionsTableController permissionsTableComponentController;
+
+    @FXML
     public void initialize() {
 
 
@@ -56,6 +60,9 @@ public class MenuWindowController {
         }
         if(availableSheetTableComponentController != null){
             availableSheetTableComponentController.setMainController(this);
+        }
+        if (permissionsTableComponentController != null) {
+            permissionsTableComponentController.setMainController(this);
         }
         engine = new EngineImpl();
     }
@@ -284,6 +291,50 @@ public class MenuWindowController {
             throw new RuntimeException(e);
         }
     }
+
+    //    public void showGridWindow(String fileName, String userName) {
+//        try {
+//            if (gridWindowStage == null) {  // Initialize the stage if it hasn't been created
+//                gridWindowStage = new Stage();
+//            }
+//            // Load the FXML for the Grid Window
+//            FXMLLoader appLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
+//            Parent root = appLoader.load();
+//
+//            // Get the GridWindowController and pass the file path
+//            GridWindowController gridWindowController = appLoader.getController();
+//            gridWindowController.setUserName(userName);
+//            gridWindowController.setEngine(engine);
+//            gridWindowController.setSpreadsheetData(fileName); // set the spreadsheet data also sets fileName
+//
+//            // Set up the scene and stage for the new Grid Window
+//            Scene scene = new Scene(root);
+//            gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
+//            gridWindowStage.setTitle("Grid Window");
+//            gridWindowStage.setScene(scene);
+//            gridWindowStage.show();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (CellUpdateException e) {
+//            throw new RuntimeException(e);
+//        } catch (InvalidExpressionException e) {
+//            throw new RuntimeException(e);
+//        } catch (SpreadsheetLoadingException e) {
+//            throw new RuntimeException(e);
+//        } catch (RangeProcessException e) {
+//            throw new RuntimeException(e);
+//        } catch (CircularReferenceException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+
+    public void loadPermissionsForSheet(String sheetName) {
+        if (permissionsTableComponentController != null) {
+            permissionsTableComponentController.fetchPermissionsData(sheetName);
+        }
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -299,6 +350,10 @@ public class MenuWindowController {
 
     public AvailableSheetTableController getAvailableSheetTableController() {
         return availableSheetTableComponentController;
+    }
+
+    public PermissionsTableController getPermissionsTableComponentController() {
+        return permissionsTableComponentController;
     }
 
     public void setUserName(String text) {

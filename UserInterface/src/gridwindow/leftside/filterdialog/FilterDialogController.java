@@ -1,7 +1,7 @@
 package gridwindow.leftside.filterdialog;
 
 import cells.Cell;
-import exceptions.engineexceptions.FileNotFoundException;
+import exceptions.engineexceptions.SpreadsheetNotFoundException;
 import exceptions.engineexceptions.UserNotFoundException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -48,7 +48,7 @@ public class FilterDialogController {
                         updateRelevantColumns();
                     } catch (UserNotFoundException e) {
                         throw new RuntimeException(e);
-                    } catch (FileNotFoundException e) {
+                    } catch (SpreadsheetNotFoundException e) {
                         throw new RuntimeException(e);
                     }
                     // Enable and show selectValuesButton
@@ -63,7 +63,7 @@ public class FilterDialogController {
                 }
             } catch (UserNotFoundException e) {
                 throw new RuntimeException(e);
-            } catch (FileNotFoundException e) {
+            } catch (SpreadsheetNotFoundException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -79,7 +79,7 @@ public class FilterDialogController {
         selectedColumnValues.clear();
     }
 
-    private void updateRelevantColumns() throws UserNotFoundException, FileNotFoundException {
+    private void updateRelevantColumns() throws UserNotFoundException, SpreadsheetNotFoundException {
         // Retrieve and validate the table area input from the user
         String tableArea = getValidatedTableArea();
         if (tableArea == null) return; // Exit if validation fails
@@ -98,7 +98,7 @@ public class FilterDialogController {
         updateMenuButtonWithRelevantColumns(startColumnIndex, endColumnIndex);
     }
 
-    private String getValidatedTableArea() throws UserNotFoundException, FileNotFoundException {
+    private String getValidatedTableArea() throws UserNotFoundException, SpreadsheetNotFoundException {
         String tableArea = tableAreaField.getText().trim().toUpperCase();
 
         if (tableArea.isEmpty()) {
@@ -148,7 +148,7 @@ public class FilterDialogController {
         return isCellWithinBounds(cellReference);
     }
 
-    private boolean isValidCellRange(String topLeftCell, String bottomRightCell) throws UserNotFoundException, FileNotFoundException {
+    private boolean isValidCellRange(String topLeftCell, String bottomRightCell) throws UserNotFoundException, SpreadsheetNotFoundException {
         int startRow = Integer.parseInt(topLeftCell.replaceAll("\\D", ""));
         int endRow = Integer.parseInt(bottomRightCell.replaceAll("\\D", ""));
         String startColumn = topLeftCell.replaceAll("\\d", "");
@@ -160,7 +160,7 @@ public class FilterDialogController {
         return (startColumnIndex < endColumnIndex) || (startColumnIndex == endColumnIndex && startRow <= endRow);
     }
 
-    private void updateMenuButtonWithRelevantColumns(int startColumnIndex, int endColumnIndex) throws UserNotFoundException, FileNotFoundException {
+    private void updateMenuButtonWithRelevantColumns(int startColumnIndex, int endColumnIndex) throws UserNotFoundException, SpreadsheetNotFoundException {
         // Clear previous checkboxes
         columnsCheckBoxContainer.getChildren().clear();
         selectedColumns.clear();
@@ -257,7 +257,7 @@ public class FilterDialogController {
     }
 
     @FXML
-    private void handleApplyFilter() throws UserNotFoundException, FileNotFoundException {
+    private void handleApplyFilter() throws UserNotFoundException, SpreadsheetNotFoundException {
         // Parse the table area
         String tableArea = tableAreaField.getText().trim().toUpperCase();
 
@@ -279,7 +279,7 @@ public class FilterDialogController {
         showFilteredResultsGrid(filteredRows);
     }
 
-    private void showFilteredResultsGrid(List<String[][]> filteredRows) throws UserNotFoundException, FileNotFoundException {
+    private void showFilteredResultsGrid(List<String[][]> filteredRows) throws UserNotFoundException, SpreadsheetNotFoundException {
         Stage stage = new Stage();
         stage.setTitle("Filtered Results");
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -395,7 +395,7 @@ public class FilterDialogController {
             return false;
         } catch (UserNotFoundException e) {
             throw new RuntimeException(e);
-        } catch (FileNotFoundException e) {
+        } catch (SpreadsheetNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
