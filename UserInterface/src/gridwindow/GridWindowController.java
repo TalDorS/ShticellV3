@@ -125,15 +125,12 @@ public class GridWindowController {
                 .build()
                 .toString();
 
-        System.out.println("Sending request to: " + finalUrl);
-
         // Send the GET request asynchronously
         HttpClientUtil.runAsyncGet(finalUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Platform.runLater(() -> {
                     showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
-                    System.err.println("Request failed: " + e.getMessage());
                 });
             }
 
@@ -163,7 +160,6 @@ public class GridWindowController {
                     Platform.runLater(() -> {
                         String errorMessage = String.valueOf(response);
                         showAlert(Alert.AlertType.ERROR, "Error", "Failed to load engine data: " + errorMessage);
-                        System.err.println("Error response: " + errorMessage); // Log error response
                     });
                 }
             }
@@ -257,7 +253,6 @@ public class GridWindowController {
                 .add("newValue", newValue)
                 .build();
 
-        System.out.println("Sending request to: " + finalUrl);
 
         // Execute the request asynchronously
         HttpClientUtil.runAsyncPost(finalUrl, body, new Callback() {
@@ -280,7 +275,6 @@ public class GridWindowController {
                         try {
                             setSpreadsheetData(spreadsheetName); // Retrieve the full spreadsheet data after the cell update
                             //showAlert(Alert.AlertType.INFORMATION, "Success", "Cell updated successfully and spreadsheet reloaded.");
-                            System.out.println("Cell updated successfully and spreadsheet reloaded.");
                         } catch (Exception e) {
                             showAlert(Alert.AlertType.ERROR, "Error", "Error while reloading the spreadsheet: " + e.getMessage());
                         }
@@ -289,7 +283,6 @@ public class GridWindowController {
                     Platform.runLater(() -> {
                         String errorMessage = String.valueOf(response);
                         showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-                        System.err.println("Error response: " + errorMessage); // Log error response
                     });
                 }
             }
@@ -391,7 +384,6 @@ public class GridWindowController {
                 .add("lastCell", lastCell)
                 .build();
 
-        System.out.println("Sending request to: " + finalUrl);
         // Create a new HttpRequest
         Request request = new Request.Builder()
                 .url(finalUrl)
@@ -405,7 +397,6 @@ public class GridWindowController {
             if (response.isSuccessful()) {
                 // Parse the JSON response to extract the message
                 String responseBody = response.body().string();
-                System.out.println("Response from server: " + responseBody);
                 // Update the UI
                 leftSideComponentController.addRangeToUI(name, firstCell, lastCell);
                 AlertUtils.showAlert(Alert.AlertType.INFORMATION, "Success", "Range created successfully.");
@@ -413,13 +404,11 @@ public class GridWindowController {
                 // Here we should also parse the JSON response if the call fails
                 String errorMessage = response.body().string();
                 AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Creating Range", errorMessage);
-                System.err.println("Error response: " + errorMessage); // Log error response
             }
         } catch (IOException e) {
             // Handle the failure
             String errorMessage = "Failed to connect to the server: " + e.getMessage();
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Creating Range", errorMessage);
-            System.err.println("Request failed: " + e.getMessage());
         }
 
     }
@@ -461,7 +450,6 @@ public class GridWindowController {
             if (response.isSuccessful()) {
                 // Parse the response if necessary
                 String responseBody = response.body().string();
-                System.out.println("Response from server: " + responseBody);
                 List<RangeDTO> rangesDTO = getRanges();
 
                 // Refresh the UI
@@ -474,13 +462,11 @@ public class GridWindowController {
                 // Handle the error response
                 String errorMessage = response.body().string();
                 AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Deleting Range", errorMessage);
-                System.err.println("Error response: " + errorMessage); // Log error response
             }
         } catch (IOException e) {
             // Handle the failure
             String errorMessage = "Failed to connect to the server: " + e.getMessage();
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Deleting Range", errorMessage);
-            System.err.println("Request failed: " + e.getMessage());
         }
     }
 
@@ -539,7 +525,6 @@ public class GridWindowController {
                 String responseBody = response.body().string();
                 Gson gson = new Gson();
                 List<RangeDTO> rangesDTO = gson.fromJson(responseBody, new TypeToken<List<RangeDTO>>(){}.getType());
-                System.out.println("Ranges: " + rangesDTO);
                 return rangesDTO;
 
             } else {
@@ -606,14 +591,12 @@ public class GridWindowController {
             } else {
                 String errorMessage = "Failed to load versions: " + response.body().string();
                 showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-                System.err.println("Error response: " + errorMessage); // Log error response
                 return null; // Return null on error
             }
         } catch (IOException e) {
             // Handle the failure case
             String errorMessage = "Failed to connect to the server: " + e.getMessage();
             showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-            System.err.println("Request failed: " + e.getMessage());
             return null; // Return null on failure
         }
     }
@@ -645,13 +628,11 @@ public class GridWindowController {
             } else {
                 String errorMessage = "Failed to load spreadsheet: " + response.body().string();
                 showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-                System.err.println("Failed to check if spreadsheet is loaded: " + response.body().string());
                 return false;
             }
         } catch (IOException e) {
             String errorMessage = "Failed to load spreadsheet: " + e.getMessage();
             showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-            System.err.println("Request failed: " + e.getMessage());
             return false;
         }
     }
@@ -799,7 +780,6 @@ public class GridWindowController {
                 .build()
                 .toString();
 
-        System.out.println("Sending request to: " + finalUrl);
 
         // Create the request using OkHttp
         Request request = new Request.Builder()
@@ -822,14 +802,12 @@ public class GridWindowController {
             } else {
                 String errorMessage = "Failed to load cell data: " + response.body().string();
                 showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-                System.err.println("Error response: " + errorMessage); // Log error response
                 return null; // Return null on error
             }
         } catch (IOException e) {
             // Handle the failure
             String errorMessage = "Failed to connect to the server: " + e.getMessage();
             showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-            System.err.println("Request failed: " + e.getMessage());
             return null; // Return null on failure
         }
     }
@@ -846,7 +824,6 @@ public class GridWindowController {
                 .build()
                 .toString();
 
-        System.out.println("Sending request to: " + finalUrl);
 
         // Create the request using OkHttp
         Request request = new Request.Builder()
@@ -869,14 +846,12 @@ public class GridWindowController {
             } else {
                 String errorMessage = "Failed to load cell data: " + response.body().string();
                 showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-                System.err.println("Error response: " + errorMessage); // Log error response
                 return null; // Return null on error
             }
         } catch (IOException e) {
             // Handle the failure
             String errorMessage = "Failed to connect to the server: " + e.getMessage();
             showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-            System.err.println("Request failed: " + e.getMessage());
             return null; // Return null on failure
         }
     }
@@ -896,7 +871,6 @@ public class GridWindowController {
                 .build()
                 .toString();
 
-        System.out.println("Sending request to: " + finalUrl);
 
         // Create the request using OkHttp
         Request request = new Request.Builder()
@@ -919,14 +893,12 @@ public class GridWindowController {
             } else {
                 String errorMessage = "Failed to load spreadsheet: " + response.body().string();
                 showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-                System.err.println("Error response: " + errorMessage); // Log error response
                 return null; // Return null on error
             }
         } catch (IOException e) {
             // Handle the failure case
             String errorMessage = "Failed to connect to the server: " + e.getMessage();
             showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-            System.err.println("Request failed: " + e.getMessage());
             return null; // Return null on failure
         }
     }

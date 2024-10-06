@@ -45,13 +45,11 @@ public class GetRangesServlet extends HttpServlet {
             Gson gson = new Gson();
             String rangesJson = gson.toJson(rangesDTO);
             response.getWriter().write(rangesJson);
-            System.out.println("Ranges fetched successfully.");
 
         } catch (Exception e) {
             // Handle exceptions and return an error response
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"error\": \"Error while fetching ranges: " + e.getMessage() + "\"}");
-            System.err.println("Error while fetching ranges: " + e.getMessage());
         }
     }
 }

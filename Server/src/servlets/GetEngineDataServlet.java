@@ -43,7 +43,6 @@ public class GetEngineDataServlet extends HttpServlet {
 
             // Convert EngineDTO to JSON
             String jsonResponse = gson.toJson(engineDTO);
-            System.out.println("EngineDataServlet: " + jsonResponse);
 
             // Set response status to OK and send the JSON response
             response.setStatus(HttpServletResponse.SC_OK);

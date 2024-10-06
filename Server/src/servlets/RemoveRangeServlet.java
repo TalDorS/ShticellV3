@@ -43,7 +43,6 @@ public class RemoveRangeServlet extends HttpServlet {
             // Handle any errors, respond with internal server error status and error message
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"message\": \"Error removing range: " + e.getMessage() + "\"}");
-            System.err.println("Error removing range: " + e.getMessage());
         }
     }
 }

@@ -41,8 +41,6 @@ public class GetVersionsServlet extends HttpServlet {
 
             // Convert the map values (VersionDTO) to a list
             List<VersionDTO> versionsList = versionMap.values().stream().collect(Collectors.toList());
-
-            System.out.println("GetVersionsServlet: " + versionsList);
             // Serialize the VersionsDTO to JSON and send it in the response
             String jsonResponse = gson.toJson(versionsList);
             response.setStatus(HttpServletResponse.SC_OK); // 200 OK

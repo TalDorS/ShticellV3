@@ -35,8 +35,6 @@ public class IsSpreadsheetLoadedServlet extends HttpServlet {
         try {
             boolean isLoaded = engine.getCurrentSpreadsheet(userName, spreadsheetName) != null;
             response.setStatus(HttpServletResponse.SC_OK);
-            //String jsonResponse = "{\"isLoaded\": " + isLoaded + "}";
-            //System.out.println("IsSpreadsheetLoadedServlet: " + jsonResponse);
             response.getWriter().write(String.valueOf(isLoaded));
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

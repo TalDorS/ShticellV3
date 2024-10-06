@@ -52,7 +52,6 @@ public class GetSpreadsheetByVersionServlet extends HttpServlet {
             if (spreadsheetDTO != null) {
                 // Serialize the spreadsheet to JSON and send it in the response
                 String jsonResponse = gson.toJson(spreadsheetDTO);
-                System.out.println("GetSpreadsheetByVersionServlet: " + jsonResponse);
                 response.setStatus(HttpServletResponse.SC_OK); // 200 OK
                 response.getWriter().write(jsonResponse);
             } else {

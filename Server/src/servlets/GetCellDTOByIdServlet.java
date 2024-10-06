@@ -41,7 +41,7 @@ public class GetCellDTOByIdServlet extends HttpServlet {
             CellDTO cell = engineDTO.getCurrentSpreadsheet().getCellById(cellId);
             // If cell is found, convert it to JSON and send it back
             String jsonResponse = gson.toJson(cell);
-            System.out.println( "GetCellByIdServlet: " + jsonResponse);
+
             response.setStatus(HttpServletResponse.SC_OK); // 200 OK
             response.getWriter().write(jsonResponse);      // Write the JSON response to the body
 

@@ -48,7 +48,6 @@ public class AddRangeServlet extends HttpServlet {
             // Handle any exceptions that occur
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"message\": \"Error creating range: " + e.getMessage() + "\"}");
-            System.err.println("Error creating range: " + e.getMessage());
         }
     }
 }
