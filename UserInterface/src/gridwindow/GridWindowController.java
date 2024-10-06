@@ -57,6 +57,7 @@ public class GridWindowController {
     private List<RotateTransition> activeRotateTransitions = new ArrayList<>();  // List to store all active transitions
     private String spreadsheetName;
     private String userName;//set by the menu window controller
+    private OkHttpClient client;
 
     @FXML
     private ScrollPane scrollPane;
@@ -380,16 +381,37 @@ public class GridWindowController {
     }
 
     public void addNewRange(String name, String firstCell, String lastCell) {
-        try {
-            firstCell = firstCell.toUpperCase();
-            lastCell = lastCell.toUpperCase();
-            engine.addRange(userName, spreadsheetName, name, firstCell, lastCell); // Add range to the backend engine
-            leftSideComponentController.addRangeToUI(name, firstCell, lastCell); // Update the UI
-            AlertUtils.showAlert(Alert.AlertType.INFORMATION, "Success", "Range created successfully.");
-        } catch (Exception e) {
-            AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Creating Range", e.getMessage());
-        }
+        String finalUrl = ClientConstants.ADD_NEW_RANGE;
+
+        // Convert cell references to uppercase
+        firstCell = firstCell.toUpperCase();
+        lastCell = lastCell.toUpperCase();
+
+        // Create a form body to send the POST request with cell info
+        RequestBody body = new FormBody.Builder()
+                .add("userName", userName)
+                .add("spreadsheetName", spreadsheetName)
+                .add("rangeName", name)
+                .add("firstCell", firstCell)
+                .add("lastCell", lastCell)
+                .build();
+
+        System.out.println("Sending request to: " + finalUrl);
+
+
     }
+
+//    public void addNewRange(String name, String firstCell, String lastCell) {
+//        try {
+//            firstCell = firstCell.toUpperCase();
+//            lastCell = lastCell.toUpperCase();
+//            engine.addRange(userName, spreadsheetName, name, firstCell, lastCell); // Add range to the backend engine
+//            leftSideComponentController.addRangeToUI(name, firstCell, lastCell); // Update the UI
+//            AlertUtils.showAlert(Alert.AlertType.INFORMATION, "Success", "Range created successfully.");
+//        } catch (Exception e) {
+//            AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Creating Range", e.getMessage());
+//        }
+//    }
 
     public void deleteRange(String rangeName) {
         try {
@@ -460,34 +482,31 @@ public class GridWindowController {
 
         System.out.println("Sending request to: " + finalUrl);
 
-        // Create a new HttpClient
-        HttpClient httpClient = HttpClient.newHttpClient();
-
-        // Create a new HttpRequest
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(finalUrl))
-                .GET()
+        // Create the request using OkHttp
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .get() // GET request
                 .build();
 
         try {
             // Send the request synchronously
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            Response response = client.newCall(request).execute();
 
             // Check if the response is successful
-            if (response.statusCode() == 200) {
-                String responseBody = response.body();
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
 
                 // Parse the JSON response into List<VersionDTO>
                 Gson gson = new Gson();
                 List<VersionDTO> versionsDTO = gson.fromJson(responseBody, new TypeToken<List<VersionDTO>>() {}.getType()); // Deserialize JSON
                 return versionsDTO; // Return the list of VersionDTO
             } else {
-                String errorMessage = "Failed to load versions: " + response.body();
+                String errorMessage = "Failed to load versions: " + response.body().string();
                 showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
                 System.err.println("Error response: " + errorMessage); // Log error response
                 return null; // Return null on error
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             // Handle the failure case
             String errorMessage = "Failed to connect to the server: " + e.getMessage();
             showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
@@ -495,6 +514,7 @@ public class GridWindowController {
             return null; // Return null on failure
         }
     }
+
 
 
     public boolean isSpreadsheetLoaded() throws UserNotFoundException, FileNotFoundException {
@@ -641,34 +661,31 @@ public class GridWindowController {
 
         System.out.println("Sending request to: " + finalUrl);
 
-        // Create a new HttpClient
-        HttpClient httpClient = HttpClient.newHttpClient();
-
-        // Create a new HttpRequest
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(finalUrl))
-                .GET()
+        // Create the request using OkHttp
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .get() // GET request
                 .build();
 
         try {
-            // Send the request synchronously
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            // Send the request synchronously using the shared OkHttpClient
+            Response response = client.newCall(request).execute();
 
             // Check if the response is successful
-            if (response.statusCode() == 200) {
-                String responseBody = response.body();
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
 
                 // Parse the JSON response into Cell
                 Gson gson = new Gson();
                 Cell cell = gson.fromJson(responseBody, Cell.class); // Deserialize JSON to Cell
                 return cell; // Return the Cell object
             } else {
-                String errorMessage = "Failed to load cell data: " + response.body();
+                String errorMessage = "Failed to load cell data: " + response.body().string();
                 showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
                 System.err.println("Error response: " + errorMessage); // Log error response
                 return null; // Return null on error
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             // Handle the failure
             String errorMessage = "Failed to connect to the server: " + e.getMessage();
             showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
@@ -677,6 +694,52 @@ public class GridWindowController {
         }
     }
 
+
+    public CellDTO getCellDTOById(String cellId) {
+        // Build the URL for the GET request to retrieve cell data
+        String finalUrl = HttpUrl
+                .parse(ClientConstants.GET_CELLDTO_BY_ID)
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("spreadsheetName", spreadsheetName)
+                .addQueryParameter("cellId", cellId)
+                .build()
+                .toString();
+
+        System.out.println("Sending request to: " + finalUrl);
+
+        // Create the request using OkHttp
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .get() // GET request
+                .build();
+
+        try {
+            // Send the request synchronously
+            Response response = client.newCall(request).execute();
+
+            // Check if the response is successful
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
+
+                // Parse the JSON response into CellDTO
+                Gson gson = new Gson();
+                CellDTO cell = gson.fromJson(responseBody, CellDTO.class); // Deserialize JSON to CellDTO
+                return cell; // Return the CellDTO object
+            } else {
+                String errorMessage = "Failed to load cell data: " + response.body().string();
+                showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+                System.err.println("Error response: " + errorMessage); // Log error response
+                return null; // Return null on error
+            }
+        } catch (IOException e) {
+            // Handle the failure
+            String errorMessage = "Failed to connect to the server: " + e.getMessage();
+            showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+            System.err.println("Request failed: " + e.getMessage());
+            return null; // Return null on failure
+        }
+    }
 
 //    public Cell getCellById(String cellId) {
 //        return engine.getCurrentSpreadsheet(userName, spreadsheetName).getCellById(cellId);
@@ -695,34 +758,31 @@ public class GridWindowController {
 
         System.out.println("Sending request to: " + finalUrl);
 
-        // Create a new HttpClient
-        HttpClient httpClient = HttpClient.newHttpClient();
-
-        // Create a new HttpRequest
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(finalUrl))
-                .GET()
+        // Create the request using OkHttp
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .get() // GET request
                 .build();
 
         try {
             // Send the request synchronously
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            Response response = client.newCall(request).execute();
 
             // Check if the response is successful
-            if (response.statusCode() == 200) {
-                String responseBody = response.body();
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
 
                 // Parse the JSON response into SpreadsheetDTO
                 Gson gson = new Gson();
                 SpreadsheetDTO spreadsheetDTO = gson.fromJson(responseBody, SpreadsheetDTO.class); // Deserialize JSON
                 return spreadsheetDTO; // Return the SpreadsheetDTO object
             } else {
-                String errorMessage = "Failed to load spreadsheet: " + response.body();
+                String errorMessage = "Failed to load spreadsheet: " + response.body().string();
                 showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
                 System.err.println("Error response: " + errorMessage); // Log error response
                 return null; // Return null on error
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             // Handle the failure case
             String errorMessage = "Failed to connect to the server: " + e.getMessage();
             showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
@@ -730,6 +790,7 @@ public class GridWindowController {
             return null; // Return null on failure
         }
     }
+
 
 //    public Spreadsheet getSpreadsheetByVersion(int versionNumber) throws UserNotFoundException, FileNotFoundException {
 //        return engine.getSpreadsheetByVersion(userName, spreadsheetName, versionNumber);
@@ -905,10 +966,13 @@ public class GridWindowController {
         this.userName = userName;
         topGridWindowComponentController.setUsername(userName);
     }
+//
+//    public void setEngine(Engine engine) {
+//        this.engine = engine;
+//    }
 
-    public void setEngine(Engine engine) {
-        this.engine = engine;
+    public void setClient(OkHttpClient client) {
+        this.client = client;
     }
-
 
 }

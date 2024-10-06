@@ -321,7 +321,7 @@ public class MainGridAreaController implements SpreadsheetController {
             return;
         }
 
-        Cell currentCell = mainController.getCellById(cellId);
+        CellDTO currentCell = mainController.getCellDTOById(cellId);
         if (currentCell != null) {
             highlightDependencies(currentCell);
         }
@@ -332,13 +332,24 @@ public class MainGridAreaController implements SpreadsheetController {
         mainController.updateSelectedCellInfo(cellId, cellOriginalValue, lastUpdateVersion);
     }
 
-    private void highlightDependencies(Cell currentCell) {
-        for (String dependsOnId : currentCell.getDependsOnThem().keySet()) {
-            changeCellBackground(dependsOnId, "#ADD8E6");
+//    private void highlightDependencies(CellDTO currentCell) {
+//        for (String dependsOnId : currentCell.getDependsOnThem().keySet()) {
+//            changeCellBackground(dependsOnId, "#ADD8E6");
+//        }
+//
+//        for (String dependsOnMeId : currentCell.getDependsOnMe().keySet()) {
+//            changeCellBackground(dependsOnMeId, "#90EE90");
+//        }
+//    }
+    private void highlightDependencies(CellDTO currentCell) {
+        // Highlight cells that this cell depends on
+        for (String dependsOnId : currentCell.getDependsOnThemIds()) {
+            changeCellBackground(dependsOnId, "#ADD8E6"); // Light Blue
         }
 
-        for (String dependsOnMeId : currentCell.getDependsOnMe().keySet()) {
-            changeCellBackground(dependsOnMeId, "#90EE90");
+        // Highlight cells that depend on this cell
+        for (String dependsOnMeId : currentCell.getDependsOnMeIds()) {
+            changeCellBackground(dependsOnMeId, "#90EE90"); // Light Green
         }
     }
 
