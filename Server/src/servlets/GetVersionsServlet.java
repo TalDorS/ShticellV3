@@ -31,18 +31,16 @@ public class GetVersionsServlet extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
 
         String userName = request.getParameter("userName");
-        String fileName = request.getParameter("fileName");
+        String spreadsheetName = request.getParameter("spreadsheetName");
 
         Engine engine = ServletUtils.getEngine(getServletContext());
 
         try {
-            EngineDTO engineDTO = engine.getEngineData(userName, fileName);
+            EngineDTO engineDTO = engine.getEngineData(userName, spreadsheetName);
             Map<Integer, VersionDTO> versionMap = engineDTO.getVersions();
 
             // Convert the map values (VersionDTO) to a list
             List<VersionDTO> versionsList = versionMap.values().stream().collect(Collectors.toList());
-
-            System.out.println("GetVersionsServlet: " + versionsList);
             // Serialize the VersionsDTO to JSON and send it in the response
             String jsonResponse = gson.toJson(versionsList);
             response.setStatus(HttpServletResponse.SC_OK); // 200 OK

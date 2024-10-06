@@ -21,7 +21,7 @@ public interface Engine {
     int getCurrentVersion(String userName, String fileName);
     void addRange(String userName, String fileName,String rangeName, String firstCell, String lastCell) throws Exception;
     void removeRange(String userName, String fileName, String rangeName) throws Exception;
-    Map<String, Range> getAllRanges(String userName, String fileName) throws SpreadsheetNotFoundException, UserNotFoundException;
+    //Map<String, Range> getAllRanges(String userName, String fileName) throws SpreadsheetNotFoundException, UserNotFoundException;
     Map<String, String> sortSpreadsheet(String userName, String fileName,Spreadsheet spreadsheet, String range, List<String> columnsToSortBy) throws InvalidColumnException, SpreadsheetNotFoundException, UserNotFoundException;
     int getColumnIndex(String userName, String fileName, String columnName)  throws SpreadsheetNotFoundException, UserNotFoundException;
     String getColumnName(String userName, String fileName, int index)throws SpreadsheetNotFoundException, UserNotFoundException;

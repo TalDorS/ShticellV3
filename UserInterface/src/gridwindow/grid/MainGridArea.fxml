@@ -5,7 +5,7 @@
 
 <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/22" fx:controller="gridwindow.grid.MainGridAreaController">
     <content>
-        <GridPane fx:id="spreadsheetGrid" alignment="CENTER" hgap="1" styleClass="grid-pane" vgap="1">
+        <GridPane fx:id="spreadsheetGrid" alignment="CENTER" hgap="1" styleClass="grid-pane" vgap="1" minHeight="-Infinity" minWidth="-Infinity">
             <!-- Cells will be dynamically added here -->
         </GridPane>
     </content>

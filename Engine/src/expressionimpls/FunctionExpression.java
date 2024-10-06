@@ -32,4 +32,8 @@ public class FunctionExpression implements Expression, Serializable {
     public List<Expression> getArguments() {
         return arguments;
     }
+
+    public String getFunctionName() {
+        return functionName;
+    }
 }
