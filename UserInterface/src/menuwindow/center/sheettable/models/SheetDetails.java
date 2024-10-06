@@ -1,4 +1,4 @@
-package menuwindow.center.sheettable;
+package menuwindow.center.sheettable.models;
 
 import java.util.Objects;
 

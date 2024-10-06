@@ -45,7 +45,6 @@ import java.text.NumberFormat;
 import java.util.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static utils.AlertUtils.showAlert;
 import static utils.AlertUtils.showError;
@@ -425,7 +424,7 @@ public class GridWindowController {
     }
 
     // Method to get the current ranges from the backend engine
-    public Map<String, String[]> getRanges() throws UserNotFoundException, FileNotFoundException {
+    public Map<String, String[]> getRanges() throws UserNotFoundException, SpreadsheetNotFoundException {
         // Fetch the ranges from the backend engine
         Map<String, Range> ranges = engine.getAllRanges(userName, fileName);
         Map<String, String[]> formattedRanges = new HashMap<>();
@@ -498,7 +497,7 @@ public class GridWindowController {
     }
 
 
-    public boolean isSpreadsheetLoaded() throws UserNotFoundException, FileNotFoundException {
+    public boolean isSpreadsheetLoaded() throws UserNotFoundException, SpreadsheetNotFoundException {
         return engine.getCurrentSpreadsheet(userName, fileName) != null;
     }
 
@@ -736,7 +735,7 @@ public class GridWindowController {
 //        return engine.getSpreadsheetByVersion(userName, fileName, versionNumber);
 //    }
 
-    public List<String> getCurrentColumns() throws UserNotFoundException, FileNotFoundException {
+    public List<String> getCurrentColumns() throws UserNotFoundException, SpreadsheetNotFoundException {
         Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet(userName, fileName);
         if (currentSpreadsheet == null) {
             return new ArrayList<>(); // Return an empty list if no spreadsheet is loaded
@@ -753,7 +752,7 @@ public class GridWindowController {
     }
 
     // Helper method to convert a zero-based column index to an Excel-style column name (A, B, C, ..., Z, AA, AB, ...)
-    public String getColumnName(int index) throws UserNotFoundException, FileNotFoundException {
+    public String getColumnName(int index) throws UserNotFoundException, SpreadsheetNotFoundException {
         return engine.getColumnName(userName, fileName, index);
     }
 
@@ -761,12 +760,12 @@ public class GridWindowController {
         return engine.getCurrentSpreadsheet(userName, fileName);
     }
 
-    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws UserNotFoundException, FileNotFoundException {
+    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws UserNotFoundException, SpreadsheetNotFoundException {
         return engine.filterTableMultipleColumns(userName, fileName, tableArea, selectedColumnValues);
     }
 
     // Helper method to convert a column letter (e.g., "A") to a zero-based index
-    public int getColumnIndex(String columnName) throws UserNotFoundException, FileNotFoundException {
+    public int getColumnIndex(String columnName) throws UserNotFoundException, SpreadsheetNotFoundException {
         return engine.getColumnIndex(userName, fileName, columnName);
     }
 
@@ -843,7 +842,7 @@ public class GridWindowController {
         }
     }
 
-    public List<String> getRangeNames() throws UserNotFoundException, FileNotFoundException {
+    public List<String> getRangeNames() throws UserNotFoundException, SpreadsheetNotFoundException {
         // Fetch all ranges from the backend engine
         Map<String, Range> ranges = engine.getAllRanges(userName, fileName);
 
@@ -870,7 +869,7 @@ public class GridWindowController {
 //        return engine.getEngineData(userName, fileName);
 //    }
 
-    public void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException, UserNotFoundException, FileNotFoundException {
+    public void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException, UserNotFoundException, SpreadsheetNotFoundException {
         engine.checkForCircularReferences(userName, fileName, cellId, newExpression);
     }
 
@@ -897,7 +896,7 @@ public class GridWindowController {
                 dynamicAnalysisComponentController, topGridWindowComponentController);
     }
 
-    public Expression parseExpression (String input) throws InvalidExpressionException, UserNotFoundException, FileNotFoundException {
+    public Expression parseExpression (String input) throws InvalidExpressionException, UserNotFoundException, SpreadsheetNotFoundException {
         return engine.parseExpression(userName, fileName, input);
     }
 

@@ -46,7 +46,7 @@ public class SheetDetailsServlet extends HttpServlet {
                 String sheetName = versionManager.getSpreadsheetName();
                 String uploaderName = versionManager.getUploaderName();
                 String sheetSize = versionManager.getRows() + "x" + versionManager.getCols();
-                String permission = versionManager.getUserPermission(usernameFromSession);
+                String permission = versionManager.getUserPermission(usernameFromSession).toString();
 
                 // Add the sheet details to the list
                 sheets.add(new SheetDetails(sheetName, uploaderName, sheetSize, permission));

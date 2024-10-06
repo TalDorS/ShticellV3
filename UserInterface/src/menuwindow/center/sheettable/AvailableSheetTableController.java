@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import menuwindow.MenuWindowController;
+import menuwindow.center.sheettable.models.SheetDetails;
 import okhttp3.*;
 import utils.HttpClientUtil;
 
@@ -53,6 +54,15 @@ public class AvailableSheetTableController {
 
         // Bind the TableView to the ObservableList
         sheetTableView.setItems(sheetDetailsList);
+
+        // Listener to handle row click events
+        sheetTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                String selectedSheetName = newSelection.getSheetName();
+                // Fire the event to MenuWindowController to load the permissions for the selected sheet
+                mainController.loadPermissionsForSheet(selectedSheetName);
+            }
+        });
 
         // Start refreshing every 2 seconds
         startSheetRefresher();
@@ -128,6 +138,17 @@ public class AvailableSheetTableController {
 
         if (selectedSheet != null) {
             return selectedSheet.getSheetName(); // Return the sheet name of the selected item
+        }
+
+        return null; // Return null if no row is selected
+    }
+
+    // Return the username of the currently selected row
+    public String getSelectedSpreadsheetUploaderName() {
+        SheetDetails selectedSheet = sheetTableView.getSelectionModel().getSelectedItem(); // Get the selected item
+
+        if (selectedSheet != null) {
+            return selectedSheet.getUploaderName(); // Return the sheet name of the selected item
         }
 
         return null; // Return null if no row is selected

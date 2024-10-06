@@ -11,13 +11,13 @@
             <fx:include fx:id="headerLoadComponent" source="top/HeaderAndLoad.fxml" BorderPane.alignment="TOP_CENTER" />
          </top>
          <right>
-            <fx:include fx:id="rightSideComponent" source="rightside/rightCommands.fxml" />
+            <fx:include fx:id="rightSideComponent" source="rightside/RightCommands.fxml" />
          </right>
          <center>
             <VBox BorderPane.alignment="CENTER">
                <children>
                   <fx:include fx:id="availableSheetTableComponent" source="center/sheettable/AvailableSheetTable.fxml" />
-                  <fx:include source="center/permissionstable/PermissionsTable.fxml" />
+                  <fx:include fx:id="permissionsTableComponent" source="center/permissionstable/PermissionsTable.fxml" />
                </children>
             </VBox>
          </center>

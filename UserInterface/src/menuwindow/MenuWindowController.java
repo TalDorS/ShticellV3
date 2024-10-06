@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import menuwindow.center.permissionstable.PermissionsTableController;
 import menuwindow.center.sheettable.AvailableSheetTableController;
 import menuwindow.rightside.RightSideController;
 import menuwindow.top.HeaderLoadController;
@@ -45,6 +46,9 @@ public class MenuWindowController {
     private AvailableSheetTableController availableSheetTableComponentController;
 
     @FXML
+    private PermissionsTableController permissionsTableComponentController;
+
+    @FXML
     public void initialize() {
 
 
@@ -56,6 +60,9 @@ public class MenuWindowController {
         }
         if(availableSheetTableComponentController != null){
             availableSheetTableComponentController.setMainController(this);
+        }
+        if (permissionsTableComponentController != null) {
+            permissionsTableComponentController.setMainController(this);
         }
         engine = new EngineImpl();
     }
@@ -281,6 +288,13 @@ public class MenuWindowController {
 //            throw new RuntimeException(e);
 //        }
 //    }
+
+    public void loadPermissionsForSheet(String sheetName) {
+        if (permissionsTableComponentController != null) {
+            permissionsTableComponentController.fetchPermissionsData(sheetName);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -296,6 +310,10 @@ public class MenuWindowController {
 
     public AvailableSheetTableController getAvailableSheetTableController() {
         return availableSheetTableComponentController;
+    }
+
+    public PermissionsTableController getPermissionsTableComponentController() {
+        return permissionsTableComponentController;
     }
 
     public void setUserName(String text) {

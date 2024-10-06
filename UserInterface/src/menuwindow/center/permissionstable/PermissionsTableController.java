@@ -1,4 +1,158 @@
 package menuwindow.center.permissionstable;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import dto.PermissionsManagerDTO;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import menuwindow.MenuWindowController;
+import enums.PermissionStatus;
+import enums.PermissionType;
+import menuwindow.center.permissionstable.models.PermissionDetails;
+import okhttp3.*;
+import utils.HttpClientUtil;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.Map;
+
 public class PermissionsTableController {
+    private MenuWindowController mainController;
+
+    @FXML
+    private TableView<PermissionDetails> permissionsTableView; // Table to hold the permissions
+
+    @FXML
+    private TableColumn<PermissionDetails, String> usernameColumn; // User's name
+
+    @FXML
+    private TableColumn<PermissionDetails, String> permissionTypeColumn; // Type of permission
+
+    @FXML
+    private TableColumn<PermissionDetails, String> permissionStatusColumn; // Status of the permission
+
+    private ObservableList<PermissionDetails> permissionDetailsList;
+
+    @FXML
+    public void initialize() {
+        // Initialize the ObservableList
+        permissionDetailsList = FXCollections.observableArrayList();
+
+        // Set cell value factories for each TableColumn
+        usernameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUsername()));
+        permissionTypeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPermissionType().toString()));
+        permissionStatusColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPermissionStatus().toString()));
+
+        // Bind the TableView to the ObservableList
+        permissionsTableView.setItems(permissionDetailsList);
+    }
+
+    public void setMainController(MenuWindowController mainController) {
+        this.mainController = mainController;
+    }
+
+    // Method to request permission details from the server
+    public void fetchPermissionsData(String spreadsheetName) {
+        String url = HttpUrl.parse("http://localhost:8080/Server_Web_exploded/getPermissions")
+                .newBuilder()
+                .addQueryParameter("spreadsheetName", spreadsheetName)
+                .build()
+                .toString();
+
+        HttpClientUtil.runAsyncGet(url, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Platform.runLater(() -> {
+                    System.out.println("Failed to fetch permissions data: " + e.getMessage());
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+
+                    // Use Gson to deserialize the JSON response into a PermissionsManagerDTO
+                    Gson gson = new Gson();
+                    Type permissionsListType = new TypeToken<PermissionsManagerDTO>() {}.getType();
+                    PermissionsManagerDTO permissionsData = gson.fromJson(responseBody, permissionsListType);
+
+                    // Convert PermissionsManagerDTO to PermissionDetails list and update the table
+                    Platform.runLater(() -> {
+                        updatePermissionsTable(permissionsData);
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        System.out.println("Failed to fetch permissions data: " + response.message());
+                    });
+                }
+            }
+        });
+    }
+
+    // Method to update the permissions table
+    private void updatePermissionsTable(PermissionsManagerDTO permissionsData) {
+        // Clear previous data
+        permissionDetailsList.clear();
+
+        // Add the owner
+        permissionDetailsList.add(new PermissionDetails(permissionsData.getOwner(), PermissionType.OWNER, PermissionStatus.NONE));
+
+        // Add the writers
+        for (Map.Entry<String, PermissionStatus> entry : permissionsData.getWriters().entrySet()) {
+            permissionDetailsList.add(new PermissionDetails(entry.getKey(), PermissionType.WRITER, entry.getValue()));
+        }
+
+        // Add the readers
+        for (Map.Entry<String, PermissionStatus> entry : permissionsData.getReaders().entrySet()) {
+            permissionDetailsList.add(new PermissionDetails(entry.getKey(), PermissionType.READER, entry.getValue()));
+        }
+    }
+
+    // Method to get the selected request's permission status
+    public PermissionStatus getSelectedRequestPermissionStatus() {
+        // Get the selected item from the TableView
+        PermissionDetails selectedRequest = permissionsTableView.getSelectionModel().getSelectedItem();
+
+        // Check if an item is selected
+        if (selectedRequest != null) {
+            return selectedRequest.getPermissionStatus(); // Return the selected permission details
+        } else {
+            System.out.println("No permission selected.");
+            return null; // Return null if no item is selected
+        }
+    }
+
+    // Method to get the selected request's permission type
+    public PermissionType getSelectedRequestPermissionType() {
+        // Get the selected item from the TableView
+        PermissionDetails selectedRequest = permissionsTableView.getSelectionModel().getSelectedItem();
+
+        // Check if an item is selected
+        if (selectedRequest != null) {
+            return selectedRequest.getPermissionType(); // Return the selected permission details
+        } else {
+            System.out.println("No permission selected.");
+            return null; // Return null if no item is selected
+        }
+    }
+
+    // Method to get the username of the one who made the request
+    public String getSelectedRequestUsername() {
+        // Get the selected item from the TableView
+        PermissionDetails selectedRequest = permissionsTableView.getSelectionModel().getSelectedItem();
+
+        // Check if an item is selected
+        if (selectedRequest != null) {
+            return selectedRequest.getUsername(); // Return the selected permission details
+        } else {
+            System.out.println("No permission selected.");
+            return null; // Return null if no item is selected
+        }
+    }
 }

@@ -3,6 +3,8 @@ package versions;
 import api.Expression;
 import api.Range;
 import cells.Cell;
+import enums.PermissionStatus;
+import enums.PermissionType;
 import exceptions.engineexceptions.*;
 import expressionimpls.ExpressionParser;
 import expressionimpls.FunctionExpression;
@@ -823,12 +825,24 @@ public class VersionsManager implements Serializable {
         return ExpressionParser.parse(input, spreadsheetSupplier, rangesManager);
     }
 
+    public PermissionsManager getPermissionsManager() {
+        return this.permissionsManager;
+    }
+
     public String getUploaderName() {
         return permissionsManager.getOwner();
     }
 
-    public String getUserPermission(String username) {
+    public PermissionType getUserPermission(String username) {
         return permissionsManager.getUserPermission(username);
+    }
+
+    public void askForPermission(String username, PermissionType permissionType) {
+        this.permissionsManager.askForPermission(username, permissionType);
+    }
+
+    public void handlePermissionRequest(String applicantName, String handlerName, PermissionStatus permissionStatus, PermissionType permissionType) {
+        this.permissionsManager.handlePermissionRequest(applicantName, handlerName, permissionStatus, permissionType);
     }
 
     public int getRows() {

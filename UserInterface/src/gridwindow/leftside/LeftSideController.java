@@ -1,7 +1,7 @@
 package gridwindow.leftside;
 
 import dto.RangeDTO;
-import exceptions.engineexceptions.FileNotFoundException;
+import exceptions.engineexceptions.SpreadsheetNotFoundException;
 import exceptions.engineexceptions.UserNotFoundException;
 import gridwindow.leftside.addrangedialog.AddRangeDialogController;
 import gridwindow.leftside.filterdialog.FilterDialogController;
@@ -73,7 +73,7 @@ public class LeftSideController {
             e.printStackTrace();
         } catch (UserNotFoundException e) {
             throw new RuntimeException(e);
-        } catch (FileNotFoundException e) {
+        } catch (SpreadsheetNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -105,7 +105,7 @@ public class LeftSideController {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Adding New Range", e.getMessage());
         } catch (UserNotFoundException e) {
             throw new RuntimeException(e);
-        } catch (FileNotFoundException e) {
+        } catch (SpreadsheetNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -129,7 +129,7 @@ public class LeftSideController {
                 handleDeleteRange(name);
             } catch (UserNotFoundException e) {
                 throw new RuntimeException(e);
-            } catch (FileNotFoundException e) {
+            } catch (SpreadsheetNotFoundException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -154,13 +154,13 @@ public class LeftSideController {
         mainController.highlightRange(firstCell, lastCell, isHovering); // Delegate to AppController
     }
 
-    private void handleDeleteRange(String rangeName) throws UserNotFoundException, FileNotFoundException {
+    private void handleDeleteRange(String rangeName) throws UserNotFoundException, SpreadsheetNotFoundException {
         mainController.deleteRange(rangeName); // Pass the delete request to the AppController
         refreshRanges(); // Refresh the ranges to update the UI
     }
 
     // Method to refresh the range list in the UI
-    public void refreshRanges() throws UserNotFoundException, FileNotFoundException {
+    public void refreshRanges() throws UserNotFoundException, SpreadsheetNotFoundException {
         // Clear the current list of ranges
         rangesAccordion.getPanes().clear();
 
@@ -270,7 +270,7 @@ public class LeftSideController {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Opening Graph Dialog", e.getMessage());
         } catch (UserNotFoundException e) {
             throw new RuntimeException(e);
-        } catch (FileNotFoundException e) {
+        } catch (SpreadsheetNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
