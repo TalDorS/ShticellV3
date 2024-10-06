@@ -33,6 +33,7 @@ public interface Engine {
     void addUser(String userName) throws Exception;
     void removeUser(String userName) throws Exception;
     boolean isUserExist(String userName);
-    Map<String, VersionsManager> getClientFilesVersions(String username);
+    Map<String, VersionsManager> getSpreadsheetsMap();
+    String getUserPermission(String username, String spreadsheetName) throws FileNotFoundException;
 }
 

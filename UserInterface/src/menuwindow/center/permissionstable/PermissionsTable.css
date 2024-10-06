@@ -1,0 +1,4 @@
+/* Center text in TableView columns */
+.table-view .column-header, .table-view .cell {
+    -fx-alignment: center; /* Align text to the center */
+}

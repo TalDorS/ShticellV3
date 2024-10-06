@@ -16,6 +16,7 @@ import jakarta.xml.bind.Unmarshaller;
 import ranges.RangesManager;
 import spreadsheet.Spreadsheet;
 import dto.*;
+import versions.permissions.PermissionsManager;
 
 import java.io.File;
 import java.io.Serializable;
@@ -26,7 +27,7 @@ public class VersionsManager implements Serializable {
     private final Map<Integer, Version> versions;
     private final RangesManager rangesManager;
     private final SpreadsheetFilter spreadsheetFilterer;
-    private final String uploaderName;
+    private final PermissionsManager permissionsManager;
     private static final int MAX_ROWS = 50;
     private static final int MAX_COLS = 20;
     private Supplier<Spreadsheet> spreadsheetSupplier = this::getCurrentSpreadsheet;
@@ -40,7 +41,7 @@ public class VersionsManager implements Serializable {
 //    }
 
     public VersionsManager(String username) {
-        this.uploaderName = username;
+        this.permissionsManager = new PermissionsManager(username);
         this.rangesManager = new RangesManager();
         this.spreadsheetFilterer = new SpreadsheetFilter(this);
         this.versions = new HashMap<>();
@@ -823,7 +824,11 @@ public class VersionsManager implements Serializable {
     }
 
     public String getUploaderName() {
-        return uploaderName;
+        return permissionsManager.getOwner();
+    }
+
+    public String getUserPermission(String username) {
+        return permissionsManager.getUserPermission(username);
     }
 
     public int getRows() {

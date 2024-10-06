@@ -15,7 +15,7 @@ import utils.HttpClientUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.List;
+import java.util.*;
 
 public class AvailableSheetTableController {
     private MenuWindowController mainController;
@@ -38,7 +38,7 @@ public class AvailableSheetTableController {
     // ObservableList to hold the SheetDetails objects
     private ObservableList<SheetDetails> sheetDetailsList;
 
-    private OkHttpClient client = new OkHttpClient();
+    private Timer timer;
 
     @FXML
     public void initialize() {
@@ -53,6 +53,18 @@ public class AvailableSheetTableController {
 
         // Bind the TableView to the ObservableList
         sheetTableView.setItems(sheetDetailsList);
+
+        // Start refreshing every 2 seconds
+        startSheetRefresher();
+    }
+
+    // Start the timer for the sheet refresher
+    private void startSheetRefresher() {
+        timer = new Timer();
+        TimerTask refresherTask = new SheetRefresher(this);
+
+        // Schedule the task to run every 2 seconds (2000 milliseconds)
+        timer.scheduleAtFixedRate(refresherTask, 0, 2000);
     }
 
     // Method to update sheetDetails with an http request
@@ -91,12 +103,27 @@ public class AvailableSheetTableController {
         });
     }
 
+    // Method to compare and update the sheet details while ignoring the order of elements
+    public boolean isDataSame(List<SheetDetails> newSheetDetails) {
+        // Convert both lists to sets for order-insensitive comparison
+        Set<SheetDetails> currentDataSet = new HashSet<>(sheetDetailsList);
+        Set<SheetDetails> newDataSet = new HashSet<>(newSheetDetails);
+
+        return currentDataSet.equals(newDataSet);
+    }
+
+    // Update the table with new sheet details
+    public void updateTableWithSheetDetails(List<SheetDetails> newSheetDetails) {
+        sheetDetailsList.clear();
+        sheetDetailsList.addAll(newSheetDetails);
+    }
+
     public void setMainController(MenuWindowController mainController) {
         this.mainController = mainController;
     }
 
     // Return the sheet name of the currently selected row
-    public String getSelectedFileName() {
+    public String getSelectedSpreadsheetName() {
         SheetDetails selectedSheet = sheetTableView.getSelectionModel().getSelectedItem(); // Get the selected item
 
         if (selectedSheet != null) {
