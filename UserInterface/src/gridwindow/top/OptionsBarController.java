@@ -27,8 +27,7 @@ import gridwindow.grid.MainGridAreaController;
 import utils.AlertUtils;
 
 import static utils.AlertUtils.showAlert;
-import static utils.CommonResourcesPaths.MAIN_GRID_AREA_CSS;
-import static utils.CommonResourcesPaths.MAIN_GRID_AREA_FXML;
+import static utils.CommonResourcesPaths.*;
 
 
 public class OptionsBarController {
@@ -172,7 +171,7 @@ public class OptionsBarController {
                 throw new IllegalStateException("No spreadsheet loaded. Please load a spreadsheet first.");
             }
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gridwindow/top/interactiveformuladialog/InteractiveFormulaDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(INTERACTIVE_FORMULA_DIALOG_FXML));
             Parent root = loader.load();
 
             // Get the controller from the FXML loader
@@ -192,10 +191,6 @@ public class OptionsBarController {
             stage.showAndWait();
         } catch (IOException | IllegalStateException e) {
             AlertUtils.showError("Failed to open interactive formula builder: " + e.getMessage());
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 

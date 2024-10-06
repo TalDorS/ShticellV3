@@ -19,6 +19,7 @@ public class ClientConstants {
     public static final String UPDATE_CELL_VALUE = FULL_SERVER_PATH + "/updateCellValue";
     public static final String GET_SPREADSHEET_BY_VERSION = FULL_SERVER_PATH + "/getSpreadsheetByVersion";
     public static final String GET_VERSIONS = FULL_SERVER_PATH + "/getVersions";
-    public static final String ADD_NEW_RANGE = FULL_SERVER_PATH + "/addNewRange";
+    public static final String ADD_RANGE = FULL_SERVER_PATH + "/addRange";
+    public static final String IS_SPREADSHEET_LOADED = FULL_SERVER_PATH + "/isSpreadsheetLoaded";
 
 }

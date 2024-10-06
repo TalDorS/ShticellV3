@@ -5,6 +5,7 @@ import api.Expression;
 import api.Range;
 import cells.Cell;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import dto.*;
 import exceptions.engineexceptions.*;
@@ -381,14 +382,14 @@ public class GridWindowController {
     }
 
     public void addNewRange(String name, String firstCell, String lastCell) {
-        String finalUrl = ClientConstants.ADD_NEW_RANGE;
+        String finalUrl = ClientConstants.ADD_RANGE;
 
         // Convert cell references to uppercase
         firstCell = firstCell.toUpperCase();
         lastCell = lastCell.toUpperCase();
 
         // Create a form body to send the POST request with cell info
-        RequestBody body = new FormBody.Builder()
+        RequestBody requestBody = new FormBody.Builder()
                 .add("userName", userName)
                 .add("spreadsheetName", spreadsheetName)
                 .add("rangeName", name)
@@ -397,7 +398,35 @@ public class GridWindowController {
                 .build();
 
         System.out.println("Sending request to: " + finalUrl);
+        // Create a new HttpRequest
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .post(requestBody) // Use POST method for adding a new range
+                .build();
 
+        try {
+            // Send the request synchronously using the shared OkHttpClient
+            Response response = client.newCall(request).execute();
+
+            // Check if the response is successful
+            if (response.isSuccessful()) {
+                // Parse the JSON response to extract the message
+                String responseBody = response.body().string();
+                // Update the UI
+                leftSideComponentController.addRangeToUI(name, firstCell, lastCell);
+                AlertUtils.showAlert(Alert.AlertType.INFORMATION, "Success", "Range created successfully.");
+            } else {
+                // Here we should also parse the JSON response if the call fails
+                String errorMessage = response.body().string();
+                AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Creating Range", errorMessage);
+                System.err.println("Error response: " + errorMessage); // Log error response
+            }
+        } catch (IOException e) {
+            // Handle the failure
+            String errorMessage = "Failed to connect to the server: " + e.getMessage();
+            AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Creating Range", errorMessage);
+            System.err.println("Request failed: " + e.getMessage());
+        }
 
     }
 
@@ -515,11 +544,48 @@ public class GridWindowController {
         }
     }
 
+    public boolean isSpreadsheetLoaded() {
 
+        String finalUrl = HttpUrl
+                .parse(ClientConstants.IS_SPREADSHEET_LOADED) // Use your constant URL
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("spreadsheetName", spreadsheetName)
+                .build()
+                .toString();
 
-    public boolean isSpreadsheetLoaded() throws UserNotFoundException, FileNotFoundException {
-        return engine.getCurrentSpreadsheet(userName, spreadsheetName) != null;
+        // Create the request using OkHttp
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .get() // GET request
+                .build();
+
+        try {
+            // Send the request synchronously using the shared OkHttpClient
+            Response response = client.newCall(request).execute();
+
+            // Check if the response is successful
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string().trim();
+                return Boolean.parseBoolean(responseBody); // Parse boolean from response string
+            } else {
+                String errorMessage = "Failed to load spreadsheet: " + response.body().string();
+                showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+                System.err.println("Failed to check if spreadsheet is loaded: " + response.body().string());
+                return false;
+            }
+        } catch (IOException e) {
+            String errorMessage = "Failed to load spreadsheet: " + e.getMessage();
+            showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+            System.err.println("Request failed: " + e.getMessage());
+            return false;
+        }
     }
+
+
+//    public boolean isSpreadsheetLoaded() throws UserNotFoundException, FileNotFoundException {
+//        return engine.getCurrentSpreadsheet(userName, spreadsheetName) != null;
+//    }
 
     public void setSkin(String theme) {
         Scene scene = scrollPane.getScene();
