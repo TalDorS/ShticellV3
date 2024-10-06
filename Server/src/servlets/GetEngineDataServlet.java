@@ -26,24 +26,23 @@ public class GetEngineDataServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=UTF-8");
         String userName = request.getParameter("userName");
-        String fileName = request.getParameter("fileName");
+        String spreadsheetName = request.getParameter("spreadsheetName");
 
         // Retrieve the engine instance from the servlet context
         Engine engine = ServletUtils.getEngine(getServletContext());
 
-        if (userName == null || fileName == null || userName.isEmpty() || fileName.isEmpty()) {
+        if (userName == null || spreadsheetName == null || userName.isEmpty() || spreadsheetName.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Missing or empty parameters: userName or fileName.\"}");
+            response.getWriter().write("{\"error\": \"Missing or empty parameters: userName or spreadsheetName.\"}");
             return;
         }
 
         try {
             // Get EngineDTO for the given user and file
-            EngineDTO engineDTO = engine.getEngineData(userName, fileName);
+            EngineDTO engineDTO = engine.getEngineData(userName, spreadsheetName);
 
             // Convert EngineDTO to JSON
             String jsonResponse = gson.toJson(engineDTO);
-            System.out.println("EngineDataServlet: " + jsonResponse);
 
             // Set response status to OK and send the JSON response
             response.setStatus(HttpServletResponse.SC_OK);

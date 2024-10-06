@@ -9,7 +9,7 @@ import java.util.Objects;
 // Represents a cell in the spreadsheet
 public class Cell implements Serializable {
     private String originalValue;
-    private Expression expression; // This represents the parsed expression
+    private transient Expression expression; // This represents the parsed expression
     private Object effectiveValue; // The result of evaluating the expression
     private Map<String, Cell> dependsOnThem; // Cells this cell depends on
     private Map<String, Cell> dependsOnMe; // Cells that depend on this cell

@@ -42,10 +42,10 @@ public class LoadFileServlet extends HttpServlet {
         synchronized (this) {
             try {
                 // Use engine to load the spreadsheet
-                String fileName = engine.loadSpreadsheet(usernameFromSession, filePathFromParameter);
+                String spreadsheetName = engine.loadSpreadsheet(usernameFromSession, filePathFromParameter);
 
                 // If loadSpreadsheet is successful, respond with the file name
-                String successResponse = String.format(fileName);
+                String successResponse = String.format(spreadsheetName);
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write(successResponse);
 

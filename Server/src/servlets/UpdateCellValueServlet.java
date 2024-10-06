@@ -18,7 +18,7 @@ public class UpdateCellValueServlet extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
 
         String userName = request.getParameter("userName");
-        String fileName = request.getParameter("fileName");
+        String spreadsheetName = request.getParameter("spreadsheetName");
         String cellId = request.getParameter("cellId");
         String newValue = request.getParameter("newValue");
 
@@ -26,7 +26,7 @@ public class UpdateCellValueServlet extends HttpServlet {
 
         try {
             // Call your engine method to update the cell
-            engine.updateCellValue(userName, fileName, cellId, newValue); // Implement this method in your Engine class
+            engine.updateCellValue(userName, spreadsheetName, cellId, newValue); // Implement this method in your Engine class
             // If successful, return a success message
             response.setStatus(HttpServletResponse.SC_OK);
 

@@ -71,10 +71,6 @@ public class LeftSideController {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Adding New Range", e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -103,10 +99,6 @@ public class LeftSideController {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Opening Filter Dialog", e.getMessage());
         } catch (IllegalStateException e) {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Adding New Range", e.getMessage());
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -123,13 +115,15 @@ public class LeftSideController {
         Label rangeDetails = new Label(firstCell + " to " + lastCell);
 
         // Create the delete button
-        Button deleteButton = new Button("Delete");
+        Button deleteButton = new Button("Remove");
         deleteButton.setOnAction(event -> {
             try {
                 handleDeleteRange(name);
             } catch (UserNotFoundException e) {
                 throw new RuntimeException(e);
             } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -154,28 +148,28 @@ public class LeftSideController {
         mainController.highlightRange(firstCell, lastCell, isHovering); // Delegate to AppController
     }
 
-    private void handleDeleteRange(String rangeName) throws UserNotFoundException, FileNotFoundException {
-        mainController.deleteRange(rangeName); // Pass the delete request to the AppController
-        refreshRanges(); // Refresh the ranges to update the UI
+    private void handleDeleteRange(String rangeName) throws UserNotFoundException, FileNotFoundException, IOException {
+        mainController.removeRange(rangeName); // Pass the delete request to the AppController refersh is done here
+        //refreshRanges(); // Refresh the ranges to update the UI
     }
 
-    // Method to refresh the range list in the UI
-    public void refreshRanges() throws UserNotFoundException, FileNotFoundException {
-        // Clear the current list of ranges
-        rangesAccordion.getPanes().clear();
-
-        // Fetch the current list of ranges from the backend engine
-        Map<String, String[]> ranges = mainController.getRanges();
-
-        // Rebuild the range list in the UI
-        for (Map.Entry<String, String[]> entry : ranges.entrySet()) {
-            String name = entry.getKey();
-            String firstCell = entry.getValue()[0];
-            String lastCell = entry.getValue()[1];
-
-            addRangeToUI(name, firstCell, lastCell);
-        }
-    }
+//    // Method to refresh the range list in the UI
+//    public void refreshRanges() throws UserNotFoundException, FileNotFoundException, IOException {
+//        // Clear the current list of ranges
+//        rangesAccordion.getPanes().clear();
+//
+//        // Fetch the current list of ranges from the backend engine
+//        Map<String, String[]> ranges = mainController.getRanges();
+//
+//        // Rebuild the range list in the UI
+//        for (Map.Entry<String, String[]> entry : ranges.entrySet()) {
+//            String name = entry.getKey();
+//            String firstCell = entry.getValue()[0];
+//            String lastCell = entry.getValue()[1];
+//
+//            addRangeToUI(name, firstCell, lastCell);
+//        }
+//    }
 
     // Method to refresh the range list in the UI for displaying rangesDTO
     public void refreshRanges(List<RangeDTO> rangesDTO) {
@@ -268,10 +262,6 @@ public class LeftSideController {
         } catch (IOException e) {
             e.printStackTrace();
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Opening Graph Dialog", e.getMessage());
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
