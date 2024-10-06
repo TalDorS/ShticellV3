@@ -280,19 +280,19 @@ public class EngineImpl implements Engine {
         }
     }
 
-    @Override
-    public Map<String, Range> getAllRanges(String userName, String spreadsheetName) throws FileNotFoundException, UserNotFoundException {
-        // Retrieve the VersionsManager for the specified filePath
-        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
-
-        // Check if the VersionsManager exists
-        if (versionsManager != null) {
-            // Call the getAllRanges method from the VersionsManager
-            return versionsManager.getAllRanges();
-        } else {
-            throw new FileNotFoundException("The specified file does not exist for this user.");
-        }
-    }
+//    @Override
+//    public Map<String, Range> getAllRanges(String userName, String spreadsheetName) throws FileNotFoundException, UserNotFoundException {
+//        // Retrieve the VersionsManager for the specified filePath
+//        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
+//
+//        // Check if the VersionsManager exists
+//        if (versionsManager != null) {
+//            // Call the getAllRanges method from the VersionsManager
+//            return versionsManager.getAllRanges();
+//        } else {
+//            throw new FileNotFoundException("The specified file does not exist for this user.");
+//        }
+//    }
 
     // Method to check for circular references in the new expression
     public void checkForCircularReferences(String userName, String spreadsheetName, String cellId, Expression newExpression) throws CircularReferenceException, FileNotFoundException, UserNotFoundException {

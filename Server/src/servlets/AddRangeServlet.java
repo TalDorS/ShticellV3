@@ -29,6 +29,7 @@ public class AddRangeServlet extends HttpServlet {
         String firstCell = request.getParameter("firstCell");
         String lastCell = request.getParameter("lastCell");
 
+        System.out.println("firstCell: " + firstCell + " lastCell: " + lastCell+ " rangeName: " + rangeName+ " spreadsheetName: " + spreadsheetName+ " userName: " + userName);
         // Check if parameters are valid (you can implement more validation)
         if (userName == null || spreadsheetName == null || rangeName == null || firstCell == null || lastCell == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

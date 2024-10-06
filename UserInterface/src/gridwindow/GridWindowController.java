@@ -5,7 +5,6 @@ import api.Expression;
 import api.Range;
 import cells.Cell;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import dto.*;
 import exceptions.engineexceptions.*;
@@ -38,10 +37,6 @@ import utils.AlertUtils;
 import utils.HttpClientUtil;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.text.NumberFormat;
 import java.util.*;
 
@@ -173,7 +168,6 @@ public class GridWindowController {
                 }
             }
         });
-
     }
 
 
@@ -407,11 +401,11 @@ public class GridWindowController {
         try {
             // Send the request synchronously using the shared OkHttpClient
             Response response = client.newCall(request).execute();
-
             // Check if the response is successful
             if (response.isSuccessful()) {
                 // Parse the JSON response to extract the message
                 String responseBody = response.body().string();
+                System.out.println("Response from server: " + responseBody);
                 // Update the UI
                 leftSideComponentController.addRangeToUI(name, firstCell, lastCell);
                 AlertUtils.showAlert(Alert.AlertType.INFORMATION, "Success", "Range created successfully.");
@@ -442,15 +436,64 @@ public class GridWindowController {
 //        }
 //    }
 
-    public void deleteRange(String rangeName) {
+    public void removeRange(String rangeName) {
+
+        String finalUrl = HttpUrl
+                .parse(ClientConstants.REMOVE_RANGE) // Use your constant URL
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("spreadsheetName", spreadsheetName)
+                .addQueryParameter("rangeName", rangeName)
+                .build()
+                .toString();
+
+        // Create a new HttpRequest
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .delete() // Use DELETE method
+                .build();
+
         try {
-            // Delete range from the backend engine
-            engine.removeRange(userName, spreadsheetName, rangeName);
-            leftSideComponentController.refreshRanges(); // Refresh the ranges in UI
-        } catch (Exception e) {
-            AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Deleting Range", e.getMessage());
+            // Send the request synchronously using the shared OkHttpClient
+            Response response = client.newCall(request).execute();
+
+            // Check if the response is successful
+            if (response.isSuccessful()) {
+                // Parse the response if necessary
+                String responseBody = response.body().string();
+                System.out.println("Response from server: " + responseBody);
+                List<RangeDTO> rangesDTO = getRanges();
+
+                // Refresh the UI
+                Platform.runLater(() -> {
+                    // Refresh dependent UI elements
+                    leftSideComponentController.refreshRanges(rangesDTO);  // Pass the rangesDTO to refreshRanges method
+                });
+                AlertUtils.showAlert(Alert.AlertType.INFORMATION, "Success", "Range deleted successfully.");
+            } else {
+                // Handle the error response
+                String errorMessage = response.body().string();
+                AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Deleting Range", errorMessage);
+                System.err.println("Error response: " + errorMessage); // Log error response
+            }
+        } catch (IOException e) {
+            // Handle the failure
+            String errorMessage = "Failed to connect to the server: " + e.getMessage();
+            AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Deleting Range", errorMessage);
+            System.err.println("Request failed: " + e.getMessage());
         }
     }
+
+
+//    public void deleteRange(String rangeName) {
+//        try {
+//            // Delete range from the backend engine
+//            engine.removeRange(userName, spreadsheetName, rangeName);
+//            leftSideComponentController.refreshRanges(); // Refresh the ranges in UI
+//        } catch (Exception e) {
+//            AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Deleting Range", e.getMessage());
+//        }
+//    }
 
     public void handleSortRequest(String range, List<String> columnsToSortBy) {
         try {
@@ -474,21 +517,52 @@ public class GridWindowController {
         }
     }
 
-    // Method to get the current ranges from the backend engine
-    public Map<String, String[]> getRanges() throws UserNotFoundException, FileNotFoundException {
-        // Fetch the ranges from the backend engine
-        Map<String, Range> ranges = engine.getAllRanges(userName, spreadsheetName);
-        Map<String, String[]> formattedRanges = new HashMap<>();
+    public List<RangeDTO> getRanges() throws IOException {
+        String finalUrl = HttpUrl
+                .parse(ClientConstants.GET_RANGES) // Replace with the actual URL to your servlet/API endpoint
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("spreadsheetName", spreadsheetName)
+                .build()
+                .toString();
 
-        // Convert each Range object to a String[] format
-        for (Map.Entry<String, Range> entry : ranges.entrySet()) {
-            Range range = entry.getValue();
-            String[] cells = {range.getStartCell(), range.getEndCell()};
-            formattedRanges.put(entry.getKey(), cells);
+        // Create a GET request to the backend server
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .get() // GET request
+                .build();
+
+        // Execute the request synchronously (can be done asynchronously with enqueue if desired)
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                // Parse the response body as a JSON string
+                String responseBody = response.body().string();
+                Gson gson = new Gson();
+                List<RangeDTO> rangesDTO = gson.fromJson(responseBody, new TypeToken<List<RangeDTO>>(){}.getType());
+                System.out.println("Ranges: " + rangesDTO);
+                return rangesDTO;
+
+            } else {
+                throw new IOException("Failed to get ranges: " + response.body().string());
+            }
         }
-
-        return formattedRanges;
     }
+
+    // Method to get the current ranges from the backend engine
+//    public Map<String, String[]> getRanges() throws UserNotFoundException, FileNotFoundException {
+//        // Fetch the ranges from the backend engine
+//        Map<String, Range> ranges = engine.getAllRanges(userName, spreadsheetName);
+//        Map<String, String[]> formattedRanges = new HashMap<>();
+//
+//        // Convert each Range object to a String[] format
+//        for (Map.Entry<String, Range> entry : ranges.entrySet()) {
+//            Range range = entry.getValue();
+//            String[] cells = {range.getStartCell(), range.getEndCell()};
+//            formattedRanges.put(entry.getKey(), cells);
+//        }
+//
+//        return formattedRanges;
+//    }
 
 //    public List<VersionDTO> getVersionsForMenu() {
 //
@@ -969,13 +1043,26 @@ public class GridWindowController {
         }
     }
 
-    public List<String> getRangeNames() throws UserNotFoundException, FileNotFoundException {
-        // Fetch all ranges from the backend engine
-        Map<String, Range> ranges = engine.getAllRanges(userName, spreadsheetName);
+    public List<String> getRangeNames() throws IOException {
+        // Call the getRanges() method to retrieve the list of RangeDTOs
+        List<RangeDTO> rangesDTO = getRanges();
 
         // Extract range names and return them as a list
-        return new ArrayList<>(ranges.keySet());
+        List<String> rangeNames = new ArrayList<>();
+        for (RangeDTO range : rangesDTO) {
+            rangeNames.add(range.getName());
+        }
+
+        return rangeNames;
     }
+
+//    public List<String> getRangeNames() throws UserNotFoundException, FileNotFoundException {
+//        // Fetch all ranges from the backend engine
+//        Map<String, Range> ranges = engine.getAllRanges(userName, spreadsheetName);
+//
+//        // Extract range names and return them as a list
+//        return new ArrayList<>(ranges.keySet());
+//    }
 
     public Map<String, String> getCellAlignments() {
         return mainGridAreaComponentController.getCellAlignments();

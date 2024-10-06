@@ -21,5 +21,6 @@ public class ClientConstants {
     public static final String GET_VERSIONS = FULL_SERVER_PATH + "/getVersions";
     public static final String ADD_RANGE = FULL_SERVER_PATH + "/addRange";
     public static final String IS_SPREADSHEET_LOADED = FULL_SERVER_PATH + "/isSpreadsheetLoaded";
-
+    public static final String GET_RANGES = FULL_SERVER_PATH + "/getRanges";
+    public static final String REMOVE_RANGE = FULL_SERVER_PATH + "/removeRange";
 }

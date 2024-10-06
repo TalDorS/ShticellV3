@@ -22,7 +22,7 @@ public interface Engine {
     int getCurrentVersion(String userName, String fileName);
     void addRange(String userName, String fileName,String rangeName, String firstCell, String lastCell) throws Exception;
     void removeRange(String userName, String fileName, String rangeName) throws Exception;
-    Map<String, Range> getAllRanges(String userName, String fileName) throws FileNotFoundException, UserNotFoundException;
+    //Map<String, Range> getAllRanges(String userName, String fileName) throws FileNotFoundException, UserNotFoundException;
     Map<String, String> sortSpreadsheet(String userName, String fileName,Spreadsheet spreadsheet, String range, List<String> columnsToSortBy) throws InvalidColumnException, FileNotFoundException, UserNotFoundException;
     int getColumnIndex(String userName, String fileName, String columnName)  throws FileNotFoundException, UserNotFoundException;
     String getColumnName(String userName, String fileName, int index)throws FileNotFoundException, UserNotFoundException;
