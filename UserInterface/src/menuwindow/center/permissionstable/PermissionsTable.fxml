@@ -3,9 +3,13 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 
-<TableView minHeight="-Infinity" minWidth="-Infinity" prefHeight="298.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+<TableView fx:id="sheetTableView" prefHeight="295.0" prefWidth="600.0" stylesheets="@PermissionsTable.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="menuwindow.center.permissionstable.PermissionsTableController">
   <columns>
-    <TableColumn prefWidth="75.0" text="C1" />
-    <TableColumn prefWidth="75.0" text="C2" />
+    <TableColumn fx:id="usernameColumn" text="User Name" />
+    <TableColumn fx:id="permissionTypeColumn" text="Permission Type" />
+    <TableColumn fx:id="permissionStatusColumn" text="Permission Status" />
   </columns>
+  <columnResizePolicy>
+    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+  </columnResizePolicy>
 </TableView>
