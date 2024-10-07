@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken;
 import dto.*;
 import exceptions.engineexceptions.*;
 import expressionimpls.LiteralExpression;
+import gridwindow.bottom.BackController;
 import gridwindow.top.*;
 import gridwindow.top.Skin;
 import javafx.animation.FadeTransition;
@@ -23,6 +24,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import okhttp3.*;
 import utils.ClientConstants;
 
@@ -35,6 +38,7 @@ import gridwindow.leftside.addrangedialog.AddRangeDialogController;
 import gridwindow.leftside.sortdialog.SortDialogController;
 import utils.AlertUtils;
 import utils.HttpClientUtil;
+import utils.SimpleCookieManager;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -54,6 +58,9 @@ public class GridWindowController {
     private String spreadsheetName;
     private String userName;//set by the menu window controller
     private OkHttpClient client;
+    private SimpleCookieManager cookieManager;
+    private Stage stage;       // The main window (same stage for both views)
+    private Parent menuRoot;   // The root node of the main menu
 
     @FXML
     private ScrollPane scrollPane;
@@ -80,6 +87,9 @@ public class GridWindowController {
     private AddRangeDialogController addRangeDialogController;
 
     @FXML
+    private BackController backComponentController;
+
+    @FXML
     public void initialize() {
 
         if (optionsBarComponentController != null) {
@@ -103,13 +113,38 @@ public class GridWindowController {
         if(topGridWindowComponentController != null){
             topGridWindowComponentController.setMainController(this);
         }
-
+        if (backComponentController != null) {
+            backComponentController.setMainController(this);
+        }
     }
 
     public void setName(String name) {
         if (topGridWindowComponentController != null) {
             topGridWindowComponentController.setUsername(name);
         }
+    }
+    public void setCookieManager(SimpleCookieManager cookieManager) {
+        this.cookieManager = cookieManager;
+    }
+
+    // Setter to pass the stage and menu root from the main controller
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    public void setMenuRoot(Parent menuRoot) {
+        this.menuRoot = menuRoot;
+    }
+
+    // Method to hide the grid and show the main menu in the same stage
+    public void hideMainGridAndShowMenu() {
+        // Switch back to the menu window
+        Scene scene = stage.getScene();
+        scene.setRoot(menuRoot);  // Change the root back to the menu view
+        stage.setTitle("Menu Window for "+ userName);  // Reset the stage title
+        stage.setWidth(950);
+        stage.setHeight(690);
+        stage.show();
     }
 
     public void setSpreadsheetData(String spreadsheetName) throws CellUpdateException, InvalidExpressionException,
@@ -165,7 +200,6 @@ public class GridWindowController {
             }
         });
     }
-
 
 //    public void setSpreadsheetData(String spreadsheetName) throws CellUpdateException, InvalidExpressionException,
 //            SpreadsheetLoadingException, RangeProcessException, CircularReferenceException {
@@ -1113,5 +1147,6 @@ public class GridWindowController {
     public void setClient(OkHttpClient client) {
         this.client = client;
     }
+
 
 }
