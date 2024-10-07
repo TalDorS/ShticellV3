@@ -19,7 +19,9 @@ import utils.HttpClientUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class PermissionsTableController {
     private MenuWindowController mainController;
@@ -96,7 +98,7 @@ public class PermissionsTableController {
     }
 
     // Method to update the permissions table
-    private void updatePermissionsTable(PermissionsManagerDTO permissionsData) {
+    public void updatePermissionsTable(PermissionsManagerDTO permissionsData) {
         // Clear previous data
         permissionDetailsList.clear();
 
@@ -154,5 +156,26 @@ public class PermissionsTableController {
             System.out.println("No permission selected.");
             return null; // Return null if no item is selected
         }
+    }
+
+    // Method to compare new data with current table data
+    public boolean isDataSame(PermissionsManagerDTO newPermissionsData) {
+        // Compare the current data in the permissions table with the new data (ignoring order)
+        // You can convert both current table data and new data to sets for comparison
+        Set<PermissionDetails> currentDataSet = new HashSet<>(permissionDetailsList);
+        Set<PermissionDetails> newDataSet = new HashSet<>();
+
+        // Add the owner
+        newDataSet.add(new PermissionDetails(newPermissionsData.getOwner(), PermissionType.OWNER, PermissionStatus.NONE));
+
+        // Add writers and readers
+        for (Map.Entry<String, PermissionStatus> entry : newPermissionsData.getWriters().entrySet()) {
+            newDataSet.add(new PermissionDetails(entry.getKey(), PermissionType.WRITER, entry.getValue()));
+        }
+        for (Map.Entry<String, PermissionStatus> entry : newPermissionsData.getReaders().entrySet()) {
+            newDataSet.add(new PermissionDetails(entry.getKey(), PermissionType.READER, entry.getValue()));
+        }
+
+        return currentDataSet.equals(newDataSet);  // Return true if the data is the same
     }
 }

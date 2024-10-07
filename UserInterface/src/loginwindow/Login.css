@@ -1,0 +1,67 @@
+/* Root background: A sleek gradient to give depth */
+.root {
+    -fx-background-color: linear-gradient(to bottom, #E8F0FE, #D9E3F0);
+}
+
+/* The card container for the login form */
+.login-card {
+    -fx-background-color: white;
+    -fx-padding: 25px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 5);
+    -fx-max-width: 400px;
+    -fx-min-width: 300px;
+}
+
+/* Welcome message styling */
+.welcome-label {
+    -fx-font-size: 24px;
+    -fx-font-family: 'Arial', sans-serif;
+    -fx-text-fill: #2C3E50;
+    -fx-font-weight: bold;
+    -fx-padding-bottom: 10px;
+}
+
+/* Text field styling */
+.text-field {
+    -fx-background-color: #F4F4F4;
+    -fx-font-size: 14px;
+    -fx-text-fill: #34495E;
+    -fx-padding: 10px;
+    -fx-background-radius: 5px;
+    -fx-border-color: #D0D3D4;
+    -fx-border-radius: 5px;
+    -fx-border-width: 1;
+}
+
+.text-field:focused {
+    -fx-border-color: #2980B9;
+}
+
+/* Button styling */
+.button-login {
+    -fx-background-color: linear-gradient(to bottom, #2980B9, #2C3E50);
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px 20px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+}
+
+.button-login:hover {
+    -fx-background-color: #3498DB;
+}
+
+.button-login:pressed {
+    -fx-background-color: #1E4A74;
+}
+
+/* Message label for success or error feedback */
+.message-label {
+    -fx-text-fill: #E74C3C; /* Red for errors */
+    -fx-font-size: 12px;
+    -fx-padding-top: 5px;
+    -fx-text-alignment: center;
+}
