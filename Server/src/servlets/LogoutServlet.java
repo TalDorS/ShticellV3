@@ -1,4 +1,4 @@
-package servlets.getservlets;
+package servlets;
 
 import engineimpl.EngineImpl;
 import jakarta.servlet.annotation.WebServlet;

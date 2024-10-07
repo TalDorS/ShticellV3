@@ -1,4 +1,4 @@
-package servlets.postservlets;
+package servlets;
 
 import api.Engine;
 import exceptions.engineexceptions.*;
