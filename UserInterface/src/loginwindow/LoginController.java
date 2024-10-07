@@ -82,7 +82,6 @@ public class LoginController {
 
                     Platform.runLater(() -> {
                         messageLabel.setText("Login successful");
-                        messageLabel.setStyle("-fx-text-fill: green;"); // Set the text color to green
                         PauseTransition pause = new PauseTransition(Duration.seconds(0.5)); // Set the delay to 1 seconds
                         pause.setOnFinished(event -> proceedToMenuWindow()); // Proceed to the menu window after the pause
                         pause.play(); // Start the pause transition
