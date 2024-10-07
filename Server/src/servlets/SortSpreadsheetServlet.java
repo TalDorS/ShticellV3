@@ -34,7 +34,7 @@ public class SortSpreadsheetServlet extends HttpServlet {
         // Ensure all parameters are present
         if (userName == null || spreadsheetName == null || range == null || columnsToSortBy == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"message\": \"Invalid input parameters.\"}");
+            response.getWriter().write("Invalid input parameters.");
             return;
         }
 

@@ -32,7 +32,7 @@ public class GetSpreadsheetDTOServlet extends HttpServlet {
         // Validate input parameters
         if (userName == null || spreadsheetName == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"message\": \"Invalid input parameters.\"}");
+            response.getWriter().write("Invalid input parameters.");
             return;
         }
 
@@ -47,11 +47,11 @@ public class GetSpreadsheetDTOServlet extends HttpServlet {
                 response.getWriter().write(gson.toJson(spreadsheetDTO)); // Convert to JSON and send the response
             } else {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                response.getWriter().write("{\"message\": \"Spreadsheet not found.\"}");
+                response.getWriter().write("Spreadsheet not found.");
             }
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"message\": \"Error retrieving spreadsheet: " + e.getMessage() + "\"}");
+            response.getWriter().write("Error retrieving spreadsheet: " + e.getMessage());
             System.err.println("Error retrieving spreadsheet: " + e.getMessage());
         }
     }

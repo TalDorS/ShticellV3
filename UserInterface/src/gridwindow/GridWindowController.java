@@ -43,6 +43,7 @@ import utils.HttpClientUtil;
 import utils.SimpleCookieManager;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.NumberFormat;
 import java.util.*;
 
@@ -1009,9 +1010,8 @@ public class GridWindowController {
 //        return engine.getSpreadsheetByVersion(userName, spreadsheetName, versionNumber);
 //    }
 
-
-    public List<String> getCurrentColumns() throws UserNotFoundException, SpreadsheetNotFoundException {
-        Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet(userName, spreadsheetName);
+    public List<String> getCurrentColumns() throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
+        SpreadsheetDTO currentSpreadsheet = getCurrentSpreadsheetDTO();
         if (currentSpreadsheet == null) {
             return new ArrayList<>(); // Return an empty list if no spreadsheet is loaded
         }
@@ -1026,10 +1026,48 @@ public class GridWindowController {
         return columnNames;
     }
 
-    // Helper method to convert a zero-based column index to an Excel-style column name (A, B, C, ..., Z, AA, AB, ...)
-    public String getColumnName(int index) throws UserNotFoundException, SpreadsheetNotFoundException {
-        return engine.getColumnName(userName, spreadsheetName, index);
+//    // Helper method to convert a zero-based column index to an Excel-style column name (A, B, C, ..., Z, AA, AB, ...)
+//    public String getColumnName(int index) throws UserNotFoundException, SpreadsheetNotFoundException {
+//        return engine.getColumnName(userName, spreadsheetName, index);
+//    }
+
+    // Synchronized method to get column name from the column index
+    public synchronized String getColumnName(int index) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
+        String url = ClientConstants.GET_COLUMN_NAME; // Replace with your actual URL
+
+        // Create request body with the index as a parameter
+        RequestBody requestBody = new FormBody.Builder()
+                .add("userName", userName)
+                .add("spreadsheetName", spreadsheetName)
+                .add("index", Integer.toString(index)) // Convert the index to string
+                .build();
+
+        // Create the request
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody) // Synchronous POST request
+                .build();
+
+        // Execute the request and handle the response synchronously
+        try (Response response = client.newCall(request).execute()) {
+
+            if (!response.isSuccessful()) {
+                String errorMessage = response.body().string();
+                if (response.code() == 404) {
+                    throw new UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
+                }
+                throw new SpreadsheetNotFoundException("Error fetching column name: " + errorMessage);
+            }
+
+            // If the response is successful, get the column name from the response body
+            String responseBody = response.body().string();
+            return responseBody.trim(); // Return the column name as a string
+
+        } catch (IOException e) {
+            throw new IOException("Error occurred while fetching the column name", e);
+        }
     }
+
 
     public SpreadsheetDTO getCurrentSpreadsheetDTO() {
         String finalUrl = HttpUrl
@@ -1060,11 +1098,14 @@ public class GridWindowController {
                 return gson.fromJson(responseBody, SpreadsheetDTO.class);
             } else {
                 // Handle error response
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to load spreadsheet: " + response.message());
                 System.err.println("Error: " + response.message());
             }
         } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
             System.err.println("Failed to connect to the server: " + e.getMessage());
         } catch (JsonSyntaxException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to parse the response: " + e.getMessage());
             System.err.println("Failed to parse the response: " + e.getMessage());
         }
 
@@ -1075,13 +1116,97 @@ public class GridWindowController {
         return engine.getCurrentSpreadsheet(userName, spreadsheetName);
     }
 
-    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws UserNotFoundException, SpreadsheetNotFoundException {
-        return engine.filterTableMultipleColumns(userName, spreadsheetName, tableArea, selectedColumnValues);
+//    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws UserNotFoundException, SpreadsheetNotFoundException {
+//        return engine.filterTableMultipleColumns(userName, spreadsheetName, tableArea, selectedColumnValues);
+//    }
+
+    // Method to send a request to the server for filtering table with multiple columns
+    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
+        String url = ClientConstants.FILTER_TABLE_MULTIPLE_COLUMNS; // Replace with your actual URL
+
+        // Create the form body by iterating over the map
+        FormBody.Builder formBuilder = new FormBody.Builder()
+                .add("userName", userName)
+                .add("spreadsheetName", spreadsheetName)
+                .add("tableArea", tableArea);
+
+        // Add each column and its selected values to the request body
+        for (Map.Entry<String, List<String>> entry : selectedColumnValues.entrySet()) {
+            String columnName = entry.getKey();
+            for (String value : entry.getValue()) {
+                formBuilder.add("selectedColumn_" + columnName, value); // Prefix the column name with a key to identify it
+            }
+        }
+
+        // Build the request body
+        RequestBody requestBody = formBuilder.build();
+
+        // Create the request
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody) // Synchronous POST request
+                .build();
+
+        try  {
+            Response response = client.newCall(request).execute();
+
+            if (!response.isSuccessful()) {
+                String errorMessage = response.body().string();
+                if (response.code() == 404) {
+                    throw new UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
+                }
+                throw new SpreadsheetNotFoundException("Error fetching filtered table: " + errorMessage);
+            }
+
+            // Parse the response body into the expected List<String[][]> format
+            String responseBody = response.body().string();
+            Type listType = new TypeToken<List<String[][]>>(){}.getType();  // Define the expected return type
+            return new Gson().fromJson(responseBody, listType); // Parse response as needed
+        }catch(IOException e){
+            throw new IOException("Error occurred while fetching the filtered table", e);
+        }
     }
 
+
     // Helper method to convert a column letter (e.g., "A") to a zero-based index
-    public int getColumnIndex(String columnName) throws UserNotFoundException, SpreadsheetNotFoundException {
-        return engine.getColumnIndex(userName, spreadsheetName, columnName);
+//    public int getColumnIndex(String columnName) throws UserNotFoundException, SpreadsheetNotFoundException {
+//        return engine.getColumnIndex(userName, spreadsheetName, columnName);
+//    }
+
+    public int getColumnIndex(String columnName) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
+        String url = ClientConstants.GET_COLUMN_INDEX; // Replace with your actual URL
+
+        // Create request body
+        RequestBody requestBody = new FormBody.Builder()
+                .add("userName", userName)
+                .add("spreadsheetName", spreadsheetName)
+                .add("columnName", columnName)
+                .build();
+
+        // Create the request
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody) // Synchronous POST request
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            if (!response.isSuccessful()) {
+                String errorMessage = response.body().string();
+                if (response.code() == 404) {
+                    throw new UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
+                }
+                throw new SpreadsheetNotFoundException("Error fetching column index: " + errorMessage);
+            }
+
+            // If the response is successful, get the column index from the response body
+            String responseBody = response.body().string();
+            return Integer.parseInt(responseBody.trim()); // Parse and return the column index as an integer
+
+        } catch (IOException e) {
+            throw new IOException("Error occurred while fetching the column index", e);
+        }
     }
 
     public void updateDependentCellsForDynamicAnalysis(String cellId, double tempValue) {
@@ -1217,24 +1342,23 @@ public class GridWindowController {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GridWindowController that = (GridWindowController) o;
-        return Objects.equals(engine, that.engine) && Objects.equals(scrollPane, that.scrollPane)
-                && Objects.equals(optionsBarComponentController, that.optionsBarComponentController)
-                && Objects.equals(leftSideComponentController, that.leftSideComponentController)
-                && Objects.equals(mainGridAreaComponentController, that.mainGridAreaComponentController)
-                && Objects.equals(sortDialogController, that.sortDialogController)
-                && Objects.equals(addRangeDialogController, that.addRangeDialogController)
-                && Objects.equals(dynamicAnalysisComponentController, that.dynamicAnalysisComponentController)
-                && Objects.equals(topGridWindowComponentController, that.topGridWindowComponentController);
+        return Objects.equals(engine, that.engine) && Objects.equals(activeFadeTransitions, that.activeFadeTransitions)
+                && Objects.equals(activeRotateTransitions, that.activeRotateTransitions) && Objects.equals(spreadsheetName, that.spreadsheetName)
+                && Objects.equals(userName, that.userName) && Objects.equals(client, that.client) && Objects.equals(cookieManager, that.cookieManager)
+                && Objects.equals(stage, that.stage) && Objects.equals(menuRoot, that.menuRoot) && Objects.equals(scrollPane, that.scrollPane)
+                && Objects.equals(topGridWindowComponentController, that.topGridWindowComponentController) && Objects.equals(optionsBarComponentController, that.optionsBarComponentController)
+                && Objects.equals(leftSideComponentController, that.leftSideComponentController) && Objects.equals(mainGridAreaComponentController, that.mainGridAreaComponentController)
+                && Objects.equals(dynamicAnalysisComponentController, that.dynamicAnalysisComponentController) && Objects.equals(sortDialogController, that.sortDialogController)
+                && Objects.equals(addRangeDialogController, that.addRangeDialogController) && Objects.equals(backComponentController, that.backComponentController);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(engine, scrollPane,
-                optionsBarComponentController, leftSideComponentController,
-                mainGridAreaComponentController, sortDialogController, addRangeDialogController,
-                dynamicAnalysisComponentController, topGridWindowComponentController);
+        return Objects.hash(engine, activeFadeTransitions, activeRotateTransitions, spreadsheetName, userName, client,
+                cookieManager, stage, menuRoot, scrollPane, topGridWindowComponentController, optionsBarComponentController,
+                leftSideComponentController, mainGridAreaComponentController, dynamicAnalysisComponentController, sortDialogController,
+                addRangeDialogController, backComponentController);
     }
-
 
     public Expression parseExpression (String input) throws InvalidExpressionException, UserNotFoundException, SpreadsheetNotFoundException {
         return engine.parseExpression(userName, spreadsheetName, input);

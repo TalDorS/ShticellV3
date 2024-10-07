@@ -25,4 +25,8 @@ public class ClientConstants {
     public static final String REMOVE_RANGE = FULL_SERVER_PATH + "/removeRange";
     public static final String SORT_SPREADSHEET = FULL_SERVER_PATH + "/sortSpreadsheet";
     public static final String GET_SPREADSHEET = FULL_SERVER_PATH + "/getSpreadsheet";
+    public static final String GET_COLUMN_INDEX = FULL_SERVER_PATH + "/getColumnIndex";
+    public static final String GET_COLUMN_NAME = FULL_SERVER_PATH + "/getColumnName";
+    public static final String FILTER_TABLE_MULTIPLE_COLUMNS = FULL_SERVER_PATH + "/filterTableMultipleColumns";
+
 }

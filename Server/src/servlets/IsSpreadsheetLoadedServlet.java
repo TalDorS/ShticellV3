@@ -28,7 +28,7 @@ public class IsSpreadsheetLoadedServlet extends HttpServlet {
         // Validate input parameters
         if (userName == null || spreadsheetName == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"message\": \"Invalid input parameters.\"}");
+            response.getWriter().write("Invalid input parameters.");
             return;
         }
 

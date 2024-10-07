@@ -25,14 +25,14 @@ public class LoadFileServlet extends HttpServlet {
 
         if (usernameFromSession == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"message\": \"You must be logged in to load a spreadsheet.\"}");
+            response.getWriter().write("You must be logged in to load a spreadsheet.");
             return;
         }
 
         String filePathFromParameter = request.getParameter("filePath");
         if (filePathFromParameter == null || filePathFromParameter.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"message\": \"File path is missing or empty.\"}");
+            response.getWriter().write("File path is missing or empty.");
             return;
         }
 

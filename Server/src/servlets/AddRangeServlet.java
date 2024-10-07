@@ -33,7 +33,7 @@ public class AddRangeServlet extends HttpServlet {
         // Check if parameters are valid (you can implement more validation)
         if (userName == null || spreadsheetName == null || rangeName == null || firstCell == null || lastCell == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"message\": \"Invalid input parameters.\"}");
+            response.getWriter().write("Invalid input parameters.");
             return;
         }
 
@@ -42,12 +42,12 @@ public class AddRangeServlet extends HttpServlet {
             engine.addRange(userName, spreadsheetName, rangeName, firstCell, lastCell);
             // Respond with a success message
             response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write("{\"message\": \"Range created successfully.\"}");
+            response.getWriter().write("Range created successfully.");
 
         } catch (Exception e) {
             // Handle any exceptions that occur
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"message\": \"Error creating range: " + e.getMessage() + "\"}");
+            response.getWriter().write("Error creating range: " + e.getMessage());
         }
     }
 }
