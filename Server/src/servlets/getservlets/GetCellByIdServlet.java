@@ -1,12 +1,9 @@
-package servlets;
+package servlets.getservlets;
 
 import api.Engine;
-import api.Expression;
 import cells.Cell;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dto.CellDTO;
-import dto.EngineDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

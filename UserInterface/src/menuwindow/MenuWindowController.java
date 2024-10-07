@@ -16,6 +16,7 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import menuwindow.center.permissionstable.PermissionsTableController;
+import menuwindow.center.permissionstable.PermissionsTableRefresher;
 import menuwindow.center.sheettable.AvailableSheetTableController;
 import menuwindow.rightside.RightSideController;
 import menuwindow.top.HeaderLoadController;
@@ -33,6 +34,7 @@ import static utils.AlertUtils.showError;
 import static utils.CommonResourcesPaths.GRID_WINDOW_FXML;
 
 public class MenuWindowController {
+    private Timer permissionsTableTimer;
     private Stage stage; // To hold the stage reference
     //private Map<String, Stage> gridWindowsStages = new HashMap<>(); todo? do we need?
     private Stage gridWindowStage;
@@ -70,6 +72,11 @@ public class MenuWindowController {
         if (permissionsTableComponentController != null) {
             permissionsTableComponentController.setMainController(this);
         }
+
+        // Method to refresh permissions table if a spreadsheet is selected
+        startPermissionsTableRefresher();
+
+        // TODO - ADVA DO WE NEED THIS?
         engine = new EngineImpl();
     }
 
@@ -388,6 +395,30 @@ public class MenuWindowController {
     private void disableGridEditButtons() {
         if (gridWindowController != null) {
             this.gridWindowController.disableEditButtons();
+        }
+    }
+
+    // Start the timer for the permissions table refresher
+    public void startPermissionsTableRefresher() {
+        if (permissionsTableTimer != null) {
+            permissionsTableTimer.cancel(); // cancel previous timer
+        }
+
+        permissionsTableTimer = new Timer();
+        TimerTask refresherTask = new PermissionsTableRefresher(this);
+
+        // Schedule the task to run every 0.5 seconds
+        permissionsTableTimer.scheduleAtFixedRate(refresherTask, 0, 2000);
+    }
+
+    public String getSelectedSpreadsheetName() {
+        return availableSheetTableComponentController.getSelectedSpreadsheetName();
+    }
+
+    // Method to load permissions for the selected sheet
+    public void loadPermissionsDataForSheet(String sheetName) {
+        if (permissionsTableComponentController != null) {
+            permissionsTableComponentController.fetchPermissionsData(sheetName);
         }
     }
 
