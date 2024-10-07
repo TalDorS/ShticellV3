@@ -3,8 +3,6 @@ package menuwindow.center.permissionstable.models;
 import enums.PermissionStatus;
 import enums.PermissionType;
 
-import java.util.Objects;
-
 public class PermissionDetails {
     private final String username;
     private final PermissionType permissionType;
@@ -30,18 +28,5 @@ public class PermissionDetails {
 
     public void setPermissionStatus(PermissionStatus permissionStatus) {
         this.permissionStatus = permissionStatus;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PermissionDetails that = (PermissionDetails) o;
-        return Objects.equals(username, that.username) && permissionType == that.permissionType && permissionStatus == that.permissionStatus;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(username, permissionType, permissionStatus);
     }
 }

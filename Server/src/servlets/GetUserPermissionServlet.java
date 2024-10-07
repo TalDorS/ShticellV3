@@ -1,4 +1,4 @@
-package servlets.getservlets;
+package servlets;
 
 import api.Engine;
 import com.google.gson.Gson;
@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @WebServlet(name = "GetUserPermissionServlet", urlPatterns = "/get-user-permission")
