@@ -1,9 +1,14 @@
-package servlets.getservlets;
+package servlets;
 
 import api.Engine;
+
+import api.Expression;
 import cells.Cell;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dto.CellDTO;
+import dto.EngineDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -12,8 +17,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import utils.ServletUtils;
 import java.io.IOException;
 
-@WebServlet("/getCellById") // This URL maps to the servlet
-public class GetCellByIdServlet extends HttpServlet {
+@WebServlet("/getCellDTOById") // This URL maps to the servlet
+public class GetCellDTOByIdServlet extends HttpServlet {
 
 
     Gson gson = new GsonBuilder()
@@ -34,8 +39,8 @@ public class GetCellByIdServlet extends HttpServlet {
         Engine engine = ServletUtils.getEngine(getServletContext());
 
         try {
-            // Fetch the current spreadsheet and then the cell data
-            Cell cell = engine.getCurrentSpreadsheet(userName, spreadsheetName).getCellById(cellId);
+            EngineDTO engineDTO = engine.getEngineData(userName, spreadsheetName);
+            CellDTO cell = engineDTO.getCurrentSpreadsheet().getCellById(cellId);
             // If cell is found, convert it to JSON and send it back
             String jsonResponse = gson.toJson(cell);
 
@@ -53,3 +58,4 @@ public class GetCellByIdServlet extends HttpServlet {
         }
     }
 }
+

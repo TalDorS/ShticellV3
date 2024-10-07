@@ -1,6 +1,9 @@
-package servlets.getservlets;
+package servlets;
 
 import api.Engine;
+import com.google.gson.Gson;
+import dto.EngineDTO;
+import dto.RangeDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,35 +12,44 @@ import jakarta.servlet.http.HttpServletResponse;
 import utils.ServletUtils;
 
 import java.io.IOException;
+import java.util.List;
 
-@WebServlet("/isSpreadsheetLoaded") // Specify the URL pattern for this servlet
-public class IsSpreadsheetLoadedServlet extends HttpServlet {
+@WebServlet("/getRanges") // The URL to access this servlet
+public class GetRangesServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Set content type to JSON
         response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
 
+        // Get Engine instance from Servlet Context
         Engine engine = ServletUtils.getEngine(getServletContext());
 
-        // Retrieve parameters from the request
+        // Extract parameters from the request
         String userName = request.getParameter("userName");
         String spreadsheetName = request.getParameter("spreadsheetName");
 
-        // Validate input parameters
+        // Validate parameters
         if (userName == null || spreadsheetName == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Invalid input parameters.");
+            response.getWriter().write("Missing userName or spreadsheetName parameter.");
             return;
         }
 
         try {
-            boolean isLoaded = engine.getCurrentSpreadsheet(userName, spreadsheetName) != null;
+            EngineDTO engineDTO = engine.getEngineData(userName, spreadsheetName);
+            List<RangeDTO> rangesDTO = engineDTO.getRanges();
             response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write(String.valueOf(isLoaded));
+            // Convert the map to JSON
+            Gson gson = new Gson();
+            String rangesJson = gson.toJson(rangesDTO);
+            response.getWriter().write(rangesJson);
+
         } catch (Exception e) {
+            // Handle exceptions and return an error response
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write(e.getMessage());
-            System.err.println("Error checking spreadsheet: " + e.getMessage());
+            response.getWriter().write("Error while fetching ranges: " + e.getMessage());
         }
     }
 }

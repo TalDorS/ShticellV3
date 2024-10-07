@@ -1,4 +1,4 @@
-package servlets.deleteservlets;
+package servlets;
 
 import api.Engine;
 import jakarta.servlet.ServletException;
