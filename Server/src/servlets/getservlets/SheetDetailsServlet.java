@@ -30,7 +30,7 @@ public class SheetDetailsServlet extends HttpServlet {
         // Check if user is logged in
         if (usernameFromSession == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"message\": \"You must be logged in to load a spreadsheet.\"}");
+            response.getWriter().write("You must be logged in to load a spreadsheet.}");
             return;
         }
 

@@ -1,8 +1,10 @@
 package servlets;
 
 import api.Engine;
-
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import dto.EngineDTO;
+import dto.SpreadsheetDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -12,10 +14,10 @@ import utils.ServletUtils;
 
 import java.io.IOException;
 
-import java.util.Map;
+@WebServlet("/getSpreadsheet") // Specify the URL pattern for this servlet
+public class GetSpreadsheetDTOServlet extends HttpServlet {
 
-@WebServlet("/isSpreadsheetLoaded") // Specify the URL pattern for this servlet
-public class IsSpreadsheetLoadedServlet extends HttpServlet {
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create(); // Enable pretty printing
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -35,13 +37,22 @@ public class IsSpreadsheetLoadedServlet extends HttpServlet {
         }
 
         try {
-            boolean isLoaded = engine.getCurrentSpreadsheet(userName, spreadsheetName) != null;
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write(String.valueOf(isLoaded));
+            // Retrieve the current spreadsheet
+            EngineDTO engineDTO = engine.getEngineData(userName, spreadsheetName);
+            SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
+
+            // Check if the spreadsheet exists
+            if (spreadsheetDTO != null) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write(gson.toJson(spreadsheetDTO)); // Convert to JSON and send the response
+            } else {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.getWriter().write("Spreadsheet not found.");
+            }
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write(e.getMessage());
-            System.err.println("Error checking spreadsheet: " + e.getMessage());
+            response.getWriter().write("Error retrieving spreadsheet: " + e.getMessage());
+            System.err.println("Error retrieving spreadsheet: " + e.getMessage());
         }
     }
 }

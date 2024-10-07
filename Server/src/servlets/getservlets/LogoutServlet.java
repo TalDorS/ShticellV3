@@ -1,10 +1,12 @@
-package servlets.getservlets;
+package servlets;
 
 import engineimpl.EngineImpl;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import user.UserManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
 
@@ -29,6 +31,7 @@ public class LogoutServlet extends HttpServlet {
         } else {
             System.err.println("No user session found for logout.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Set response to 400 if no user found
+            response.getWriter().write("No user session found for logout.");
         }
     }
 

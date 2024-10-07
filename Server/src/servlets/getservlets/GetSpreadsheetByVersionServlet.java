@@ -1,4 +1,4 @@
-package servlets.getservlets;
+package servlets;
 
 import api.Engine;
 import com.google.gson.Gson;
@@ -10,6 +10,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import spreadsheet.Spreadsheet;
 import utils.ServletUtils;
 
 import java.io.IOException;
@@ -37,7 +39,7 @@ public class GetSpreadsheetByVersionServlet extends HttpServlet {
             versionNumber = Integer.parseInt(versionNumberStr);
         } catch (NumberFormatException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 400 Bad Request
-            response.getWriter().write("{\"error\": \"Invalid version number.\"}");
+            response.getWriter().write("Invalid version number.");
             return;
         }
 
@@ -56,7 +58,7 @@ public class GetSpreadsheetByVersionServlet extends HttpServlet {
             } else {
                 // If the spreadsheet is not found
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND); // 404 Not Found
-                response.getWriter().write("{\"error\": \"Spreadsheet not found.\"}");
+                response.getWriter().write("Spreadsheet not found.");
             }
         } catch (Exception e) {
             // Handle exceptions (e.g., user or file not found)

@@ -1,6 +1,8 @@
 package gridwindow.leftside.filterdialog;
 
 import cells.Cell;
+import dto.CellDTO;
+import dto.SpreadsheetDTO;
 import exceptions.engineexceptions.SpreadsheetNotFoundException;
 import exceptions.engineexceptions.UserNotFoundException;
 import javafx.collections.FXCollections;
@@ -19,6 +21,7 @@ import gridwindow.GridWindowController;
 import spreadsheet.Spreadsheet;
 import javafx.scene.layout.HBox;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +53,8 @@ public class FilterDialogController {
                         throw new RuntimeException(e);
                     } catch (SpreadsheetNotFoundException e) {
                         throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
                     // Enable and show selectValuesButton
                     selectValuesButton.setDisable(false);
@@ -65,6 +70,8 @@ public class FilterDialogController {
                 throw new RuntimeException(e);
             } catch (SpreadsheetNotFoundException e) {
                 throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
     }
@@ -79,7 +86,7 @@ public class FilterDialogController {
         selectedColumnValues.clear();
     }
 
-    private void updateRelevantColumns() throws UserNotFoundException, SpreadsheetNotFoundException {
+    private void updateRelevantColumns() throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
         // Retrieve and validate the table area input from the user
         String tableArea = getValidatedTableArea();
         if (tableArea == null) return; // Exit if validation fails
@@ -98,7 +105,7 @@ public class FilterDialogController {
         updateMenuButtonWithRelevantColumns(startColumnIndex, endColumnIndex);
     }
 
-    private String getValidatedTableArea() throws UserNotFoundException, SpreadsheetNotFoundException {
+    private String getValidatedTableArea() throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
         String tableArea = tableAreaField.getText().trim().toUpperCase();
 
         if (tableArea.isEmpty()) {
@@ -148,7 +155,7 @@ public class FilterDialogController {
         return isCellWithinBounds(cellReference);
     }
 
-    private boolean isValidCellRange(String topLeftCell, String bottomRightCell) throws UserNotFoundException, SpreadsheetNotFoundException {
+    private boolean isValidCellRange(String topLeftCell, String bottomRightCell) throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
         int startRow = Integer.parseInt(topLeftCell.replaceAll("\\D", ""));
         int endRow = Integer.parseInt(bottomRightCell.replaceAll("\\D", ""));
         String startColumn = topLeftCell.replaceAll("\\d", "");
@@ -160,7 +167,7 @@ public class FilterDialogController {
         return (startColumnIndex < endColumnIndex) || (startColumnIndex == endColumnIndex && startRow <= endRow);
     }
 
-    private void updateMenuButtonWithRelevantColumns(int startColumnIndex, int endColumnIndex) throws UserNotFoundException, SpreadsheetNotFoundException {
+    private void updateMenuButtonWithRelevantColumns(int startColumnIndex, int endColumnIndex) throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
         // Clear previous checkboxes
         columnsCheckBoxContainer.getChildren().clear();
         selectedColumns.clear();
@@ -257,7 +264,7 @@ public class FilterDialogController {
     }
 
     @FXML
-    private void handleApplyFilter() throws UserNotFoundException, SpreadsheetNotFoundException {
+    private void handleApplyFilter() throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
         // Parse the table area
         String tableArea = tableAreaField.getText().trim().toUpperCase();
 
@@ -279,7 +286,7 @@ public class FilterDialogController {
         showFilteredResultsGrid(filteredRows);
     }
 
-    private void showFilteredResultsGrid(List<String[][]> filteredRows) throws UserNotFoundException, SpreadsheetNotFoundException {
+    private void showFilteredResultsGrid(List<String[][]> filteredRows) throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
         Stage stage = new Stage();
         stage.setTitle("Filtered Results");
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -363,7 +370,7 @@ public class FilterDialogController {
     // Checks if a given cell reference (e.g., "A1") is within the bounds of the current spreadsheet
     public boolean isCellWithinBounds(String cellId) {
         // Ensure that a spreadsheet is loaded
-        Spreadsheet currentSpreadsheet = mainController.getCurrentSpreadsheet();
+        SpreadsheetDTO currentSpreadsheet = mainController.getCurrentSpreadsheetDTO();
         if (currentSpreadsheet == null) {
             return false; // No spreadsheet is loaded
         }
@@ -397,11 +404,13 @@ public class FilterDialogController {
             throw new RuntimeException(e);
         } catch (SpreadsheetNotFoundException e) {
             throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public List<String> getUniqueValuesForColumn(String column) {
-        Spreadsheet currentSpreadsheet = mainController.getCurrentSpreadsheet();
+        SpreadsheetDTO currentSpreadsheet = mainController.getCurrentSpreadsheetDTO();
         if (currentSpreadsheet == null) {
             return new ArrayList<>(); // Return an empty list if no spreadsheet is loaded
         }
@@ -412,7 +421,7 @@ public class FilterDialogController {
         // Get all rows and retrieve values for the specified column
         for (int row = 1; row <= currentSpreadsheet.getRows(); row++) {
             String cellId = column + row; // Create cell ID like "A1", "B2", etc.
-            Cell cell = currentSpreadsheet.getCellById(cellId);
+            CellDTO cell = currentSpreadsheet.getCellById(cellId);
             if (cell != null && cell.getEffectiveValue() != null) {
                 uniqueValues.add(cell.getEffectiveValue().toString());
             }

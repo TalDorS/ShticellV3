@@ -33,7 +33,7 @@ public class GetEngineDataServlet extends HttpServlet {
 
         if (userName == null || spreadsheetName == null || userName.isEmpty() || spreadsheetName.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Missing or empty parameters: userName or spreadsheetName.\"}");
+            response.getWriter().write("Missing or empty parameters: userName or spreadsheetName.");
             return;
         }
 

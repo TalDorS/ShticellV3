@@ -28,7 +28,7 @@ public class RemoveRangeServlet extends HttpServlet {
         // Validate input parameters
         if (userName == null || spreadsheetName == null || rangeName == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"message\": \"Invalid input parameters.\"}");
+            response.getWriter().write("Invalid input parameters.");
             return;
         }
 
@@ -38,11 +38,11 @@ public class RemoveRangeServlet extends HttpServlet {
 
             // Respond with success
             response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write("{\"message\": \"Range removed successfully.\"}");
+            response.getWriter().write("Range removed successfully.");
         } catch (Exception e) {
             // Handle any errors, respond with internal server error status and error message
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"message\": \"Error removing range: " + e.getMessage() + "\"}");
+            response.getWriter().write("Error removing range: " + e.getMessage());
         }
     }
 }

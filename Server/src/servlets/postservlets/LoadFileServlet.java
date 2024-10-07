@@ -1,10 +1,14 @@
-package servlets.postservlets;
+package servlets;
 
 import api.Engine;
+
+import com.google.gson.Gson;
 import exceptions.engineexceptions.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+
+import user.UserManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
 
@@ -23,14 +27,14 @@ public class LoadFileServlet extends HttpServlet {
 
         if (usernameFromSession == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"message\": \"You must be logged in to load a spreadsheet.\"}");
+            response.getWriter().write("You must be logged in to load a spreadsheet.");
             return;
         }
 
         String filePathFromParameter = request.getParameter("filePath");
         if (filePathFromParameter == null || filePathFromParameter.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"message\": \"File path is missing or empty.\"}");
+            response.getWriter().write("File path is missing or empty.");
             return;
         }
 
