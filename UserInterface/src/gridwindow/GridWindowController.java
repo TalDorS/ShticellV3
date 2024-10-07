@@ -1031,8 +1031,7 @@ public class GridWindowController {
 //        return engine.getColumnName(userName, spreadsheetName, index);
 //    }
 
-    // Synchronized method to get column name from the column index
-    public synchronized String getColumnName(int index) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
+    public String getColumnName(int index) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
         String url = ClientConstants.GET_COLUMN_NAME; // Replace with your actual URL
 
         // Create request body with the index as a parameter
