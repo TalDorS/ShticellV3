@@ -6,7 +6,7 @@
 
 <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" styleClass="scroll-pane" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gridwindow.GridWindowController">
    <content>
-      <BorderPane fx:id="borderPane" styleClass="border-pane" minHeight="-Infinity" minWidth="-Infinity">
+      <BorderPane fx:id="borderPane" minHeight="-Infinity" minWidth="-Infinity" styleClass="border-pane">
          <top>
             <VBox alignment="TOP_CENTER" prefHeight="111.0" prefWidth="1615.0" styleClass="top-vbox" BorderPane.alignment="CENTER">
                <children>
@@ -22,7 +22,7 @@
             <fx:include fx:id="mainGridAreaComponent" source="grid/MainGridArea.fxml" />
          </center>
          <bottom>
-            <fx:include source="bottom/back.fxml" BorderPane.alignment="BOTTOM_RIGHT" />
+            <fx:include fx:id="backComponent" source="bottom/back.fxml" BorderPane.alignment="BOTTOM_RIGHT" />
          </bottom>
       </BorderPane>
    </content>

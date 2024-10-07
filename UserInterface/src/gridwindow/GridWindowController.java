@@ -5,10 +5,13 @@ import api.Expression;
 import api.Range;
 import cells.Cell;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import dto.*;
 import exceptions.engineexceptions.*;
 import expressionimpls.LiteralExpression;
+import gridwindow.bottom.BackController;
 import gridwindow.top.*;
 import gridwindow.top.Skin;
 import javafx.animation.FadeTransition;
@@ -23,6 +26,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import okhttp3.*;
 import utils.ClientConstants;
 
@@ -35,8 +40,10 @@ import gridwindow.leftside.addrangedialog.AddRangeDialogController;
 import gridwindow.leftside.sortdialog.SortDialogController;
 import utils.AlertUtils;
 import utils.HttpClientUtil;
+import utils.SimpleCookieManager;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.NumberFormat;
 import java.util.*;
 
@@ -54,6 +61,9 @@ public class GridWindowController {
     private String spreadsheetName;
     private String userName;//set by the menu window controller
     private OkHttpClient client;
+    private SimpleCookieManager cookieManager;
+    private Stage stage;       // The main window (same stage for both views)
+    private Parent menuRoot;   // The root node of the main menu
 
     @FXML
     private ScrollPane scrollPane;
@@ -80,6 +90,9 @@ public class GridWindowController {
     private AddRangeDialogController addRangeDialogController;
 
     @FXML
+    private BackController backComponentController;
+
+    @FXML
     public void initialize() {
 
         if (optionsBarComponentController != null) {
@@ -103,13 +116,38 @@ public class GridWindowController {
         if(topGridWindowComponentController != null){
             topGridWindowComponentController.setMainController(this);
         }
-
+        if (backComponentController != null) {
+            backComponentController.setMainController(this);
+        }
     }
 
     public void setName(String name) {
         if (topGridWindowComponentController != null) {
             topGridWindowComponentController.setUsername(name);
         }
+    }
+    public void setCookieManager(SimpleCookieManager cookieManager) {
+        this.cookieManager = cookieManager;
+    }
+
+    // Setter to pass the stage and menu root from the main controller
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    public void setMenuRoot(Parent menuRoot) {
+        this.menuRoot = menuRoot;
+    }
+
+    // Method to hide the grid and show the main menu in the same stage
+    public void hideMainGridAndShowMenu() {
+        // Switch back to the menu window
+        Scene scene = stage.getScene();
+        scene.setRoot(menuRoot);  // Change the root back to the menu view
+        stage.setTitle("Menu Window for "+ userName);  // Reset the stage title
+        stage.setWidth(950);
+        stage.setHeight(690);
+        stage.show();
     }
 
     public void setSpreadsheetData(String spreadsheetName) throws CellUpdateException, InvalidExpressionException,
@@ -165,7 +203,6 @@ public class GridWindowController {
             }
         });
     }
-
 
 //    public void setSpreadsheetData(String spreadsheetName) throws CellUpdateException, InvalidExpressionException,
 //            SpreadsheetLoadingException, RangeProcessException, CircularReferenceException {
@@ -481,27 +518,91 @@ public class GridWindowController {
 //        }
 //    }
 
+//    public void handleSortRequest(String range, List<String> columnsToSortBy) {
+//        try {
+//            // Assuming you have a method in the engine to sort the spreadsheet
+//            Spreadsheet sortedSpreadsheet = new Spreadsheet(engine.getCurrentSpreadsheet(userName, spreadsheetName));
+//            Map<String,String> idMapping = engine.sortSpreadsheet(userName, spreadsheetName, sortedSpreadsheet, range, columnsToSortBy);
+//
+//            // Convert the sorted spreadsheet (domain model) to a SpreadsheetDTO
+//            SpreadsheetDTO sortedSpreadsheetDTO = engine.convertSpreadsheetToDTO(sortedSpreadsheet);
+//
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource(SORT_DIALOG_FXML));
+//            Parent root = loader.load();
+//            sortDialogController = loader.getController(); // Get the controller after loading the FXML
+//            sortDialogController.setMainController(this); // Set the main controller
+//
+//            // Now create a popup window to display the sorted results
+//            sortDialogController.showSortedResultsPopup(sortedSpreadsheetDTO, idMapping);
+//
+//        } catch (Exception e) {
+//            AlertUtils.showAlert(Alert.AlertType.ERROR, "Sorting Error", "Failed to sort the spreadsheet: " + e.getMessage());
+//        }
+//    }
+
     public void handleSortRequest(String range, List<String> columnsToSortBy) {
+        String finalUrl = ClientConstants.SORT_SPREADSHEET; // Replace with your actual URL for sorting
+
+        Gson gson = new Gson();
+        // Create a FormBody builder
+        FormBody.Builder formBuilder = new FormBody.Builder()
+                .add("userName", userName) // Ensure userName is initialized
+                .add("spreadsheetName", spreadsheetName) // Ensure spreadsheetName is initialized
+                .add("range", range);
+
+        // Add each column to the form body as a separate parameter
+        for (String column : columnsToSortBy) {
+            formBuilder.add("columnsToSortBy", column); // Each column is added as a separate parameter
+        }
+
+        // Build the request body
+        RequestBody requestBody = formBuilder.build();
+
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .post(requestBody) // Use POST method
+                .build();
+
         try {
-            // Assuming you have a method in the engine to sort the spreadsheet
-            Spreadsheet sortedSpreadsheet = new Spreadsheet(engine.getCurrentSpreadsheet(userName, spreadsheetName));
-            Map<String,String> idMapping = engine.sortSpreadsheet(userName, spreadsheetName, sortedSpreadsheet, range, columnsToSortBy);
+            // Send the request synchronously using the shared OkHttpClient
+            Response response = client.newCall(request).execute();
 
-            // Step 2: Convert the sorted spreadsheet (domain model) to a SpreadsheetDTO
-            SpreadsheetDTO sortedSpreadsheetDTO = engine.convertSpreadsheetToDTO(sortedSpreadsheet);
+            // Check if the response is successful
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(SORT_DIALOG_FXML));
-            Parent root = loader.load();
-            sortDialogController = loader.getController(); // Get the controller after loading the FXML
-            sortDialogController.setMainController(this); // Set the main controller
+                // Parse the JSON response
+                Map<String, Object> responseMap = gson.fromJson(responseBody, Map.class);
+                SpreadsheetDTO sortedSpreadsheetDTO = gson.fromJson(gson.toJson(responseMap.get("sortedSpreadsheet")), SpreadsheetDTO.class);
+                Map<String, String> idMapping = gson.fromJson(gson.toJson(responseMap.get("idMapping")), new TypeToken<Map<String, String>>(){}.getType());
 
-            // Now create a popup window to display the sorted results
-            sortDialogController.showSortedResultsPopup(sortedSpreadsheetDTO, idMapping);
+                System.out.println("Sorted spreadsheet: " + sortedSpreadsheetDTO);
+                System.out.println("ID Mapping: " + idMapping);
 
-        } catch (Exception e) {
-            AlertUtils.showAlert(Alert.AlertType.ERROR, "Sorting Error", "Failed to sort the spreadsheet: " + e.getMessage());
+                // Display the sorted results in the UI
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(SORT_DIALOG_FXML));
+                Parent root = loader.load();
+                sortDialogController = loader.getController(); // Get the controller after loading the FXML
+                sortDialogController.setMainController(this); // Set the main controller
+
+                // Show the sorted results popup
+                sortDialogController.showSortedResultsPopup(sortedSpreadsheetDTO, idMapping); // Ensure you have idMapping available here
+            } else {
+                String errorMessage = response.body().string();
+                AlertUtils.showAlert(Alert.AlertType.ERROR, "Sorting Error", errorMessage);
+                System.err.println("Error response: " + errorMessage); // Log error response
+            }
+        } catch (IOException e) {
+            String errorMessage = "Failed to connect to the server: " + e.getMessage();
+            AlertUtils.showAlert(Alert.AlertType.ERROR, "Sorting Error", errorMessage);
+            System.err.println("Request failed: " + e.getMessage());
+        } catch (JsonSyntaxException e) {
+            String errorMessage = "Failed to parse the response: " + e.getMessage();
+            AlertUtils.showAlert(Alert.AlertType.ERROR, "Parsing Error", errorMessage);
+            System.err.println("Parsing error: " + e.getMessage());
         }
     }
+
 
 
     public List<RangeDTO> getRanges() throws IOException {
@@ -909,9 +1010,8 @@ public class GridWindowController {
 //        return engine.getSpreadsheetByVersion(userName, spreadsheetName, versionNumber);
 //    }
 
-
-    public List<String> getCurrentColumns() throws UserNotFoundException, SpreadsheetNotFoundException {
-        Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet(userName, spreadsheetName);
+    public List<String> getCurrentColumns() throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
+        SpreadsheetDTO currentSpreadsheet = getCurrentSpreadsheetDTO();
         if (currentSpreadsheet == null) {
             return new ArrayList<>(); // Return an empty list if no spreadsheet is loaded
         }
@@ -926,22 +1026,186 @@ public class GridWindowController {
         return columnNames;
     }
 
-    // Helper method to convert a zero-based column index to an Excel-style column name (A, B, C, ..., Z, AA, AB, ...)
-    public String getColumnName(int index) throws UserNotFoundException, SpreadsheetNotFoundException {
-        return engine.getColumnName(userName, spreadsheetName, index);
+//    // Helper method to convert a zero-based column index to an Excel-style column name (A, B, C, ..., Z, AA, AB, ...)
+//    public String getColumnName(int index) throws UserNotFoundException, SpreadsheetNotFoundException {
+//        return engine.getColumnName(userName, spreadsheetName, index);
+//    }
+
+    public String getColumnName(int index) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
+        String url = ClientConstants.GET_COLUMN_NAME; // Replace with your actual URL
+
+        // Create request body with the index as a parameter
+        RequestBody requestBody = new FormBody.Builder()
+                .add("userName", userName)
+                .add("spreadsheetName", spreadsheetName)
+                .add("index", Integer.toString(index)) // Convert the index to string
+                .build();
+
+        // Create the request
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody) // Synchronous POST request
+                .build();
+
+        // Execute the request and handle the response synchronously
+        try (Response response = client.newCall(request).execute()) {
+
+            if (!response.isSuccessful()) {
+                String errorMessage = response.body().string();
+                if (response.code() == 404) {
+                    throw new UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
+                }
+                throw new SpreadsheetNotFoundException("Error fetching column name: " + errorMessage);
+            }
+
+            // If the response is successful, get the column name from the response body
+            String responseBody = response.body().string();
+            return responseBody.trim(); // Return the column name as a string
+
+        } catch (IOException e) {
+            throw new IOException("Error occurred while fetching the column name", e);
+        }
+    }
+
+
+    public SpreadsheetDTO getCurrentSpreadsheetDTO() {
+        String finalUrl = HttpUrl
+                .parse(ClientConstants.GET_SPREADSHEET) // Use your constant URL
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("spreadsheetName", spreadsheetName)
+                .build()
+                .toString();
+
+        // Create the request using OkHttp
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .get() // GET request
+                .build();
+
+        try {
+            // Send the request synchronously using the shared OkHttpClient
+            Response response = client.newCall(request).execute();
+
+            // Check if the response is successful
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
+
+                // Use Gson to parse the JSON response to SpreadsheetDTO
+                Gson gson = new GsonBuilder().setPrettyPrinting().create(); // Enable pretty printing
+                System.out.println("Response body: " + responseBody);
+                return gson.fromJson(responseBody, SpreadsheetDTO.class);
+            } else {
+                // Handle error response
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to load spreadsheet: " + response.message());
+                System.err.println("Error: " + response.message());
+            }
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
+            System.err.println("Failed to connect to the server: " + e.getMessage());
+        } catch (JsonSyntaxException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to parse the response: " + e.getMessage());
+            System.err.println("Failed to parse the response: " + e.getMessage());
+        }
+
+        return null; // Return null or handle accordingly if there's an error
     }
 
     public Spreadsheet getCurrentSpreadsheet() {
         return engine.getCurrentSpreadsheet(userName, spreadsheetName);
     }
 
-    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws UserNotFoundException, SpreadsheetNotFoundException {
-        return engine.filterTableMultipleColumns(userName, spreadsheetName, tableArea, selectedColumnValues);
+//    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws UserNotFoundException, SpreadsheetNotFoundException {
+//        return engine.filterTableMultipleColumns(userName, spreadsheetName, tableArea, selectedColumnValues);
+//    }
+
+    // Method to send a request to the server for filtering table with multiple columns
+    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
+        String url = ClientConstants.FILTER_TABLE_MULTIPLE_COLUMNS; // Replace with your actual URL
+
+        // Create the form body by iterating over the map
+        FormBody.Builder formBuilder = new FormBody.Builder()
+                .add("userName", userName)
+                .add("spreadsheetName", spreadsheetName)
+                .add("tableArea", tableArea);
+
+        // Add each column and its selected values to the request body
+        for (Map.Entry<String, List<String>> entry : selectedColumnValues.entrySet()) {
+            String columnName = entry.getKey();
+            for (String value : entry.getValue()) {
+                formBuilder.add("selectedColumn_" + columnName, value); // Prefix the column name with a key to identify it
+            }
+        }
+
+        // Build the request body
+        RequestBody requestBody = formBuilder.build();
+
+        // Create the request
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody) // Synchronous POST request
+                .build();
+
+        try  {
+            Response response = client.newCall(request).execute();
+
+            if (!response.isSuccessful()) {
+                String errorMessage = response.body().string();
+                if (response.code() == 404) {
+                    throw new UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
+                }
+                throw new SpreadsheetNotFoundException("Error fetching filtered table: " + errorMessage);
+            }
+
+            // Parse the response body into the expected List<String[][]> format
+            String responseBody = response.body().string();
+            Type listType = new TypeToken<List<String[][]>>(){}.getType();  // Define the expected return type
+            return new Gson().fromJson(responseBody, listType); // Parse response as needed
+        }catch(IOException e){
+            throw new IOException("Error occurred while fetching the filtered table", e);
+        }
     }
 
+
     // Helper method to convert a column letter (e.g., "A") to a zero-based index
-    public int getColumnIndex(String columnName) throws UserNotFoundException, SpreadsheetNotFoundException {
-        return engine.getColumnIndex(userName, spreadsheetName, columnName);
+//    public int getColumnIndex(String columnName) throws UserNotFoundException, SpreadsheetNotFoundException {
+//        return engine.getColumnIndex(userName, spreadsheetName, columnName);
+//    }
+
+    public int getColumnIndex(String columnName) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
+        String url = ClientConstants.GET_COLUMN_INDEX; // Replace with your actual URL
+
+        // Create request body
+        RequestBody requestBody = new FormBody.Builder()
+                .add("userName", userName)
+                .add("spreadsheetName", spreadsheetName)
+                .add("columnName", columnName)
+                .build();
+
+        // Create the request
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody) // Synchronous POST request
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            if (!response.isSuccessful()) {
+                String errorMessage = response.body().string();
+                if (response.code() == 404) {
+                    throw new UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
+                }
+                throw new SpreadsheetNotFoundException("Error fetching column index: " + errorMessage);
+            }
+
+            // If the response is successful, get the column index from the response body
+            String responseBody = response.body().string();
+            return Integer.parseInt(responseBody.trim()); // Parse and return the column index as an integer
+
+        } catch (IOException e) {
+            throw new IOException("Error occurred while fetching the column index", e);
+        }
     }
 
     public void updateDependentCellsForDynamicAnalysis(String cellId, double tempValue) {
@@ -1077,24 +1341,23 @@ public class GridWindowController {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GridWindowController that = (GridWindowController) o;
-        return Objects.equals(engine, that.engine) && Objects.equals(scrollPane, that.scrollPane)
-                && Objects.equals(optionsBarComponentController, that.optionsBarComponentController)
-                && Objects.equals(leftSideComponentController, that.leftSideComponentController)
-                && Objects.equals(mainGridAreaComponentController, that.mainGridAreaComponentController)
-                && Objects.equals(sortDialogController, that.sortDialogController)
-                && Objects.equals(addRangeDialogController, that.addRangeDialogController)
-                && Objects.equals(dynamicAnalysisComponentController, that.dynamicAnalysisComponentController)
-                && Objects.equals(topGridWindowComponentController, that.topGridWindowComponentController);
+        return Objects.equals(engine, that.engine) && Objects.equals(activeFadeTransitions, that.activeFadeTransitions)
+                && Objects.equals(activeRotateTransitions, that.activeRotateTransitions) && Objects.equals(spreadsheetName, that.spreadsheetName)
+                && Objects.equals(userName, that.userName) && Objects.equals(client, that.client) && Objects.equals(cookieManager, that.cookieManager)
+                && Objects.equals(stage, that.stage) && Objects.equals(menuRoot, that.menuRoot) && Objects.equals(scrollPane, that.scrollPane)
+                && Objects.equals(topGridWindowComponentController, that.topGridWindowComponentController) && Objects.equals(optionsBarComponentController, that.optionsBarComponentController)
+                && Objects.equals(leftSideComponentController, that.leftSideComponentController) && Objects.equals(mainGridAreaComponentController, that.mainGridAreaComponentController)
+                && Objects.equals(dynamicAnalysisComponentController, that.dynamicAnalysisComponentController) && Objects.equals(sortDialogController, that.sortDialogController)
+                && Objects.equals(addRangeDialogController, that.addRangeDialogController) && Objects.equals(backComponentController, that.backComponentController);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(engine, scrollPane,
-                optionsBarComponentController, leftSideComponentController,
-                mainGridAreaComponentController, sortDialogController, addRangeDialogController,
-                dynamicAnalysisComponentController, topGridWindowComponentController);
+        return Objects.hash(engine, activeFadeTransitions, activeRotateTransitions, spreadsheetName, userName, client,
+                cookieManager, stage, menuRoot, scrollPane, topGridWindowComponentController, optionsBarComponentController,
+                leftSideComponentController, mainGridAreaComponentController, dynamicAnalysisComponentController, sortDialogController,
+                addRangeDialogController, backComponentController);
     }
-
 
     public Expression parseExpression (String input) throws InvalidExpressionException, UserNotFoundException, SpreadsheetNotFoundException {
         return engine.parseExpression(userName, spreadsheetName, input);
@@ -1113,5 +1376,6 @@ public class GridWindowController {
     public void setClient(OkHttpClient client) {
         this.client = client;
     }
+
 
 }

@@ -172,7 +172,7 @@ public class SortDialogController {
         String lastCell = cells[1];
 
         // Validate the user input (ensure cells are valid)
-        if (isCellValid(firstCell, mainController.getCurrentSpreadsheet()) && isCellValid(lastCell, mainController.getCurrentSpreadsheet())) {
+        if (isCellValid(firstCell, mainController.getCurrentSpreadsheetDTO()) && isCellValid(lastCell, mainController.getCurrentSpreadsheetDTO())) {
             char firstColumn = firstCell.charAt(0);
             char lastColumn = lastCell.charAt(0);
 
@@ -444,7 +444,7 @@ public class SortDialogController {
     }
 
     // Validate the cell ID format, column, row, and existence in the spreadsheet
-    private boolean isCellValid(String cellId, Spreadsheet spreadsheet)
+    private boolean isCellValid(String cellId, SpreadsheetDTO spreadsheet)
             throws InvalidCellIdFormatException, InvalidColumnException, InvalidRowException, CellNotFoundException {
 
         // Check if spreadsheet was loaded

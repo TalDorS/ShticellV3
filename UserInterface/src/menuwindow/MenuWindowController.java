@@ -34,8 +34,6 @@ import static utils.CommonResourcesPaths.GRID_WINDOW_FXML;
 
 public class MenuWindowController {
     private Stage stage; // To hold the stage reference
-    //private Map<String, Stage> gridWindowsStages = new HashMap<>(); todo? do we need?
-    private Stage gridWindowStage;
     private Engine engine;
     private OkHttpClient client;
     private SimpleCookieManager cookieManager;
@@ -108,6 +106,7 @@ public class MenuWindowController {
             public void onFailure(Call call, IOException e) {
                 // Optionally log or handle logout failure
                 System.out.println("Logout request failed: " + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to logout: " + e.getMessage());
                 Platform.exit(); // Exit after handling response
             }
 
@@ -117,6 +116,7 @@ public class MenuWindowController {
                     System.out.println("Logout successful");
                     cookieManager.removeCookiesOf(HttpUrl.parse(finalUrl).host());
                 } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to logout: " + response.message());
                     System.err.println("Logout failed with response code: " + response.code());
                 }
                 response.close();
@@ -127,7 +127,7 @@ public class MenuWindowController {
     }
 
     public String getUserName() {
-        return  headerLoadComponentController.getUserName();
+        return headerLoadComponentController.getUserName();
     }
 
     // Method to load the spreadsheet from the client side
@@ -135,14 +135,6 @@ public class MenuWindowController {
         String userName = getUserName(); // Assuming this method retrieves the logged-in username
 
         String finalUrl = ClientConstants.LOAD_SPREADSHEET;
-
-        // Build the URL with the filePath as a query parameter
-//        String finalUrl = HttpUrl
-//                .parse(ClientConstants.LOAD_SPREADSHEET) // Your endpoint for loading spreadsheets
-//                .newBuilder()
-//                .addQueryParameter("filePath", filePath)
-//                .build()
-//                .toString();
 
         // Create a form body to send in the POST request
         RequestBody body = new FormBody.Builder()
@@ -184,108 +176,33 @@ public class MenuWindowController {
             }
         });
     }
-
-    //todo- fix that when premssion view sheet button the sheet will be shown (saves the grids - atm no need)
-//    public void loadSpreadsheet(String filePath) throws SpreadsheetLoadingException, CellUpdateException, InvalidExpressionException,
-//            CircularReferenceException, RangeProcessException {
-//        // Load the spreadsheet and update components on the JavaFX Application Thread
-//        try {
-//            String userName = headerLoadComponentController.getUserName();
-//            // Load the spreadsheet and get the result
-//            Pair<String, Boolean> result = engine.loadSpreadsheet(userName, filePath);
-//            String spreadsheetName = result.getKey();
-//            boolean isNewFile = result.getValue();
-//            if (!isNewFile) {
-//                Platform.runLater(() -> {
-//                    showAlert(Alert.AlertType.ERROR, "File Already Exists", "The file '" + spreadsheetName + "' already exists. Please use a different file.");
-//                });
-//                return; // Stop further processing if it's not a new file
-//            }
-//            Platform.runLater(() -> {
-//                showAlert(Alert.AlertType.INFORMATION, "Success", "Spreadsheet loaded successfully.");
-//            });
-//
-//            // Add the file to the available sheet table only if it's a new file
-//            if (availableSheetTableComponentController != null) {
-//                Platform.runLater(() -> availableSheetTableComponentController.addFileNameToTable(spreadsheetName));
-//            }
-//
-//        } catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
-//            // Rethrow exceptions to be handled by the calling code or task
-//            throw e;
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-//    public void showGridWindow(String spreadsheetName, String userName) {
-//        try {
-//            Stage gridWindowStage;
-//
-//            // Check if the stage already exists; if not, create it
-//            if (!gridWindowsStages.containsKey(spreadsheetName)) {
-//                gridWindowStage = new Stage(); // Initialize the stage
-//
-//                // Insert the new file path into grid maps
-//                gridWindowsStages.put(spreadsheetName, gridWindowStage);
-//
-//                // Load the FXML for the Grid Window
-//                FXMLLoader appLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
-//                Parent root = appLoader.load();
-//
-//                // Get the GridWindowController and pass the file path
-//                GridWindowController gridWindowController = appLoader.getController();
-//                gridWindowController.setUserName(userName);
-//                //gridWindowController.setEngine(engine); to do remove this when finished
-//                gridWindowController.setClient(client); //not sure yet
-//                gridWindowController.setSpreadsheetData(spreadsheetName); // set the spreadsheet data also sets spreadsheetName
-//
-//                // Set up the scene for the new Grid Window
-//                Scene scene = new Scene(root);
-//                gridWindowStage.setScene(scene);
-//                gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
-//                gridWindowStage.setTitle("Grid Window" + " - " + spreadsheetName);
-//
-//                // Show the grid window immediately after creation
-//                gridWindowStage.show();
-//            } else {
-//                // If the stage already exists, just show it
-//                gridWindowsStages.get(spreadsheetName).show();
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (CellUpdateException | InvalidExpressionException | SpreadsheetLoadingException | RangeProcessException | CircularReferenceException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
         public void showGridWindow(String spreadsheetName, String username) {
         try {
-            if (gridWindowStage == null) {  // Initialize the stage if it hasn't been created
-                gridWindowStage = new Stage();
-            }
+
             // Load the FXML for the Grid Window
-            FXMLLoader appLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
-            Parent root = appLoader.load();
+            FXMLLoader gridLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
+            Parent gridRoot = gridLoader.load();
 
              //Get the GridWindowController and pass the file path
-            gridWindowController = appLoader.getController();
+            gridWindowController = gridLoader.getController();
             gridWindowController.setUserName(username);
             //gridWindowController.setEngine(engine); to do remove this when finished
             gridWindowController.setClient(client); //not sure yet
             gridWindowController.setSpreadsheetData(spreadsheetName); // set the spreadsheet data also sets spreadsheetName
+            gridWindowController.setCookieManager(cookieManager);
+            gridWindowController.setStage(stage);
+            gridWindowController.setMenuRoot(stage.getScene().getRoot());
 
-            // Set up the scene for the new Grid Window
-            Scene scene = new Scene(root);
-            gridWindowStage.setScene(scene);
+            // Switch the scene to the grid window
+            Scene scene = stage.getScene();
+            scene.setRoot(gridRoot);  // Change the scene root to the grid view
+            stage.setWidth(1650);
+            stage.setHeight(800);
             gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
-            gridWindowStage.setTitle("Grid Window" + " - " + spreadsheetName);
-
+            stage.setTitle("Grid Window" + " - " + spreadsheetName);
             // Get the user's permission for this spreadsheet. If he has reader permission only, disable the editing buttons
             getUserPermissionAndLockGridIfNeedBe(spreadsheetName, username);
-
-            // Show the grid window immediately after creation
-            gridWindowStage.show();
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (CellUpdateException e) {
@@ -300,42 +217,6 @@ public class MenuWindowController {
             throw new RuntimeException(e);
         }
     }
-
-    //    public void showGridWindow(String fileName, String userName) {
-//        try {
-//            if (gridWindowStage == null) {  // Initialize the stage if it hasn't been created
-//                gridWindowStage = new Stage();
-//            }
-//            // Load the FXML for the Grid Window
-//            FXMLLoader appLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
-//            Parent root = appLoader.load();
-//
-//            // Get the GridWindowController and pass the file path
-//            GridWindowController gridWindowController = appLoader.getController();
-//            gridWindowController.setUserName(userName);
-//            gridWindowController.setEngine(engine);
-//            gridWindowController.setSpreadsheetData(fileName); // set the spreadsheet data also sets fileName
-//
-//            // Set up the scene and stage for the new Grid Window
-//            Scene scene = new Scene(root);
-//            gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
-//            gridWindowStage.setTitle("Grid Window");
-//            gridWindowStage.setScene(scene);
-//            gridWindowStage.show();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (CellUpdateException e) {
-//            throw new RuntimeException(e);
-//        } catch (InvalidExpressionException e) {
-//            throw new RuntimeException(e);
-//        } catch (SpreadsheetLoadingException e) {
-//            throw new RuntimeException(e);
-//        } catch (RangeProcessException e) {
-//            throw new RuntimeException(e);
-//        } catch (CircularReferenceException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 
     public void loadPermissionsForSheet(String sheetName) {
         if (permissionsTableComponentController != null) {

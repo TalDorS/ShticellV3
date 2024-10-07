@@ -49,7 +49,7 @@ public class GetCellByIdServlet extends HttpServlet {
         } catch (NullPointerException e) {
             // Handle case where spreadsheet might be null
             response.setStatus(HttpServletResponse.SC_NOT_FOUND); // 404 Not Found
-            response.getWriter().write("{\"error\": \"Spreadsheet not found.\"}");
+            response.getWriter().write("Spreadsheet not found.");
         } catch (Exception e) {
             // Handle exceptions and send an error response
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); // 500 Internal Server Error

@@ -33,7 +33,7 @@ public class GetRangesServlet extends HttpServlet {
         // Validate parameters
         if (userName == null || spreadsheetName == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Missing userName or spreadsheetName parameter.\"}");
+            response.getWriter().write("Missing userName or spreadsheetName parameter.");
             return;
         }
 
@@ -49,7 +49,7 @@ public class GetRangesServlet extends HttpServlet {
         } catch (Exception e) {
             // Handle exceptions and return an error response
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Error while fetching ranges: " + e.getMessage() + "\"}");
+            response.getWriter().write("Error while fetching ranges: " + e.getMessage());
         }
     }
 }
