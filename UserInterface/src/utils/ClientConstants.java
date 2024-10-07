@@ -23,4 +23,6 @@ public class ClientConstants {
     public static final String IS_SPREADSHEET_LOADED = FULL_SERVER_PATH + "/isSpreadsheetLoaded";
     public static final String GET_RANGES = FULL_SERVER_PATH + "/getRanges";
     public static final String REMOVE_RANGE = FULL_SERVER_PATH + "/removeRange";
+    public static final String SORT_SPREADSHEET = FULL_SERVER_PATH + "/sortSpreadsheet";
+    public static final String GET_SPREADSHEET = FULL_SERVER_PATH + "/getSpreadsheet";
 }

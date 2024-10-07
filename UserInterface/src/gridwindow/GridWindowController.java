@@ -5,6 +5,8 @@ import api.Expression;
 import api.Range;
 import cells.Cell;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import dto.*;
 import exceptions.engineexceptions.*;
@@ -515,27 +517,91 @@ public class GridWindowController {
 //        }
 //    }
 
+//    public void handleSortRequest(String range, List<String> columnsToSortBy) {
+//        try {
+//            // Assuming you have a method in the engine to sort the spreadsheet
+//            Spreadsheet sortedSpreadsheet = new Spreadsheet(engine.getCurrentSpreadsheet(userName, spreadsheetName));
+//            Map<String,String> idMapping = engine.sortSpreadsheet(userName, spreadsheetName, sortedSpreadsheet, range, columnsToSortBy);
+//
+//            // Convert the sorted spreadsheet (domain model) to a SpreadsheetDTO
+//            SpreadsheetDTO sortedSpreadsheetDTO = engine.convertSpreadsheetToDTO(sortedSpreadsheet);
+//
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource(SORT_DIALOG_FXML));
+//            Parent root = loader.load();
+//            sortDialogController = loader.getController(); // Get the controller after loading the FXML
+//            sortDialogController.setMainController(this); // Set the main controller
+//
+//            // Now create a popup window to display the sorted results
+//            sortDialogController.showSortedResultsPopup(sortedSpreadsheetDTO, idMapping);
+//
+//        } catch (Exception e) {
+//            AlertUtils.showAlert(Alert.AlertType.ERROR, "Sorting Error", "Failed to sort the spreadsheet: " + e.getMessage());
+//        }
+//    }
+
     public void handleSortRequest(String range, List<String> columnsToSortBy) {
+        String finalUrl = ClientConstants.SORT_SPREADSHEET; // Replace with your actual URL for sorting
+
+        Gson gson = new Gson();
+        // Create a FormBody builder
+        FormBody.Builder formBuilder = new FormBody.Builder()
+                .add("userName", userName) // Ensure userName is initialized
+                .add("spreadsheetName", spreadsheetName) // Ensure spreadsheetName is initialized
+                .add("range", range);
+
+        // Add each column to the form body as a separate parameter
+        for (String column : columnsToSortBy) {
+            formBuilder.add("columnsToSortBy", column); // Each column is added as a separate parameter
+        }
+
+        // Build the request body
+        RequestBody requestBody = formBuilder.build();
+
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .post(requestBody) // Use POST method
+                .build();
+
         try {
-            // Assuming you have a method in the engine to sort the spreadsheet
-            Spreadsheet sortedSpreadsheet = new Spreadsheet(engine.getCurrentSpreadsheet(userName, spreadsheetName));
-            Map<String,String> idMapping = engine.sortSpreadsheet(userName, spreadsheetName, sortedSpreadsheet, range, columnsToSortBy);
+            // Send the request synchronously using the shared OkHttpClient
+            Response response = client.newCall(request).execute();
 
-            // Step 2: Convert the sorted spreadsheet (domain model) to a SpreadsheetDTO
-            SpreadsheetDTO sortedSpreadsheetDTO = engine.convertSpreadsheetToDTO(sortedSpreadsheet);
+            // Check if the response is successful
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(SORT_DIALOG_FXML));
-            Parent root = loader.load();
-            sortDialogController = loader.getController(); // Get the controller after loading the FXML
-            sortDialogController.setMainController(this); // Set the main controller
+                // Parse the JSON response
+                Map<String, Object> responseMap = gson.fromJson(responseBody, Map.class);
+                SpreadsheetDTO sortedSpreadsheetDTO = gson.fromJson(gson.toJson(responseMap.get("sortedSpreadsheet")), SpreadsheetDTO.class);
+                Map<String, String> idMapping = gson.fromJson(gson.toJson(responseMap.get("idMapping")), new TypeToken<Map<String, String>>(){}.getType());
 
-            // Now create a popup window to display the sorted results
-            sortDialogController.showSortedResultsPopup(sortedSpreadsheetDTO, idMapping);
+                System.out.println("Sorted spreadsheet: " + sortedSpreadsheetDTO);
+                System.out.println("ID Mapping: " + idMapping);
 
-        } catch (Exception e) {
-            AlertUtils.showAlert(Alert.AlertType.ERROR, "Sorting Error", "Failed to sort the spreadsheet: " + e.getMessage());
+                // Display the sorted results in the UI
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(SORT_DIALOG_FXML));
+                Parent root = loader.load();
+                sortDialogController = loader.getController(); // Get the controller after loading the FXML
+                sortDialogController.setMainController(this); // Set the main controller
+
+                // Show the sorted results popup
+                sortDialogController.showSortedResultsPopup(sortedSpreadsheetDTO, idMapping); // Ensure you have idMapping available here
+            } else {
+                String errorMessage = response.body().string();
+                AlertUtils.showAlert(Alert.AlertType.ERROR, "Sorting Error", errorMessage);
+                System.err.println("Error response: " + errorMessage); // Log error response
+            }
+        } catch (IOException e) {
+            String errorMessage = "Failed to connect to the server: " + e.getMessage();
+            AlertUtils.showAlert(Alert.AlertType.ERROR, "Sorting Error", errorMessage);
+            System.err.println("Request failed: " + e.getMessage());
+        } catch (JsonSyntaxException e) {
+            String errorMessage = "Failed to parse the response: " + e.getMessage();
+            AlertUtils.showAlert(Alert.AlertType.ERROR, "Parsing Error", errorMessage);
+            System.err.println("Parsing error: " + e.getMessage());
         }
     }
+
 
 
     public List<RangeDTO> getRanges() throws IOException {
@@ -963,6 +1029,46 @@ public class GridWindowController {
     // Helper method to convert a zero-based column index to an Excel-style column name (A, B, C, ..., Z, AA, AB, ...)
     public String getColumnName(int index) throws UserNotFoundException, SpreadsheetNotFoundException {
         return engine.getColumnName(userName, spreadsheetName, index);
+    }
+
+    public SpreadsheetDTO getCurrentSpreadsheetDTO() {
+        String finalUrl = HttpUrl
+                .parse(ClientConstants.GET_SPREADSHEET) // Use your constant URL
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("spreadsheetName", spreadsheetName)
+                .build()
+                .toString();
+
+        // Create the request using OkHttp
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .get() // GET request
+                .build();
+
+        try {
+            // Send the request synchronously using the shared OkHttpClient
+            Response response = client.newCall(request).execute();
+
+            // Check if the response is successful
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
+
+                // Use Gson to parse the JSON response to SpreadsheetDTO
+                Gson gson = new GsonBuilder().setPrettyPrinting().create(); // Enable pretty printing
+                System.out.println("Response body: " + responseBody);
+                return gson.fromJson(responseBody, SpreadsheetDTO.class);
+            } else {
+                // Handle error response
+                System.err.println("Error: " + response.message());
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to connect to the server: " + e.getMessage());
+        } catch (JsonSyntaxException e) {
+            System.err.println("Failed to parse the response: " + e.getMessage());
+        }
+
+        return null; // Return null or handle accordingly if there's an error
     }
 
     public Spreadsheet getCurrentSpreadsheet() {
