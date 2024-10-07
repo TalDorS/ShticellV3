@@ -92,6 +92,9 @@ public class MainGridAreaController implements SpreadsheetController {
             String oldCellId = mapping.getKey();
             String newCellId = mapping.getValue();
 
+            if(oldCellId.equals(newCellId)) {
+                continue;
+            }
             // Update background colors for mapped cells
             if (cellBackgroundColors.containsKey(oldCellId)) {
                 updatedBackgroundColors.put(newCellId, cellBackgroundColors.get(oldCellId));

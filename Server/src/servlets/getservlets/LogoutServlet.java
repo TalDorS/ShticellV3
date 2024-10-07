@@ -29,6 +29,7 @@ public class LogoutServlet extends HttpServlet {
         } else {
             System.err.println("No user session found for logout.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Set response to 400 if no user found
+            response.getWriter().write("No user session found for logout.");
         }
     }
 

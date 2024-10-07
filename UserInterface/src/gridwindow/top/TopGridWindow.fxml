@@ -23,7 +23,10 @@
                         <Insets left="5.0" right="5.0" />
                      </HBox.margin>
                   </Label>
-                  <Label fx:id="nameLabel" prefHeight="25.0" prefWidth="131.0" styleClass="header-label" />
+                  <Label fx:id="nameLabel" prefHeight="25.0" prefWidth="131.0" styleClass="header-label">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font></Label>
                </children>
                <padding>
                   <Insets left="30.0" />
