@@ -194,7 +194,6 @@ public class MenuWindowController {
              //Get the GridWindowController and pass the file path
             gridWindowController = gridLoader.getController();
             gridWindowController.setUserName(username);
-            //gridWindowController.setEngine(engine); to do remove this when finished
             gridWindowController.setClient(client); //not sure yet
             gridWindowController.setSpreadsheetData(spreadsheetName); // set the spreadsheet data also sets spreadsheetName
             gridWindowController.setCookieManager(cookieManager);
