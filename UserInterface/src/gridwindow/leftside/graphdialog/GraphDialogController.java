@@ -1,6 +1,7 @@
 package gridwindow.leftside.graphdialog;
 
 import cells.Cell;
+import dto.CellDTO;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.chart.*;
@@ -265,11 +266,22 @@ public class GraphDialogController {
         // Loop through each row from startRow to endRow in the specified column
         for (int row = startRow; row <= endRow; row++) {
             String cellId = column + row; // Construct cell ID (e.g., "A1", "A2", etc.)
-            Cell cell = mainController.getCurrentSpreadsheet().getCellById(cellId); // Get the cell by its ID
+            CellDTO cell = mainController.getCurrentSpreadsheetDTO().getCellById(cellId); // Get the cell by its ID
 
             // Check if the cell is not null and has an effective value
             if (cell != null && cell.getEffectiveValue() != null) {
-                values.add(cell.getEffectiveValue().toString());
+                Object effectiveValue = cell.getEffectiveValue();
+                if (effectiveValue instanceof Double) {
+                    Double doubleValue = (Double) effectiveValue;
+                    // Check if it's a whole number
+                    if (doubleValue == doubleValue.intValue()) {
+                        values.add(String.valueOf(doubleValue.intValue()));
+                    } else {
+                        values.add(doubleValue.toString());
+                    }
+                } else {
+                    values.add(effectiveValue.toString());
+                }
             } else {
                 values.add(""); // If the cell is empty, add an empty string
             }

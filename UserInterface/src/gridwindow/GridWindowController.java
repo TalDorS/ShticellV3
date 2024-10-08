@@ -64,6 +64,7 @@ public class GridWindowController {
     private SimpleCookieManager cookieManager;
     private Stage stage;       // The main window (same stage for both views)
     private Parent menuRoot;   // The root node of the main menu
+    private Map<String, String> cellUpdateUserMap = new HashMap<>();
 
     @FXML
     private ScrollPane scrollPane;
@@ -128,6 +129,14 @@ public class GridWindowController {
     }
     public void setCookieManager(SimpleCookieManager cookieManager) {
         this.cookieManager = cookieManager;
+    }
+
+    public void setCellUpdateUser(String cellId, String userName) {
+        cellUpdateUserMap.put(cellId, userName);
+    }
+
+    public String getCellUpdateUser(String cellId) {
+        return cellUpdateUserMap.getOrDefault(cellId, "");
     }
 
     // Setter to pass the stage and menu root from the main controller
@@ -270,9 +279,9 @@ public class GridWindowController {
 
     // Method that occurs when a cell is clicked in Main Grid Area, the info is then delivered to
     // OptionsBarController to be printed out in the right textFields.
-    public void updateSelectedCellInfo(String cellId, String OriginalValue, String lastUpdateVersion) {
+    public void updateSelectedCellInfo(String cellId, String OriginalValue, String lastUpdateVersion, String lastUpdatedBy) {
         if (optionsBarComponentController != null) {
-            optionsBarComponentController.updateCellInfo(cellId, OriginalValue, lastUpdateVersion);
+            optionsBarComponentController.updateCellInfo(cellId, OriginalValue, lastUpdateVersion, lastUpdatedBy);
             optionsBarComponentController.clearActionLineInput();
         }
     }
@@ -311,6 +320,7 @@ public class GridWindowController {
                     Platform.runLater(() -> {
                         try {
                             setSpreadsheetData(spreadsheetName); // Retrieve the full spreadsheet data after the cell update
+                            setCellUpdateUser(cellId, userName);
                             //showAlert(Alert.AlertType.INFORMATION, "Success", "Cell updated successfully and spreadsheet reloaded.");
                         } catch (Exception e) {
                             showAlert(Alert.AlertType.ERROR, "Error", "Error while reloading the spreadsheet: " + e.getMessage());
@@ -1378,4 +1388,7 @@ public class GridWindowController {
     }
 
 
+    public String getUserName() {
+        return userName;
+    }
 }

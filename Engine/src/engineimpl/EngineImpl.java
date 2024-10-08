@@ -175,6 +175,7 @@ public class EngineImpl implements Engine {
                     cell.getOriginalValue(),
                     cell.getEffectiveValue(),
                     cell.getLastUpdatedVersion(),
+                    cell.getLastUpdatedBy(), // New field for storing the username of the last updater
                     new ArrayList<>(), // Placeholder for dependsOnThemIds
                     new ArrayList<>()  // Placeholder for dependsOnMeIds
             );
@@ -245,7 +246,7 @@ public class EngineImpl implements Engine {
         // Check if the VersionsManager exists
         if (versionsManager != null) {
             // Update the cell value in the VersionsManager
-            versionsManager.updateCellValue(cellId, newValue);
+            versionsManager.updateCellValue(cellId, newValue, userName);
         } else {
             throw new SpreadsheetNotFoundException("The specified file does not exist for this user.");
         }

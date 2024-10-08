@@ -147,10 +147,15 @@ public class OptionsBarController {
         }
     }
 
-    public void updateCellInfo(String cellId, String originalValue, String lastUpdateVersion) {
+    public void updateCellInfo(String cellId, String originalValue, String lastUpdateVersion, String userName) {
         selectedCellId.setText(cellId);
         originalCellValue.setText(originalValue);
-        lastUpdateCellVersion.setText(lastUpdateVersion);
+        // Only show the last update version and username if lastUpdateVersion and userName are not empty
+        if (lastUpdateVersion != null && !lastUpdateVersion.trim().isEmpty() && userName != null && !userName.trim().isEmpty()) {
+            lastUpdateCellVersion.setText("Version " + lastUpdateVersion + " (" + userName + ")");
+        } else {
+            lastUpdateCellVersion.setText("");  // Clear the field if empty
+        }
     }
 
     public void clearActionLineInput() {

@@ -331,8 +331,9 @@ public class MainGridAreaController implements SpreadsheetController {
 
         String lastUpdateVersion = (currentCell != null) ? Integer.toString(currentCell.getLastUpdatedVersion()) : "1";
         String cellOriginalValue = (currentCell != null) ? String.valueOf(currentCell.getOriginalValue()) : "";
+        String lastUpdatedBy = (currentCell != null) ? currentCell.getLastUpdatedBy() : "";
 
-        mainController.updateSelectedCellInfo(cellId, cellOriginalValue, lastUpdateVersion);
+        mainController.updateSelectedCellInfo(cellId, cellOriginalValue, lastUpdateVersion, lastUpdatedBy);
     }
 
 //    private void highlightDependencies(CellDTO currentCell) {

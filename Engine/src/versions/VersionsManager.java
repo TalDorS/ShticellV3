@@ -82,6 +82,7 @@ public class VersionsManager implements Serializable {
                     cell.getOriginalValue(),
                     cell.getEffectiveValue(),
                     cell.getLastUpdatedVersion(),
+                    cell.getLastUpdatedBy(),
                     new ArrayList<>(), // Placeholder for dependsOnThemIds
                     new ArrayList<>()  // Placeholder for dependsOnMeIds
             );
@@ -321,6 +322,7 @@ public class VersionsManager implements Serializable {
                 Cell cell = getOrCreateCell(cellId, versions.get(currentVersion).getSpreadsheet());
                 cell.setOriginalValue(cellValue);
                 cell.setLastUpdatedVersion(currentVersion);
+                cell.setLastUpdatedBy(getPermissionsManager().getOwner());
                 parseAndApplyNewExpressionToCell(cellId, cellValue, cell, versions.get(currentVersion).getSpreadsheet());
                 numOfCellsChanged++;
             } catch (InvalidCellIdFormatException | InvalidColumnException | InvalidRowException e) {
@@ -410,7 +412,7 @@ public class VersionsManager implements Serializable {
         }
     }
 
-    public void updateCellValue(String cellId, String newValue)
+    public void updateCellValue(String cellId, String newValue, String userName)
             throws CircularReferenceException, CellUpdateException {
         // Get the current spreadsheet instance
         Spreadsheet currentSpreadsheet = getCurrentSpreadsheet();
@@ -451,6 +453,7 @@ public class VersionsManager implements Serializable {
         if (isNewCellOrValueChanged(cell, valueChanged)) {
             // Update the cell's last updated version
             cell.setLastUpdatedVersion(getCurrentVersion() + 1);
+            cell.setLastUpdatedBy(userName);
             saveNewVersion(cellId, currentSpreadsheet);
             try {
                 // Recalculate the entire spreadsheet to update the effective values of all dependent cells

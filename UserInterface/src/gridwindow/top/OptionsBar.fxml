@@ -46,13 +46,13 @@
             <Cursor fx:constant="TEXT" />
          </cursor>
       </TextField>
-      <Button fx:id="updateValueButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="103.0" styleClass="options-bar-button" text="Update value">
+      <Button fx:id="updateValueButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="107.0" styleClass="options-bar-button" text="Update value">
          <HBox.margin>
             <Insets left="10.0" right="10.0" />
          </HBox.margin>
       </Button>
-      <Label prefHeight="25.0" prefWidth="160.0" styleClass="options-bar-label" text="Last Updated Cell Value :" />
-      <TextField fx:id="lastUpdateCellVersion" alignment="TOP_LEFT" editable="false" prefHeight="25.0" prefWidth="87.0" styleClass="options-bar-text-field">
+      <Label prefHeight="25.0" prefWidth="114.0" styleClass="options-bar-label" text="Last Updated :" />
+      <TextField fx:id="lastUpdateCellVersion" alignment="TOP_LEFT" editable="false" prefHeight="25.0" prefWidth="134.0" styleClass="options-bar-text-field">
          <HBox.margin>
             <Insets right="10.0" />
          </HBox.margin>
