@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="menuwindow.rightside.chat.ChatController"
+            prefHeight="400.0" prefWidth="600.0"
+            stylesheets="@Chat.css">
+
+    <!-- Main container for the chat -->
+    <VBox spacing="10.0" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+
+        <!-- Chat display area -->
+        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
+            <VBox fx:id="messageContainer" spacing="5.0">
+                <padding>
+                    <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+                </padding>
+                <!-- Messages will be added here dynamically -->
+            </VBox>
+        </ScrollPane>
+
+        <!-- Chat input area -->
+        <HBox spacing="10.0" alignment="CENTER">
+            <!-- Input field for typing messages -->
+            <TextField fx:id="messageTextField" promptText="Type your message..." HBox.hgrow="ALWAYS"/>
+
+            <!-- Send button -->
+            <Button fx:id="sendButton" text="Send" onAction="#handleButtonClick"/>
+        </HBox>
+
+    </VBox>
+</AnchorPane>

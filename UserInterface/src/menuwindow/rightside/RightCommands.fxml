@@ -5,9 +5,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.fxml.FXMLLoader?>
 
-
-<VBox alignment="TOP_CENTER" prefHeight="304.0" prefWidth="256.0" style="-fx-border-color: lightgray;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="menuwindow.rightside.RightSideController">
+<VBox alignment="TOP_CENTER" prefHeight="600.0" prefWidth="256.0" style="-fx-border-color: lightgray;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="menuwindow.rightside.RightSideController">
    <children>
       <Label id="co" alignment="TOP_CENTER" prefHeight="18.0" prefWidth="622.0" text="Commands">
          <font>
@@ -30,7 +31,7 @@
             <Insets top="30.0" />
          </VBox.margin>
       </Button>
-      <Button fx:id="ackOrDenyPermissionRequestButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="398.0" text="Ack\Deny Permission Resquest">
+      <Button fx:id="ackOrDenyPermissionRequestButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="398.0" text="Ack\Deny Permission Request">
          <font>
             <Font size="15.0" />
          </font>
@@ -38,5 +39,6 @@
             <Insets top="30.0" />
          </VBox.margin>
       </Button>
+      <fx:include fx:id="chatComponent" source="chat/Chat.fxml" />
    </children>
 </VBox>

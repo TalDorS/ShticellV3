@@ -1,0 +1,33 @@
+/* ScrollPane Styling */
+.scroll-pane {
+    -fx-background-color: #f0f0f0;
+}
+
+/* Message Container Styling */
+#messageContainer {
+    -fx-background-color: #ffffff;
+    -fx-padding: 10;
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+}
+
+/* TextField Styling */
+#messageInput {
+    -fx-background-color: #e0e0e0;
+    -fx-padding: 5;
+    -fx-font-size: 14px;
+}
+
+/* Button Styling */
+#sendButton {
+    -fx-background-color: #008cff;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10;
+    -fx-cursor: hand;
+}
+
+#sendButton:hover {
+    -fx-background-color: #007bff;
+}
