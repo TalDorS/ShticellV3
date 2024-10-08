@@ -62,7 +62,7 @@ public class LoginController {
 
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                Platform.runLater(() -> messageLabel.setText("Login failed"));
+                Platform.runLater(() -> messageLabel.setText("Login failed, couldn't connect to server."));
             }
 
             @Override

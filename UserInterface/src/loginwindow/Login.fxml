@@ -20,7 +20,7 @@
         <Button fx:id="loginButton" layoutX="74.0" layoutY="156.0" onAction="#handleLoginAction" prefHeight="40.0" prefWidth="161.0" styleClass="button-login" text="Login" />
 
         <!-- Message label (for errors, feedback) -->
-        <Label fx:id="messageLabel" layoutX="106.0" layoutY="214.0" prefHeight="17.0" prefWidth="98.0" styleClass="message-label" text="" />
+        <Label fx:id="messageLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="14.0" layoutY="202.0" prefHeight="55.0" prefWidth="272.0" styleClass="message-label" textAlignment="CENTER" />
 
     </AnchorPane>
 </AnchorPane>

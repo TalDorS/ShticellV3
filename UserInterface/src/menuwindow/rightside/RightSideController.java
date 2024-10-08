@@ -5,7 +5,9 @@ import enums.PermissionStatus;
 import enums.PermissionType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import menuwindow.MenuWindowController;
 import menuwindow.rightside.chat.ChatController;
@@ -81,9 +83,10 @@ public class RightSideController {
         approveRadio.setToggleGroup(group);
         denyRadio.setToggleGroup(group);
 
-        // Add the radio buttons to the dialog
-        VBox vbox = new VBox(approveRadio, denyRadio);
-        dialog.getDialogPane().setContent(vbox);
+        // Add the radio buttons horizontally using an HBox
+        HBox hbox = new HBox(10, approveRadio, denyRadio); // Add spacing of 10 between buttons
+        hbox.setPadding(new Insets(10)); // Optional padding for the HBox
+        dialog.getDialogPane().setContent(hbox);
 
         // Add Submit and Cancel buttons
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -113,7 +116,7 @@ public class RightSideController {
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         if (response.isSuccessful()) {
-                            Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION ,"Success", "Request handled successfully."));
+                            Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Success", "Request handled successfully."));
                         } else {
                             Platform.runLater(() -> showError("Failed to process the request. " + response.message()));
                         }
@@ -122,6 +125,7 @@ public class RightSideController {
             }
         });
     }
+
 
     private void handleRequestPermissionButtonAction() {
         String uploaderName = mainController.getAvailableSheetTableController().getSelectedSpreadsheetUploaderName();
@@ -134,7 +138,7 @@ public class RightSideController {
         }
 
         // Create Permission Request Dialog
-        createAndHandlePermissionRequestDialog(username,spreadsheetName);
+        createAndHandlePermissionRequestDialog(username, spreadsheetName);
     }
 
     private void createAndHandlePermissionRequestDialog(String username, String spreadsheetName) {
@@ -142,15 +146,29 @@ public class RightSideController {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Request Permission");
 
-        // Create radio buttons
+        // Create description text
+        Label descriptionLabel = new Label(
+                "Choose the type of permission you would like to request:\n\n" +
+                        "• READER - View-Only Permission:\n" +
+                        "This permission allows you to view the spreadsheet but not make any changes. You can sort, filter, and view older versions.\n\n" +
+                        "• WRITER - Edit Permission:\n" +
+                        "This permission allows you to fully edit the spreadsheet, including updating cells, modifying layout, and more."
+        );
+        descriptionLabel.setWrapText(true);
+
+        // Create radio buttons for permission type selection
         RadioButton writerRadio = new RadioButton("Writer");
         RadioButton readerRadio = new RadioButton("Reader");
         ToggleGroup group = new ToggleGroup();
         writerRadio.setToggleGroup(group);
         readerRadio.setToggleGroup(group);
 
-        // Add buttons to the dialog
-        VBox vbox = new VBox(writerRadio, readerRadio);
+        // Select Writer by default
+        writerRadio.setSelected(true);
+
+        // Layout the components vertically with spacing
+        VBox vbox = new VBox(10, descriptionLabel, new HBox(10, writerRadio, readerRadio));
+        vbox.setPadding(new Insets(10));
         dialog.getDialogPane().setContent(vbox);
 
         // Add submit and cancel buttons
@@ -190,7 +208,7 @@ public class RightSideController {
 
                             Platform.runLater(() -> {
                                 if ("ALREADY_HAS_PERMISSION".equals(result.get("status"))) {
-                                    showAlert(Alert.AlertType.ERROR, "Error","You already have this permission.");
+                                    showAlert(Alert.AlertType.ERROR, "Error", "You already have this permission.");
                                 } else if ("PERMISSION_REQUESTED".equals(result.get("status"))) {
                                     AlertUtils.showAlert(Alert.AlertType.INFORMATION, "Success", "Permission request sent successfully.");
                                 } else if ("ERROR".equals(result.get("status"))) {

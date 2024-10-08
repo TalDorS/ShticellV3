@@ -138,6 +138,7 @@ public class AppManager {
             loginStage.setTitle("Login - New Client");
             loginStage.setScene(loginScene);
             loginStage.initStyle(StageStyle.DECORATED);
+            loginStage.setResizable(false);
             loginStage.show();
 
             // Hide the primary stage until login is successful

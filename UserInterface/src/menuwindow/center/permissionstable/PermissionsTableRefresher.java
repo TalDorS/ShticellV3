@@ -18,14 +18,16 @@ import java.util.TimerTask;
 
 public class PermissionsTableRefresher extends TimerTask {
     private final MenuWindowController mainController;
+    private final PermissionsTableController permissionsTableController;
 
     public PermissionsTableRefresher(MenuWindowController mainController) {
         this.mainController = mainController;
+        this.permissionsTableController = mainController.getPermissionsTableComponentController();
     }
 
     @Override
     public void run() {
-        String selectedSpreadsheetName = mainController.getSelectedSpreadsheetName();
+        String selectedSpreadsheetName = mainController.getLastSelectedSpreadsheetName();
 
         // No spreadsheet selected
         if (selectedSpreadsheetName == null) {
@@ -39,7 +41,7 @@ public class PermissionsTableRefresher extends TimerTask {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Platform.runLater(() -> {
-                    AlertUtils.showError("Failed to fetch permissions data: " + e.getMessage());
+                    permissionsTableController.resetPermissionsTableToDefault();
                 });
             }
 
@@ -61,9 +63,7 @@ public class PermissionsTableRefresher extends TimerTask {
                         }
                     });
                 } else {
-                    Platform.runLater(() -> {
-                        AlertUtils.showError("Failed to fetch permissions data: " + response.message());
-                    });
+                    permissionsTableController.resetPermissionsTableToDefault();
                 }
             }
         });

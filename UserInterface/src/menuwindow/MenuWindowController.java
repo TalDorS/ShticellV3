@@ -39,6 +39,7 @@ public class MenuWindowController {
     private Engine engine;
     private OkHttpClient client;
     private SimpleCookieManager cookieManager;
+    private String lastSelectedSpreadsheetName;
 
     @FXML
     private HeaderLoadController headerLoadComponentController;
@@ -301,6 +302,16 @@ public class MenuWindowController {
         if (permissionsTableComponentController != null) {
             permissionsTableComponentController.fetchPermissionsData(sheetName);
         }
+    }
+
+    // Method to update the selected spreadsheet name
+    public void setSelectedSpreadsheetName(String spreadsheetName) {
+        this.lastSelectedSpreadsheetName = spreadsheetName;
+    }
+
+    // Getter for the selected spreadsheet name
+    public String getLastSelectedSpreadsheetName() {
+        return this.lastSelectedSpreadsheetName;
     }
 
     @Override

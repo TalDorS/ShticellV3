@@ -178,4 +178,10 @@ public class PermissionsTableController {
 
         return currentDataSet.equals(newDataSet);  // Return true if the data is the same
     }
+
+    // Method to reset the permissions table to its default state
+    public void resetPermissionsTableToDefault() {
+        // Clear the current data in the table
+        permissionDetailsList.clear();
+    }
 }
