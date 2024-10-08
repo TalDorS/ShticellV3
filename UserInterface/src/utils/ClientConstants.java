@@ -30,6 +30,6 @@ public class ClientConstants {
     public static final String FILTER_TABLE_MULTIPLE_COLUMNS = FULL_SERVER_PATH + "/filterTableMultipleColumns";
     public static final String CHECK_CIRCULAR_REFERENCES = FULL_SERVER_PATH + "/checkCircularReferences";
     public static final String PARSE_EXPRESSION = FULL_SERVER_PATH + "/parseExpression";
-
+    public static final String DYNAMIC_ANALYSIS = FULL_SERVER_PATH + "/dynamicAnalysis";
 
 }

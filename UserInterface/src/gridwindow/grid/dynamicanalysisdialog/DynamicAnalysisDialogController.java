@@ -1,5 +1,7 @@
 package gridwindow.grid.dynamicanalysisdialog;
 
+import api.Expression;
+import dto.CellDTO;
 import gridwindow.GridWindowController;
 import expressionimpls.FunctionExpression;
 import javafx.beans.property.StringProperty;
@@ -7,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import cells.Cell;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -26,12 +29,12 @@ public class DynamicAnalysisDialogController {
     @FXML
     private Slider valueSlider;
 
-    private GridWindowController gridWindowController;
+    private GridWindowController mainController;
     private double originalValue;
     private String cellId;
 
     public void setMainController(GridWindowController gridWindowController) {
-        this.gridWindowController = gridWindowController;
+        this.mainController = gridWindowController;
     }
 //    public void openDynamicAnalysisDialog(String cellId) {
 //        this.cellId = cellId;
@@ -61,15 +64,18 @@ public class DynamicAnalysisDialogController {
 //    }
 
 
-    public void openDynamicAnalysisDialog(String cellId) {
+    public void openDynamicAnalysisDialog(String cellId) throws IOException {
         this.cellId = cellId;
-        Cell cell = gridWindowController.getCellById(cellId);
+        CellDTO cell = mainController.getCellDTOById(cellId);
 
         if (cell == null || !(cell.getEffectiveValue() instanceof Number)) {
             showError("Dynamic Analysis can only be performed on cells with numeric values.");
             return;
         }
-        if (cell.getExpression() instanceof FunctionExpression) {
+        String originalValue = cell.getOriginalValue();
+        Expression parseResult = mainController.parseExpression(originalValue);
+
+        if (parseResult instanceof FunctionExpression) {
             showError("Dynamic Analysis cannot be performed on numbers made out of functions.");
             return;
         }
@@ -191,13 +197,13 @@ public class DynamicAnalysisDialogController {
         performDynamicAnalysis(originalValue);
 
         // Update the dependent cells with the original value
-        gridWindowController.updateDependentCellsForDynamicAnalysis(cellId, originalValue);
+        mainController.updateDependentCellsForDynamicAnalysis(cellId, originalValue);
     }
 
     // Method to perform dynamic analysis by temporarily updating the cell value
     private void performDynamicAnalysis(double tempValue) {
         // Retrieve the StringProperty of the target cell
-        StringProperty cellProperty = gridWindowController.getCellProperty(cellId);
+        StringProperty cellProperty = mainController.getCellProperty(cellId);
 
         if (cellProperty != null) {
             // Format the number with thousands separators and up to two decimal places
@@ -212,7 +218,7 @@ public class DynamicAnalysisDialogController {
             cellProperty.set(formattedValue);
 
             // Update dependent cells dynamically based on the temporary value
-            gridWindowController.updateDependentCellsForDynamicAnalysis(cellId, tempValue);
+            mainController.updateDependentCellsForDynamicAnalysis(cellId, tempValue);
         }
     }
 }

@@ -3,7 +3,6 @@ package gridwindow;
 import api.Engine;
 import api.Expression;
 import api.Function;
-import api.Range;
 import cells.Cell;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
@@ -12,6 +11,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonParseException;
 import dto.*;
+import dto.common.DynamicAnalysisRequest;
+import dto.common.UpdatedCell;
 import exceptions.engineexceptions.*;
 import expressionimpls.FunctionExpression;
 import expressionimpls.LiteralExpression;
@@ -25,6 +26,7 @@ import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -34,7 +36,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import okhttp3.*;
 import ranges.RangeImpl;
 import utils.ClientConstants;
@@ -50,21 +51,22 @@ import utils.AlertUtils;
 import utils.HttpClientUtil;
 import utils.SimpleCookieManager;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.text.NumberFormat;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
-
 import java.util.List;
 import java.util.function.Supplier;
-
 import static utils.AlertUtils.showAlert;
 import static utils.AlertUtils.showError;
 import static utils.CommonResourcesPaths.*;
 
 public class GridWindowController {
 
-    private Engine engine; //set by the menu window controller
     private List<FadeTransition> activeFadeTransitions = new ArrayList<>();  // List to store all active transitions
     private List<RotateTransition> activeRotateTransitions = new ArrayList<>();  // List to store all active transitions
     private String spreadsheetName;
@@ -298,45 +300,6 @@ public class GridWindowController {
             }
         });
     }
-
-    //FIXME- DO WE NEED THIS? I checked and the sependeancies are updated because everytime i update a cell i update all the cells that depend on it
-    // Method to update all dependent cells
-//    private void updateDependentCells(String cellId, Boolean isDynamicAnalysis) {
-//        try {
-//            // Retrieve the map of dependent cells from the current cell
-//            Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet(userName, this.spreadsheetName);
-//            Map<String, Cell> dependentCellsMap = currentSpreadsheet.getCellById(cellId).getDependsOnMe();
-//
-//            if (dependentCellsMap != null) { // Check if there are any dependent cells
-//                for (Map.Entry<String, Cell> entry : dependentCellsMap.entrySet()) {
-//                    String dependentCellId = entry.getKey();
-//                    Cell dependentCell = currentSpreadsheet.getCellById(dependentCellId);
-//                    StringProperty dependentCellProperty = mainGridAreaComponentController.getCellProperty(dependentCellId);
-//
-//                    if (dependentCellProperty != null && dependentCell != null) {
-//                        // If it's part of a dynamic analysis, update effective value
-//                        if (isDynamicAnalysis) {
-//                            dependentCell.setEffectiveValue();
-//                        }
-//
-//                        Object effectiveValue = dependentCell.getEffectiveValue();
-//                        String effectiveValueString = String.valueOf(effectiveValue);
-//                        if (effectiveValue instanceof Boolean) {
-//                            effectiveValueString = effectiveValueString.toUpperCase();
-//                        }
-//
-//                        dependentCellProperty.set(effectiveValueString); // Update the StringProperty for the dependent cell
-//                    }
-//
-//                    updateDependentCells(dependentCellId, false);
-//                }
-//            }
-//
-//        } catch (Exception e) {
-//            // If there's an error in updating dependent cells, display an alert
-//            showAlert(Alert.AlertType.ERROR, "Error Updating Dependent Cells", "Failed to update dependent cells: " + e.getMessage());
-//        }
-//    }
 
     public void addNewRange(String name, String firstCell, String lastCell) {
         String finalUrl = ClientConstants.ADD_RANGE;
@@ -951,11 +914,6 @@ public class GridWindowController {
         return null; // Return null or handle accordingly if there's an error
     }
 
-    //todo- fix this when dealing with dynamic analysis
-    public Spreadsheet getCurrentSpreadsheet() {
-        return engine.getCurrentSpreadsheet(userName, spreadsheetName);
-    }
-
     // Method to send a request to the server for filtering table with multiple columns
     public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
         String url = ClientConstants.FILTER_TABLE_MULTIPLE_COLUMNS; // Replace with your actual URL
@@ -1089,56 +1047,115 @@ public class GridWindowController {
 //        }
 //    }
 
-    //todo- fix this when dealing with dynamic analysis
     public void updateDependentCellsForDynamicAnalysis(String cellId, double tempValue) {
-        try {
-            // Get the current spreadsheet
-            Spreadsheet currentSpreadsheet = getCurrentSpreadsheet();
+        DynamicAnalysisRequest requestPayload = new DynamicAnalysisRequest(cellId, userName, spreadsheetName, tempValue);
+        Gson gson = new Gson();
 
-            if (currentSpreadsheet == null) {
-                return;
-            }
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                HttpURLConnection connection = null;
+                try {
+                    // Create the URL connection
+                    URL url = new URL(ClientConstants.DYNAMIC_ANALYSIS);
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                    connection.setDoOutput(true);
 
-            // Temporarily update the value of the target cell in the spreadsheet's backend
-            Cell cell = currentSpreadsheet.getCellById(cellId);
+                    // Convert the request object to JSON
+                    String jsonRequest = gson.toJson(requestPayload);
 
-            if (cell != null) {
-                cell.setExpression(new LiteralExpression(tempValue));
-                cell.setEffectiveValue();
-            }
-
-            // Get the sorted list of cells to update using topological sort
-            List<String> sortedCells = currentSpreadsheet.topologicalSort();
-
-            // Update each cell in the topological order
-            for (String sortedCellId : sortedCells) {
-                Cell dependentCell = currentSpreadsheet.getCellById(sortedCellId);
-                StringProperty dependentCellProperty = mainGridAreaComponentController.getCellProperty(sortedCellId);
-
-                if (dependentCellProperty != null && dependentCell != null) {
-                    dependentCell.setEffectiveValue();
-                    Object effectiveValue = dependentCell.getEffectiveValue();
-                    String effectiveValueString;
-
-                    // Format the number with thousands separators and up to two decimal places
-                    if (effectiveValue instanceof Number) {
-                        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
-                        numberFormat.setMinimumFractionDigits(0);  // No minimum decimal digits
-                        numberFormat.setMaximumFractionDigits(2);  // Maximum 2 decimal digits
-                        effectiveValueString = numberFormat.format(effectiveValue);
-                    } else {
-                        effectiveValueString = String.valueOf(effectiveValue);
+                    // Write the JSON to the output stream
+                    try (OutputStream os = connection.getOutputStream()) {
+                        os.write(jsonRequest.getBytes());
+                        os.flush();
                     }
 
-                    dependentCellProperty.set(effectiveValueString); // Update the StringProperty for the dependent cell
+                    // Get the response code
+                    int responseCode = connection.getResponseCode();
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        // Read the response from the server
+                        try (InputStreamReader reader = new InputStreamReader(connection.getInputStream())) {
+                            List<UpdatedCell> updatedCells = gson.fromJson(reader, new TypeToken<List<UpdatedCell>>() {}.getType());
+                            updateUI(updatedCells);
+                        }
+                    } else {
+                        // Handle error response
+                        throw new IOException("Server responded with code: " + responseCode);
+                    }
+                } finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
                 }
+                return null;
             }
+        };
 
-        } catch (Exception e) {
-            // Handle any errors during dynamic analysis
-            showAlert(Alert.AlertType.ERROR, "Error Performing Dynamic Analysis", e.getMessage());
+        new Thread(task).start(); // Run the task in a separate thread to avoid blocking the UI
+    }
+
+    private void updateUI(List<UpdatedCell> updatedCells) {
+        for (UpdatedCell cell : updatedCells) {
+            StringProperty cellProperty = mainGridAreaComponentController.getCellProperty(cell.getCellId());
+            if (cellProperty != null) {
+                // Update the UI property with the new value
+                cellProperty.set(String.valueOf(cell.getValue()));
+            }
         }
     }
+
+
+//    public void updateDependentCellsForDynamicAnalysis(String cellId, double tempValue) {
+//        try {
+//            // Get the current spreadsheet
+//            Spreadsheet currentSpreadsheet = getCurrentSpreadsheet();
+//
+//            if (currentSpreadsheet == null) {
+//                return;
+//            }
+//
+//            // Temporarily update the value of the target cell in the spreadsheet's backend
+//            Cell cell = currentSpreadsheet.getCellById(cellId);
+//
+//            if (cell != null) {
+//                cell.setExpression(new LiteralExpression(tempValue));
+//                cell.setEffectiveValue();
+//            }
+//
+//            // Get the sorted list of cells to update using topological sort
+//            List<String> sortedCells = currentSpreadsheet.topologicalSort();
+//
+//            // Update each cell in the topological order
+//            for (String sortedCellId : sortedCells) {
+//                Cell dependentCell = currentSpreadsheet.getCellById(sortedCellId);
+//                StringProperty dependentCellProperty = mainGridAreaComponentController.getCellProperty(sortedCellId);
+//
+//                if (dependentCellProperty != null && dependentCell != null) {
+//                    dependentCell.setEffectiveValue();
+//                    Object effectiveValue = dependentCell.getEffectiveValue();
+//                    String effectiveValueString;
+//
+//                    // Format the number with thousands separators and up to two decimal places
+//                    if (effectiveValue instanceof Number) {
+//                        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
+//                        numberFormat.setMinimumFractionDigits(0);  // No minimum decimal digits
+//                        numberFormat.setMaximumFractionDigits(2);  // Maximum 2 decimal digits
+//                        effectiveValueString = numberFormat.format(effectiveValue);
+//                    } else {
+//                        effectiveValueString = String.valueOf(effectiveValue);
+//                    }
+//
+//                    dependentCellProperty.set(effectiveValueString); // Update the StringProperty for the dependent cell
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            // Handle any errors during dynamic analysis
+//            showAlert(Alert.AlertType.ERROR, "Error Performing Dynamic Analysis", e.getMessage());
+//        }
+//    }
 
     // Method to get the StringProperty of a cell by its ID
     public StringProperty getCellProperty(String cellId) {
@@ -1176,10 +1193,6 @@ public class GridWindowController {
         return rangeNames;
     }
 
-//    public void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException, UserNotFoundException, SpreadsheetNotFoundException {
-//        engine.checkForCircularReferences(userName, spreadsheetName, cellId, newExpression);
-//    }
-
     public Map<String, String> getCellAlignments() {
         return mainGridAreaComponentController.getCellAlignments();
     }
@@ -1203,33 +1216,6 @@ public class GridWindowController {
             leftSideComponentController.disableEditButtons();
         }
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GridWindowController that = (GridWindowController) o;
-        return Objects.equals(engine, that.engine) && Objects.equals(activeFadeTransitions, that.activeFadeTransitions)
-                && Objects.equals(activeRotateTransitions, that.activeRotateTransitions) && Objects.equals(spreadsheetName, that.spreadsheetName)
-                && Objects.equals(userName, that.userName) && Objects.equals(client, that.client) && Objects.equals(cookieManager, that.cookieManager)
-                && Objects.equals(stage, that.stage) && Objects.equals(menuRoot, that.menuRoot) && Objects.equals(scrollPane, that.scrollPane)
-                && Objects.equals(topGridWindowComponentController, that.topGridWindowComponentController) && Objects.equals(optionsBarComponentController, that.optionsBarComponentController)
-                && Objects.equals(leftSideComponentController, that.leftSideComponentController) && Objects.equals(mainGridAreaComponentController, that.mainGridAreaComponentController)
-                && Objects.equals(dynamicAnalysisComponentController, that.dynamicAnalysisComponentController) && Objects.equals(sortDialogController, that.sortDialogController)
-                && Objects.equals(addRangeDialogController, that.addRangeDialogController) && Objects.equals(backComponentController, that.backComponentController);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(engine, activeFadeTransitions, activeRotateTransitions, spreadsheetName, userName, client,
-                cookieManager, stage, menuRoot, scrollPane, topGridWindowComponentController, optionsBarComponentController,
-                leftSideComponentController, mainGridAreaComponentController, dynamicAnalysisComponentController, sortDialogController,
-                addRangeDialogController, backComponentController);
-    }
-
-//    public Expression parseExpression (String input) throws InvalidExpressionException, UserNotFoundException, SpreadsheetNotFoundException {
-//        return engine.parseExpression(userName, spreadsheetName, input);
-//    }
 
     public Expression parseExpression(String expressionInput) throws IOException {
         String finalUrl = ClientConstants.PARSE_EXPRESSION; // Make sure this points to your servlet
@@ -1270,11 +1256,9 @@ public class GridWindowController {
     }
 
 
-    // Helper method to handle recursive parsing
     private Expression parseResponseToExpression(JsonObject jsonObject) throws IOException {
-        // First, check if it's a FunctionExpression by looking for "functionName"
+        // Check for "functionName" to handle FunctionExpression case
         if (jsonObject.has("functionName")) {
-            // Handle the FunctionExpression case
             String functionName = jsonObject.get("functionName").getAsString();
             List<Expression> arguments = new ArrayList<>();
 
@@ -1288,58 +1272,84 @@ public class GridWindowController {
             return new FunctionExpression(functionName, arguments, function);
         }
 
-        String type = jsonObject.get("type").getAsString();
+        // Check for "type" first; if absent, try to get the value directly
+        String type = jsonObject.has("type") ? jsonObject.get("type").getAsString() : null;
 
+        if (type == null && jsonObject.has("value")) {
+            // Handle as LiteralExpression if no type is present but value exists
+            JsonElement valueElement = jsonObject.get("value");
+            Object literalValue;
+
+            if (valueElement.isJsonPrimitive()) {
+                JsonPrimitive primitive = valueElement.getAsJsonPrimitive();
+                if (primitive.isNumber()) {
+                    literalValue = primitive.getAsNumber();  // No quotes around numbers
+                } else {
+                    literalValue = primitive.getAsString();  // Treat as string
+                }
+            } else {
+                literalValue = valueElement.getAsString();  // Fallback as String
+            }
+            return new LiteralExpression(literalValue);
+        }
+
+        // Handle based on the identified type
         switch (type) {
             case "LiteralExpression":
-                JsonElement valueElement = jsonObject.get("value");
-                Object literalValue;
-
-                if (valueElement.isJsonPrimitive()) {
-                    JsonPrimitive primitive = valueElement.getAsJsonPrimitive();
-                    if (primitive.isNumber()) {
-                        // Get the number directly
-                        literalValue = primitive.getAsNumber();  // No quotes around numbers
-                    } else {
-                        // If it's not a number, treat it as a string
-                        literalValue = primitive.getAsString();
-                    }
-                } else {
-                    literalValue = valueElement.getAsString();  // Fallback as String
-                }
-                return new LiteralExpression(literalValue);
-
+                return parseLiteralExpression(jsonObject);
             case "FunctionExpression":
-                String functionName = jsonObject.get("functionName").getAsString();
-                List<Expression> arguments = new ArrayList<>();
-                for (JsonElement argElement : jsonObject.get("arguments").getAsJsonArray()) {
-                    arguments.add(parseResponseToExpression(argElement.getAsJsonObject()));  // Recursively parse each argument
-                }
-                Function function = FunctionFactory.getFunction(functionName);
-                return new FunctionExpression(functionName, arguments, function);
-
+                return parseFunctionExpression(jsonObject);
             case "ReferenceExpression":
                 String cellId = jsonObject.get("cellId").getAsString();
                 Supplier<Spreadsheet> spreadsheetSupplier = createSpreadsheetSupplier();  // Use the supplier method
                 return new ReferenceExpression(cellId, spreadsheetSupplier);
-
             case "RangeExpression":
-                String rangeName = jsonObject.get("rangeName").getAsString();
-                // Extract the range object
-                JsonObject rangeObject = jsonObject.getAsJsonObject("range");
-                String rangeStartCell = rangeObject.get("startCell").getAsString();
-                String rangeEndCell = rangeObject.get("endCell").getAsString();
-                String rangeObjName = rangeObject.get("name").getAsString();
-
-                // Construct the RangeImpl object
-                RangeImpl range = new RangeImpl(rangeObjName, rangeStartCell, rangeEndCell);
-
-                Supplier<Spreadsheet> rangeSupplier = createSpreadsheetSupplier();  // Use the supplier method
-                return new RangeExpression(rangeName,range, rangeSupplier);
-
+                return parseRangeExpression(jsonObject);
             default:
                 throw new JsonParseException("Unknown expression type: " + type);
         }
+    }
+
+// Helper methods for clarity and separation of logic
+
+    private Expression parseLiteralExpression(JsonObject jsonObject) {
+        JsonElement valueElement = jsonObject.get("value");
+        Object literalValue;
+
+        if (valueElement.isJsonPrimitive()) {
+            JsonPrimitive primitive = valueElement.getAsJsonPrimitive();
+            if (primitive.isNumber()) {
+                literalValue = primitive.getAsNumber();  // No quotes around numbers
+            } else {
+                literalValue = primitive.getAsString();  // Treat as string
+            }
+        } else {
+            literalValue = valueElement.getAsString();  // Fallback as String
+        }
+        return new LiteralExpression(literalValue);
+    }
+
+    private Expression parseFunctionExpression(JsonObject jsonObject) throws IOException {
+        String functionName = jsonObject.get("functionName").getAsString();
+        List<Expression> arguments = new ArrayList<>();
+
+        for (JsonElement argElement : jsonObject.get("arguments").getAsJsonArray()) {
+            arguments.add(parseResponseToExpression(argElement.getAsJsonObject()));  // Recursively parse each argument
+        }
+        Function function = FunctionFactory.getFunction(functionName);
+        return new FunctionExpression(functionName, arguments, function);
+    }
+
+    private Expression parseRangeExpression(JsonObject jsonObject) {
+        String rangeName = jsonObject.get("rangeName").getAsString();
+        JsonObject rangeObject = jsonObject.getAsJsonObject("range");
+        String rangeStartCell = rangeObject.get("startCell").getAsString();
+        String rangeEndCell = rangeObject.get("endCell").getAsString();
+        String rangeObjName = rangeObject.get("name").getAsString();
+
+        RangeImpl range = new RangeImpl(rangeObjName, rangeStartCell, rangeEndCell);
+        Supplier<Spreadsheet> rangeSupplier = createSpreadsheetSupplier();  // Use the supplier method
+        return new RangeExpression(rangeName, range, rangeSupplier);
     }
 
     private Supplier<Spreadsheet> createSpreadsheetSupplier() {
@@ -1431,5 +1441,18 @@ public class GridWindowController {
             }
         }
         return value; // Return as is if it's not a string
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GridWindowController that = (GridWindowController) o;
+        return Objects.equals(activeFadeTransitions, that.activeFadeTransitions) && Objects.equals(activeRotateTransitions, that.activeRotateTransitions) && Objects.equals(spreadsheetName, that.spreadsheetName) && Objects.equals(userName, that.userName) && Objects.equals(client, that.client) && Objects.equals(cookieManager, that.cookieManager) && Objects.equals(stage, that.stage) && Objects.equals(menuRoot, that.menuRoot) && Objects.equals(scrollPane, that.scrollPane) && Objects.equals(topGridWindowComponentController, that.topGridWindowComponentController) && Objects.equals(optionsBarComponentController, that.optionsBarComponentController) && Objects.equals(leftSideComponentController, that.leftSideComponentController) && Objects.equals(mainGridAreaComponentController, that.mainGridAreaComponentController) && Objects.equals(dynamicAnalysisComponentController, that.dynamicAnalysisComponentController) && Objects.equals(sortDialogController, that.sortDialogController) && Objects.equals(addRangeDialogController, that.addRangeDialogController) && Objects.equals(backComponentController, that.backComponentController);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(activeFadeTransitions, activeRotateTransitions, spreadsheetName, userName, client, cookieManager, stage, menuRoot, scrollPane, topGridWindowComponentController, optionsBarComponentController, leftSideComponentController, mainGridAreaComponentController, dynamicAnalysisComponentController, sortDialogController, addRangeDialogController, backComponentController);
     }
 }
