@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import menuwindow.MenuWindowController;
+import menuwindow.rightside.chat.ChatController;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import utils.AlertUtils;
@@ -33,12 +34,19 @@ public class RightSideController {
     private Button ackOrDenyPermissionRequestButton;
 
     @FXML
+    private ChatController chatComponentController;
+
+    @FXML
     private void initialize() {
         viewSheetButton.setOnAction(event -> handleViewSheetButtonAction());
 
         requestPermissionButton.setOnAction(event -> handleRequestPermissionButtonAction());
 
         ackOrDenyPermissionRequestButton.setOnAction(event -> handleAckOrDenyPermissionRequestButtonAction());
+
+        if (chatComponentController != null) {
+            chatComponentController.setMainController(this);
+        }
     }
 
     private void handleAckOrDenyPermissionRequestButtonAction() {
@@ -219,5 +227,4 @@ public class RightSideController {
     public void setMainController(MenuWindowController mainController) {
         this.mainController = mainController;
     }
-
 }
