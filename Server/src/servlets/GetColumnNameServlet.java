@@ -2,6 +2,8 @@ package servlets;
 
 
 import api.Engine;
+import exceptions.engineexceptions.SpreadsheetNotFoundException;
+import exceptions.engineexceptions.UserNotFoundException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -51,7 +53,15 @@ public class GetColumnNameServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(columnName); // Return column name as plain text
 
-        } catch (Exception e) {
+        } catch(SpreadsheetNotFoundException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("Spreadsheet not found.");
+        }
+        catch(UserNotFoundException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("User not found.");
+        }
+        catch (Exception e) {
             // Handle any exceptions (UserNotFoundException, SpreadsheetNotFoundException, etc.)
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("An error occurred: " + e.getMessage());

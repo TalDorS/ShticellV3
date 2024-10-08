@@ -3,6 +3,8 @@ package servlets;
 import api.Engine;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import exceptions.engineexceptions.SpreadsheetNotFoundException;
+import exceptions.engineexceptions.UserNotFoundException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -43,7 +45,14 @@ public class GetColumnIndexServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(Integer.toString(columnIndex)); // Write the integer as plain text
 
-        } catch (Exception e) {
+        } catch(UserNotFoundException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("User not found.");
+        }catch(SpreadsheetNotFoundException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("Spreadsheet not found.");
+        }
+        catch (Exception e) {
             // Handle other exceptions
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("An error occurred: " + e.getMessage() );

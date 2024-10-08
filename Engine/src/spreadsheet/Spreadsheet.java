@@ -38,6 +38,17 @@ public class Spreadsheet implements Serializable {
         this.name = original.name;
         this.versionNumber = original.versionNumber;
     }
+    // Parameterized Constructor for creating a Spreadsheet directly
+    public Spreadsheet(String name, int rows, int columns,
+                       int columnWidth, int rowHeight, int versionNumber) {
+        this.cells = new HashMap<>(); // Initialize cells map
+        this.rows = rows;
+        this.columns = columns;
+        this.columnWidth = columnWidth;
+        this.rowHeight = rowHeight;
+        this.name = name != null ? name : EMPTY_STRING; // Prevent null name
+        this.versionNumber = versionNumber;
+    }
 
     // Create a new cell in the spreadsheet or return an existing cell if it already exists
     public Cell getOrCreateCell(String cellId) {

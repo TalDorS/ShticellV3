@@ -27,6 +27,17 @@ public class Cell implements Serializable {
         setEffectiveValue();
     }
 
+    // Constructor that accepts all required fields
+    public Cell(String originalValue, Object effectiveValue, Expression expression, int lastUpdatedVersion, String lastUpdatedBy) {
+        this.originalValue = originalValue;
+        this.effectiveValue = effectiveValue;
+        this.expression = expression;
+        this.lastUpdatedVersion = lastUpdatedVersion;
+        this.lastUpdatedBy = lastUpdatedBy;
+        this.dependsOnThem = new HashMap<>();
+        this.dependsOnMe = new HashMap<>();
+    }
+
     // Deep copy constructor
     public Cell(Cell original) {
         this.originalValue = original.originalValue;

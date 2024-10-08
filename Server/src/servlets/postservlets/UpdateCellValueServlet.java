@@ -3,6 +3,7 @@ package servlets;
 import api.Engine;
 
 import engineimpl.EngineImpl;
+import exceptions.engineexceptions.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -30,7 +31,24 @@ public class UpdateCellValueServlet extends HttpServlet {
             // If successful, return a success message
             response.setStatus(HttpServletResponse.SC_OK);
 
-        } catch (Exception e) {
+        } catch(UserNotFoundException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("User not found.");
+        } catch(SpreadsheetNotFoundException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("Spreadsheet not found.");
+        }
+        catch(CircularReferenceException e) {
+            response.setStatus(HttpServletResponse.SC_CONFLICT);
+            response.getWriter().write(e.getMessage());
+        } catch(InvalidExpressionException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(e.getMessage());
+        } catch(CellUpdateException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write( e.getMessage());
+        }
+        catch (Exception e) {
             // Handle exceptions such as CellUpdateException, InvalidExpressionException, etc.
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write(e.getMessage());

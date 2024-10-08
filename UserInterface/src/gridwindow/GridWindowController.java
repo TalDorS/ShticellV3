@@ -2,15 +2,22 @@ package gridwindow;
 
 import api.Engine;
 import api.Expression;
+import api.Function;
 import api.Range;
 import cells.Cell;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonParseException;
 import dto.*;
 import exceptions.engineexceptions.*;
+import expressionimpls.FunctionExpression;
 import expressionimpls.LiteralExpression;
+import expressionimpls.RangeExpression;
+import expressionimpls.ReferenceExpression;
+import functionsimpl.FunctionFactory;
 import gridwindow.bottom.BackController;
 import gridwindow.top.*;
 import gridwindow.top.Skin;
@@ -29,6 +36,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import okhttp3.*;
+import ranges.RangeImpl;
 import utils.ClientConstants;
 
 import javafx.util.Duration;
@@ -48,6 +56,7 @@ import java.text.NumberFormat;
 import java.util.*;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import static utils.AlertUtils.showAlert;
 import static utils.AlertUtils.showError;
@@ -263,22 +272,23 @@ public class GridWindowController {
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     System.out.println("Received response code: " + response.code());
+                    String responseBody = response.body().string(); // Read the response body
 
                     if (response.isSuccessful()) {
-                        String responseBody = response.body().string();
-
                         // If the cell update is successful, now retrieve the updated spreadsheet data
                         Platform.runLater(() -> {
                             try {
                                 setSpreadsheetData(spreadsheetName); // Retrieve the full spreadsheet data after the cell update
                                 //showAlert(Alert.AlertType.INFORMATION, "Success", "Cell updated successfully and spreadsheet reloaded.");
                             } catch (Exception e) {
+                                System.out.println("Error while reloading the spreadsheet: " + e.getMessage());
                                 showAlert(Alert.AlertType.ERROR, "Error", "Error while reloading the spreadsheet: " + e.getMessage());
                             }
                         });
                     } else {
                         Platform.runLater(() -> {
-                            String errorMessage = String.valueOf(response);
+                            String errorMessage = responseBody;
+                            System.out.println("Error message: " + errorMessage);
                             showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
                         });
                     }
@@ -1029,6 +1039,54 @@ public class GridWindowController {
             throw new IOException("Error occurred while fetching the column index", e);
         }
     }
+    public void checkForCircularReferences(String cellId, Expression newExpression) throws IOException {
+        String userName = this.userName;
+        String spreadsheetName = this.spreadsheetName;
+        String finalUrl = ClientConstants.CHECK_CIRCULAR_REFERENCES; // The endpoint for checking circular references
+
+        // Build the URL for the GET request
+        String urlWithParams = HttpUrl.parse(finalUrl)
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("spreadsheetName", spreadsheetName)
+                .addQueryParameter("cellId", cellId)
+                .addQueryParameter("newExpression", newExpression.toString()) // Ensure to serialize this properly
+                .build()
+                .toString();
+
+        // Create the OkHttpClient instance
+        OkHttpClient client = new OkHttpClient();
+
+        // Create the request
+        Request request = new Request.Builder()
+                .url(urlWithParams)
+                .build();
+
+        // Execute the request synchronously
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                // No circular references found
+                Platform.runLater(() -> {
+                    System.out.println("No circular references found.");
+                    //showAlert(Alert.AlertType.INFORMATION, "Success", "No circular references found.");
+                });
+            } else {
+                // Handle circular reference found
+                Platform.runLater(() -> {
+                    System.out.println("Circular reference detected: " + response.message());
+                    String errorMessage = response.message();
+                    showAlert(Alert.AlertType.ERROR, "Error", "Circular reference detected: " + errorMessage);
+                });
+            }
+        } catch (IOException e) {
+            // Handle exceptions
+            System.out.println("Failed to connect to the server: " + e.getMessage());
+            Platform.runLater(() -> {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
+            });
+        }
+    }
 
     //todo- fix this when dealing with dynamic analysis
     public void updateDependentCellsForDynamicAnalysis(String cellId, double tempValue) {
@@ -1117,6 +1175,10 @@ public class GridWindowController {
         return rangeNames;
     }
 
+//    public void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException, UserNotFoundException, SpreadsheetNotFoundException {
+//        engine.checkForCircularReferences(userName, spreadsheetName, cellId, newExpression);
+//    }
+
     public Map<String, String> getCellAlignments() {
         return mainGridAreaComponentController.getCellAlignments();
     }
@@ -1130,10 +1192,6 @@ public class GridWindowController {
 
     public Map<String, TextField> getTextFieldMap() {
         return mainGridAreaComponentController.getTextFieldMap();
-    }
-
-    public void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException, UserNotFoundException, SpreadsheetNotFoundException {
-        engine.checkForCircularReferences(userName, spreadsheetName, cellId, newExpression);
     }
 
     public void disableEditButtons() {
@@ -1168,7 +1226,209 @@ public class GridWindowController {
                 addRangeDialogController, backComponentController);
     }
 
-    public Expression parseExpression (String input) throws InvalidExpressionException, UserNotFoundException, SpreadsheetNotFoundException {
-        return engine.parseExpression(userName, spreadsheetName, input);
+//    public Expression parseExpression (String input) throws InvalidExpressionException, UserNotFoundException, SpreadsheetNotFoundException {
+//        return engine.parseExpression(userName, spreadsheetName, input);
+//    }
+
+    public Expression parseExpression(String expressionInput) throws IOException {
+        String finalUrl = ClientConstants.PARSE_EXPRESSION; // Make sure this points to your servlet
+
+        // Create a request body with the required parameters
+        RequestBody body = new FormBody.Builder()
+                .add("userName", userName) // Add userName to the request
+                .add("spreadsheetName", spreadsheetName) // Add spreadsheetName to the request
+                .add("expression", expressionInput) // Add the expression to the request
+                .build();
+
+        // Build the request
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .post(body)
+                .build();
+
+        // Execute the request synchronously
+        try {
+            Response response = client.newCall(request).execute();
+            if (!response.isSuccessful()) {
+                String errorMessage = response.body() != null ? response.body().string() : "Unknown error occurred";
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to parse expression: " + errorMessage);
+                return null; // Return null or handle accordingly based on your design
+            }
+
+            // Read the response body
+            String responseBody = response.body().string();
+
+            JsonElement jsonElement = new JsonParser().parse(responseBody);  // Use parse() instead of parseString()
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            return parseResponseToExpression(jsonObject);  // Call your method with the JsonObject
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (JsonSyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    // Helper method to handle recursive parsing
+    private Expression parseResponseToExpression(JsonObject jsonObject) throws IOException {
+        // First, check if it's a FunctionExpression by looking for "functionName"
+        if (jsonObject.has("functionName")) {
+            // Handle the FunctionExpression case
+            String functionName = jsonObject.get("functionName").getAsString();
+            List<Expression> arguments = new ArrayList<>();
+
+            // Recursively parse each argument
+            for (JsonElement argElement : jsonObject.get("arguments").getAsJsonArray()) {
+                arguments.add(parseResponseToExpression(argElement.getAsJsonObject()));
+            }
+
+            // Retrieve the function from FunctionFactory
+            Function function = FunctionFactory.getFunction(functionName);
+            return new FunctionExpression(functionName, arguments, function);
+        }
+
+        String type = jsonObject.get("type").getAsString();
+
+        switch (type) {
+            case "LiteralExpression":
+                JsonElement valueElement = jsonObject.get("value");
+                Object literalValue;
+
+                if (valueElement.isJsonPrimitive()) {
+                    JsonPrimitive primitive = valueElement.getAsJsonPrimitive();
+                    if (primitive.isNumber()) {
+                        // Get the number directly
+                        literalValue = primitive.getAsNumber();  // No quotes around numbers
+                    } else {
+                        // If it's not a number, treat it as a string
+                        literalValue = primitive.getAsString();
+                    }
+                } else {
+                    literalValue = valueElement.getAsString();  // Fallback as String
+                }
+                return new LiteralExpression(literalValue);
+
+            case "FunctionExpression":
+                String functionName = jsonObject.get("functionName").getAsString();
+                List<Expression> arguments = new ArrayList<>();
+                for (JsonElement argElement : jsonObject.get("arguments").getAsJsonArray()) {
+                    arguments.add(parseResponseToExpression(argElement.getAsJsonObject()));  // Recursively parse each argument
+                }
+                Function function = FunctionFactory.getFunction(functionName);
+                return new FunctionExpression(functionName, arguments, function);
+
+            case "ReferenceExpression":
+                String cellId = jsonObject.get("cellId").getAsString();
+                Supplier<Spreadsheet> spreadsheetSupplier = createSpreadsheetSupplier();  // Use the supplier method
+                return new ReferenceExpression(cellId, spreadsheetSupplier);
+
+            case "RangeExpression":
+                String rangeName = jsonObject.get("rangeName").getAsString();
+                // Extract the range object
+                JsonObject rangeObject = jsonObject.getAsJsonObject("range");
+                String rangeStartCell = rangeObject.get("startCell").getAsString();
+                String rangeEndCell = rangeObject.get("endCell").getAsString();
+                String rangeObjName = rangeObject.get("name").getAsString();
+
+                // Construct the RangeImpl object
+                RangeImpl range = new RangeImpl(rangeObjName, rangeStartCell, rangeEndCell);
+
+                Supplier<Spreadsheet> rangeSupplier = createSpreadsheetSupplier();  // Use the supplier method
+                return new RangeExpression(rangeName,range, rangeSupplier);
+
+            default:
+                throw new JsonParseException("Unknown expression type: " + type);
+        }
+    }
+
+    private Supplier<Spreadsheet> createSpreadsheetSupplier() {
+        return () -> {
+            SpreadsheetDTO spreadsheetDTO = getCurrentSpreadsheetDTO();
+            if (spreadsheetDTO != null) {
+                return convertSpreadsheetDTOToSpreadsheet(spreadsheetDTO); // Convert DTO to Spreadsheet
+            }
+            return null; // Handle null case if the DTO is not available
+        };
+    }
+
+    public Spreadsheet convertSpreadsheetDTOToSpreadsheet(SpreadsheetDTO spreadsheetDTO) {
+        if (spreadsheetDTO == null) {
+            return null; // Handle null case appropriately
+        }
+
+        // Reconstructing the Spreadsheet object
+        Spreadsheet spreadsheet = new Spreadsheet(
+                spreadsheetDTO.getName(),
+                spreadsheetDTO.getRows(),
+                spreadsheetDTO.getColumns(),
+                spreadsheetDTO.getColumnWidth(),
+                spreadsheetDTO.getRowHeight(),
+                spreadsheetDTO.getVersionNumber()
+        );
+
+        // Populate cells from DTO
+        Map<String, Cell> cells = convertCellDTOsToCells(spreadsheetDTO.getCells());
+        // Instead of a setCells method, add cells directly to the spreadsheet's cell collection
+        for (Map.Entry<String, Cell> entry : cells.entrySet()) {
+            spreadsheet.addCell(entry.getKey(), entry.getValue());
+        }
+        return spreadsheet; // Return the reconstructed Spreadsheet
+    }
+
+    // Method to convert CellDTOs to Cell objects
+    private Map<String, Cell> convertCellDTOsToCells(Map<String, CellDTO> cellDTOs) {
+        Map<String, Cell> cellMap = new HashMap<>();
+
+        if (cellDTOs != null) {
+            for (Map.Entry<String, CellDTO> entry : cellDTOs.entrySet()) {
+                String cellId = entry.getKey();
+                CellDTO cellDTO = entry.getValue();
+
+
+                // Convert effective value from string to appropriate type
+                Object effectiveValue = convertToNumericIfPossible(cellDTO.getEffectiveValue());
+
+                // Create Cell objects from CellDTOs
+                Cell cell = new Cell(
+                        cellDTO.getOriginalValue(),
+                        effectiveValue, // Use converted effective value
+                        null, // Assuming the expression is set later or is null for now
+                        cellDTO.getLastUpdatedVersion(),
+                        cellDTO.getLastUpdatedBy() // Assuming Cell has a constructor that takes these parameters
+                );
+
+                // Populate dependencies if necessary
+                for (String dependsOnId : cellDTO.getDependsOnThemIds()) {
+                    cell.addDependsOnThem(dependsOnId, new Cell()); // This may need a real Cell object
+                }
+
+                for (String dependsOnMeId : cellDTO.getDependsOnMeIds()) {
+                    cell.addDependsOnMe(dependsOnMeId, new Cell()); // This may need a real Cell object
+                }
+
+                cellMap.put(cellId, cell); // Add the cell to the map
+            }
+        }
+        return cellMap; // Return the map of cells
+    }
+    // Helper method to convert strings to numeric values when applicable
+    private Object convertToNumericIfPossible(Object value) {
+        if (value instanceof String) {
+            String strValue = (String) value;
+
+            try {
+                if (strValue.contains(".")) {
+                    // If it contains a decimal point, parse it as a double
+                    return Double.parseDouble(strValue);
+                } else {
+                    // Otherwise, parse it as an integer
+                    return Integer.parseInt(strValue);
+                }
+            } catch (NumberFormatException e) {
+                // If it's not a valid number, return the original string value
+                return strValue;
+            }
+        }
+        return value; // Return as is if it's not a string
     }
 }
