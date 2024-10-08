@@ -130,6 +130,17 @@ public class GridWindowController {
         this.cookieManager = cookieManager;
     }
 
+    public void setUserName(String userName) {
+        this.userName = userName;
+        topGridWindowComponentController.setUsername(userName);
+    }
+
+    public void setClient(OkHttpClient client) {
+        this.client = client;
+    }
+
+    public String getUserName() {return userName;}
+
     // Setter to pass the stage and menu root from the main controller
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -174,92 +185,40 @@ public class GridWindowController {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String responseBody = response.body().string();
+                try {
+                    if (response.isSuccessful()) {
+                        String responseBody = response.body().string();
 
-                    // Parse the JSON response into EngineDTO
-                    Gson gson = new Gson();
-                    EngineDTO engineDTO = gson.fromJson(responseBody, EngineDTO.class);
+                        // Parse the JSON response into EngineDTO
+                        Gson gson = new Gson();
+                        EngineDTO engineDTO = gson.fromJson(responseBody, EngineDTO.class);
 
-                    // Now, use the data as before
-                    int currentVersionNumber = engineDTO.getCurrentVersionNumber();
-                    SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
-                    List<RangeDTO> rangesDTO = engineDTO.getRanges();
-                    // Update the table view and UI
-                    Platform.runLater(() -> {
-                        mainGridAreaComponentController.clearGrid();
-                        optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber);
-                        mainGridAreaComponentController.start(spreadsheetDTO, false);
+                        // Now, use the data as before
+                        int currentVersionNumber = engineDTO.getCurrentVersionNumber();
+                        SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
+                        List<RangeDTO> rangesDTO = engineDTO.getRanges();
 
-                        // Refresh dependent UI elements
-                        leftSideComponentController.refreshRanges(rangesDTO);  // Pass the rangesDTO to refreshRanges method
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        String errorMessage = String.valueOf(response);
-                        showAlert(Alert.AlertType.ERROR, "Error", "Failed to load engine data: " + errorMessage);
-                    });
+                        // Update the table view and UI
+                        Platform.runLater(() -> {
+                            mainGridAreaComponentController.clearGrid();
+                            optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber);
+                            mainGridAreaComponentController.start(spreadsheetDTO, false);
+
+                            // Refresh dependent UI elements
+                            leftSideComponentController.refreshRanges(rangesDTO);
+                        });
+                    } else {
+                        Platform.runLater(() -> {
+                            String errorMessage = String.valueOf(response);
+                            showAlert(Alert.AlertType.ERROR, "Error", "Failed to load engine data: " + errorMessage);
+                        });
+                    }
+                } finally {
+                    response.close(); // Ensure the response body is closed
                 }
             }
         });
     }
-
-//    public void setSpreadsheetData(String spreadsheetName) throws CellUpdateException, InvalidExpressionException,
-//            SpreadsheetLoadingException, RangeProcessException, CircularReferenceException {
-//        try{
-//            this.spreadsheetName = spreadsheetName;
-//            EngineDTO engineDTO = engine.getEngineData(userName, spreadsheetName);
-//            int currentVersionNumber = engineDTO.getCurrentVersionNumber();
-//            SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
-//
-//            // Update the table view with the new data and open the grid window when the view sheet button is pressed
-//            Platform.runLater(() -> {
-//                // Clear the grid (if necessary)
-//                mainGridAreaComponentController.clearGrid();
-//
-//                // Update the current version label in the options bar
-//                optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber);
-//
-//                // Populate the grid with the new spreadsheet data
-//                mainGridAreaComponentController.start(spreadsheetDTO, false);
-//
-//                // Refresh any dependent UI elements (ranges, etc.)
-//                try {
-//                    leftSideComponentController.refreshRanges();
-//                } catch (UserNotFoundException e) {
-//                    throw new RuntimeException(e);
-//                } catch (FileNotFoundException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            });
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-    //todo- move to another controller for the sceond screen
-//    public void loadSpreadsheet(String filePath) throws SpreadsheetLoadingException, CellUpdateException, InvalidExpressionException,
-//            CircularReferenceException, RangeProcessException {
-//        // Load the spreadsheet and update components on the JavaFX Application Thread
-//        try {
-//            engine.loadSpreadsheet(filePath);
-//            EngineDTO engineDTO = engine.getEngineData();
-//            int currentVersionNumber = engineDTO.getCurrentVersionNumber();
-//            SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
-//
-//            // Ensure UI updates are executed on the JavaFX Application Thread
-//            Platform.runLater(() -> {
-//                mainGridAreaComponentController.clearGrid(); // Add a clearGrid() method to your controller if it doesn't exist
-//                optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber); // Update the current version label
-//                mainGridAreaComponentController.start(spreadsheetDTO, false);
-//                leftSideComponentController.refreshRanges();
-//            });
-//
-//        } catch (SpreadsheetLoadingException | CellUpdateException | InvalidExpressionException | CircularReferenceException | RangeProcessException e) {
-//            // Rethrow exceptions to be handled by the calling code or task
-//            throw e;
-//        }
-//    }
 
     public void highlightRange(String firstCell, String lastCell, boolean isHighlight) {
         // Delegate to the MainGridAreaController
@@ -270,9 +229,9 @@ public class GridWindowController {
 
     // Method that occurs when a cell is clicked in Main Grid Area, the info is then delivered to
     // OptionsBarController to be printed out in the right textFields.
-    public void updateSelectedCellInfo(String cellId, String OriginalValue, String lastUpdateVersion) {
+    public void updateSelectedCellInfo(String cellId, String OriginalValue, String lastUpdateVersion, String lastUpdatedBy) {
         if (optionsBarComponentController != null) {
-            optionsBarComponentController.updateCellInfo(cellId, OriginalValue, lastUpdateVersion);
+            optionsBarComponentController.updateCellInfo(cellId, OriginalValue, lastUpdateVersion, lastUpdatedBy);
             optionsBarComponentController.clearActionLineInput();
         }
     }
@@ -302,108 +261,72 @@ public class GridWindowController {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                System.out.println("Received response code: " + response.code());
+                try {
+                    System.out.println("Received response code: " + response.code());
 
-                if (response.isSuccessful()) {
-                    String responseBody = response.body().string();
+                    if (response.isSuccessful()) {
+                        String responseBody = response.body().string();
 
-                    // If the cell update is successful, now retrieve the updated spreadsheet data
-                    Platform.runLater(() -> {
-                        try {
-                            setSpreadsheetData(spreadsheetName); // Retrieve the full spreadsheet data after the cell update
-                            //showAlert(Alert.AlertType.INFORMATION, "Success", "Cell updated successfully and spreadsheet reloaded.");
-                        } catch (Exception e) {
-                            showAlert(Alert.AlertType.ERROR, "Error", "Error while reloading the spreadsheet: " + e.getMessage());
-                        }
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        String errorMessage = String.valueOf(response);
-                        showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-                    });
+                        // If the cell update is successful, now retrieve the updated spreadsheet data
+                        Platform.runLater(() -> {
+                            try {
+                                setSpreadsheetData(spreadsheetName); // Retrieve the full spreadsheet data after the cell update
+                                //showAlert(Alert.AlertType.INFORMATION, "Success", "Cell updated successfully and spreadsheet reloaded.");
+                            } catch (Exception e) {
+                                showAlert(Alert.AlertType.ERROR, "Error", "Error while reloading the spreadsheet: " + e.getMessage());
+                            }
+                        });
+                    } else {
+                        Platform.runLater(() -> {
+                            String errorMessage = String.valueOf(response);
+                            showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+                        });
+                    }
+                } finally {
+                    response.close(); // Ensure the response body is closed
                 }
             }
         });
     }
 
-
-    // Method that occurs when we try to update a cell in Options Bar Controller.
-//    // It updates the relevant cell with its new info
-//    public void updateCellValue(String cellId, String newValue) {
+    //FIXME- DO WE NEED THIS? I checked and the sependeancies are updated because everytime i update a cell i update all the cells that depend on it
+    // Method to update all dependent cells
+//    private void updateDependentCells(String cellId, Boolean isDynamicAnalysis) {
 //        try {
+//            // Retrieve the map of dependent cells from the current cell
+//            Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet(userName, this.spreadsheetName);
+//            Map<String, Cell> dependentCellsMap = currentSpreadsheet.getCellById(cellId).getDependsOnMe();
 //
-//            // Update the value in the engine
-//            engine.updateCellValue(userName,spreadsheetName,cellId, newValue);
-//            EngineDTO engineDTO = engine.getEngineData(userName, spreadsheetName);
-//            int currentVersionNumber = engineDTO.getCurrentVersionNumber();
-//            SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
-//            CellDTO currentCellDTO = spreadsheetDTO.getCellById(cellId);
+//            if (dependentCellsMap != null) { // Check if there are any dependent cells
+//                for (Map.Entry<String, Cell> entry : dependentCellsMap.entrySet()) {
+//                    String dependentCellId = entry.getKey();
+//                    Cell dependentCell = currentSpreadsheet.getCellById(dependentCellId);
+//                    StringProperty dependentCellProperty = mainGridAreaComponentController.getCellProperty(dependentCellId);
 //
-//            // Update the StringProperty for the cell ID
-//            StringProperty cellProperty = mainGridAreaComponentController.getCellProperty(cellId);
+//                    if (dependentCellProperty != null && dependentCell != null) {
+//                        // If it's part of a dynamic analysis, update effective value
+//                        if (isDynamicAnalysis) {
+//                            dependentCell.setEffectiveValue();
+//                        }
 //
-//            if (cellProperty != null) {
-//                cellProperty.set(currentCellDTO.getEffectiveValue().toString());
-//                updateSelectedCellInfo(cellId, currentCellDTO.getOriginalValue(), Integer.toString(currentCellDTO.getLastUpdatedVersion()));
-//                optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber); // Update the current version label
+//                        Object effectiveValue = dependentCell.getEffectiveValue();
+//                        String effectiveValueString = String.valueOf(effectiveValue);
+//                        if (effectiveValue instanceof Boolean) {
+//                            effectiveValueString = effectiveValueString.toUpperCase();
+//                        }
 //
-//                Object effectiveValue = currentCellDTO.getEffectiveValue();
-//                String effectiveValueString = String.valueOf(effectiveValue);
+//                        dependentCellProperty.set(effectiveValueString); // Update the StringProperty for the dependent cell
+//                    }
 //
-//                if (effectiveValue instanceof Boolean) {
-//                    effectiveValueString = effectiveValueString.toUpperCase();
+//                    updateDependentCells(dependentCellId, false);
 //                }
-//
-//                cellProperty.set(effectiveValueString);
-//                optionsBarComponentController.updateCellInfo(cellId, currentCellDTO.getOriginalValue(), Integer.toString(currentCellDTO.getLastUpdatedVersion()));
 //            }
 //
-//            // Update all dependent cells
-//            updateDependentCells(cellId,false);
-//
-//        } catch (Exception e) { // Catch any exceptions thrown during the update
-//            // Show an error alert with the exception message
-//            showAlert(Alert.AlertType.ERROR, "Error Updating Cell", e.getMessage());
+//        } catch (Exception e) {
+//            // If there's an error in updating dependent cells, display an alert
+//            showAlert(Alert.AlertType.ERROR, "Error Updating Dependent Cells", "Failed to update dependent cells: " + e.getMessage());
 //        }
 //    }
-
-    // Method to update all dependent cells
-    private void updateDependentCells(String cellId, Boolean isDynamicAnalysis) {
-        try {
-            // Retrieve the map of dependent cells from the current cell
-            Spreadsheet currentSpreadsheet = engine.getCurrentSpreadsheet(userName, this.spreadsheetName);
-            Map<String, Cell> dependentCellsMap = currentSpreadsheet.getCellById(cellId).getDependsOnMe();
-
-            if (dependentCellsMap != null) { // Check if there are any dependent cells
-                for (Map.Entry<String, Cell> entry : dependentCellsMap.entrySet()) {
-                    String dependentCellId = entry.getKey();
-                    Cell dependentCell = currentSpreadsheet.getCellById(dependentCellId);
-                    StringProperty dependentCellProperty = mainGridAreaComponentController.getCellProperty(dependentCellId);
-
-                    if (dependentCellProperty != null && dependentCell != null) {
-                        // If it's part of a dynamic analysis, update effective value
-                        if (isDynamicAnalysis) {
-                            dependentCell.setEffectiveValue();
-                        }
-
-                        Object effectiveValue = dependentCell.getEffectiveValue();
-                        String effectiveValueString = String.valueOf(effectiveValue);
-                        if (effectiveValue instanceof Boolean) {
-                            effectiveValueString = effectiveValueString.toUpperCase();
-                        }
-
-                        dependentCellProperty.set(effectiveValueString); // Update the StringProperty for the dependent cell
-                    }
-
-                    updateDependentCells(dependentCellId, false);
-                }
-            }
-
-        } catch (Exception e) {
-            // If there's an error in updating dependent cells, display an alert
-            showAlert(Alert.AlertType.ERROR, "Error Updating Dependent Cells", "Failed to update dependent cells: " + e.getMessage());
-        }
-    }
 
     public void addNewRange(String name, String firstCell, String lastCell) {
         String finalUrl = ClientConstants.ADD_RANGE;
@@ -450,18 +373,6 @@ public class GridWindowController {
 
     }
 
-//    public void addNewRange(String name, String firstCell, String lastCell) {
-//        try {
-//            firstCell = firstCell.toUpperCase();
-//            lastCell = lastCell.toUpperCase();
-//            engine.addRange(userName, spreadsheetName, name, firstCell, lastCell); // Add range to the backend engine
-//            leftSideComponentController.addRangeToUI(name, firstCell, lastCell); // Update the UI
-//            AlertUtils.showAlert(Alert.AlertType.INFORMATION, "Success", "Range created successfully.");
-//        } catch (Exception e) {
-//            AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Creating Range", e.getMessage());
-//        }
-//    }
-
     public void removeRange(String rangeName) {
 
         String finalUrl = HttpUrl
@@ -506,39 +417,6 @@ public class GridWindowController {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Deleting Range", errorMessage);
         }
     }
-
-
-//    public void deleteRange(String rangeName) {
-//        try {
-//            // Delete range from the backend engine
-//            engine.removeRange(userName, spreadsheetName, rangeName);
-//            leftSideComponentController.refreshRanges(); // Refresh the ranges in UI
-//        } catch (Exception e) {
-//            AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Deleting Range", e.getMessage());
-//        }
-//    }
-
-//    public void handleSortRequest(String range, List<String> columnsToSortBy) {
-//        try {
-//            // Assuming you have a method in the engine to sort the spreadsheet
-//            Spreadsheet sortedSpreadsheet = new Spreadsheet(engine.getCurrentSpreadsheet(userName, spreadsheetName));
-//            Map<String,String> idMapping = engine.sortSpreadsheet(userName, spreadsheetName, sortedSpreadsheet, range, columnsToSortBy);
-//
-//            // Convert the sorted spreadsheet (domain model) to a SpreadsheetDTO
-//            SpreadsheetDTO sortedSpreadsheetDTO = engine.convertSpreadsheetToDTO(sortedSpreadsheet);
-//
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource(SORT_DIALOG_FXML));
-//            Parent root = loader.load();
-//            sortDialogController = loader.getController(); // Get the controller after loading the FXML
-//            sortDialogController.setMainController(this); // Set the main controller
-//
-//            // Now create a popup window to display the sorted results
-//            sortDialogController.showSortedResultsPopup(sortedSpreadsheetDTO, idMapping);
-//
-//        } catch (Exception e) {
-//            AlertUtils.showAlert(Alert.AlertType.ERROR, "Sorting Error", "Failed to sort the spreadsheet: " + e.getMessage());
-//        }
-//    }
 
     public void handleSortRequest(String range, List<String> columnsToSortBy) {
         String finalUrl = ClientConstants.SORT_SPREADSHEET; // Replace with your actual URL for sorting
@@ -603,8 +481,6 @@ public class GridWindowController {
         }
     }
 
-
-
     public List<RangeDTO> getRanges() throws IOException {
         String finalUrl = HttpUrl
                 .parse(ClientConstants.GET_RANGES) // Replace with the actual URL to your servlet/API endpoint
@@ -634,31 +510,6 @@ public class GridWindowController {
             }
         }
     }
-
-    // Method to get the current ranges from the backend engine
-//    public Map<String, String[]> getRanges() throws UserNotFoundException, FileNotFoundException {
-//        // Fetch the ranges from the backend engine
-//        Map<String, Range> ranges = engine.getAllRanges(userName, spreadsheetName);
-//        Map<String, String[]> formattedRanges = new HashMap<>();
-//
-//        // Convert each Range object to a String[] format
-//        for (Map.Entry<String, Range> entry : ranges.entrySet()) {
-//            Range range = entry.getValue();
-//            String[] cells = {range.getStartCell(), range.getEndCell()};
-//            formattedRanges.put(entry.getKey(), cells);
-//        }
-//
-//        return formattedRanges;
-//    }
-
-//    public List<VersionDTO> getVersionsForMenu() {
-//
-//        EngineDTO engineDTO = engine.getEngineData(userName, spreadsheetName);
-//        Map<Integer, VersionDTO> versionMap = engineDTO.getVersions();
-//
-//        // Convert the map values (VersionDTO) to a list and return it
-//        return versionMap.values().stream().collect(Collectors.toList());
-//    }
 
     public List<VersionDTO> getVersions() {
         // Build the URL for the GET request to retrieve versions
@@ -739,11 +590,6 @@ public class GridWindowController {
         }
     }
 
-
-//    public boolean isSpreadsheetLoaded() throws UserNotFoundException, FileNotFoundException {
-//        return engine.getCurrentSpreadsheet(userName, spreadsheetName) != null;
-//    }
-
     public void setSkin(String theme) {
         Scene scene = scrollPane.getScene();
 
@@ -791,7 +637,6 @@ public class GridWindowController {
             }
         }
     }
-
 
     private void stopAnimations() {
         if(!activeFadeTransitions.isEmpty()) {
@@ -871,6 +716,7 @@ public class GridWindowController {
         }
     }
 
+    //todo- fix this when dealing with dynamic analysis
     public Cell getCellById(String cellId) {
         // Build the URL for the GET request to retrieve cell data
         String finalUrl = HttpUrl
@@ -913,7 +759,6 @@ public class GridWindowController {
             return null; // Return null on failure
         }
     }
-
 
     public CellDTO getCellDTOById(String cellId) {
         // Build the URL for the GET request to retrieve cell data
@@ -958,11 +803,7 @@ public class GridWindowController {
         }
     }
 
-//    public Cell getCellById(String cellId) {
-//        return engine.getCurrentSpreadsheet(userName, spreadsheetName).getCellById(cellId);
-//    }
-
-    public SpreadsheetDTO getSpreadsheetByVersion(int versionNumber) {
+    public  SpreadsheetDTO getSpreadsheetByVersion(int versionNumber) {
         // Build the URL for the GET request to retrieve spreadsheet data
         String finalUrl = HttpUrl
                 .parse(ClientConstants.GET_SPREADSHEET_BY_VERSION) // Use your constant URL
@@ -1005,12 +846,7 @@ public class GridWindowController {
         }
     }
 
-
-//    public Spreadsheet getSpreadsheetByVersion(int versionNumber) throws UserNotFoundException, FileNotFoundException {
-//        return engine.getSpreadsheetByVersion(userName, spreadsheetName, versionNumber);
-//    }
-
-    public List<String> getCurrentColumns() throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
+    public  List<String> getCurrentColumns() throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
         SpreadsheetDTO currentSpreadsheet = getCurrentSpreadsheetDTO();
         if (currentSpreadsheet == null) {
             return new ArrayList<>(); // Return an empty list if no spreadsheet is loaded
@@ -1025,11 +861,6 @@ public class GridWindowController {
 
         return columnNames;
     }
-
-//    // Helper method to convert a zero-based column index to an Excel-style column name (A, B, C, ..., Z, AA, AB, ...)
-//    public String getColumnName(int index) throws UserNotFoundException, SpreadsheetNotFoundException {
-//        return engine.getColumnName(userName, spreadsheetName, index);
-//    }
 
     public String getColumnName(int index) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
         String url = ClientConstants.GET_COLUMN_NAME; // Replace with your actual URL
@@ -1066,7 +897,6 @@ public class GridWindowController {
             throw new IOException("Error occurred while fetching the column name", e);
         }
     }
-
 
     public SpreadsheetDTO getCurrentSpreadsheetDTO() {
         String finalUrl = HttpUrl
@@ -1111,13 +941,10 @@ public class GridWindowController {
         return null; // Return null or handle accordingly if there's an error
     }
 
+    //todo- fix this when dealing with dynamic analysis
     public Spreadsheet getCurrentSpreadsheet() {
         return engine.getCurrentSpreadsheet(userName, spreadsheetName);
     }
-
-//    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws UserNotFoundException, SpreadsheetNotFoundException {
-//        return engine.filterTableMultipleColumns(userName, spreadsheetName, tableArea, selectedColumnValues);
-//    }
 
     // Method to send a request to the server for filtering table with multiple columns
     public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
@@ -1167,11 +994,6 @@ public class GridWindowController {
     }
 
 
-    // Helper method to convert a column letter (e.g., "A") to a zero-based index
-//    public int getColumnIndex(String columnName) throws UserNotFoundException, SpreadsheetNotFoundException {
-//        return engine.getColumnIndex(userName, spreadsheetName, columnName);
-//    }
-
     public int getColumnIndex(String columnName) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
         String url = ClientConstants.GET_COLUMN_INDEX; // Replace with your actual URL
 
@@ -1208,6 +1030,7 @@ public class GridWindowController {
         }
     }
 
+    //todo- fix this when dealing with dynamic analysis
     public void updateDependentCellsForDynamicAnalysis(String cellId, double tempValue) {
         try {
             // Get the current spreadsheet
@@ -1294,14 +1117,6 @@ public class GridWindowController {
         return rangeNames;
     }
 
-//    public List<String> getRangeNames() throws UserNotFoundException, FileNotFoundException {
-//        // Fetch all ranges from the backend engine
-//        Map<String, Range> ranges = engine.getAllRanges(userName, spreadsheetName);
-//
-//        // Extract range names and return them as a list
-//        return new ArrayList<>(ranges.keySet());
-//    }
-
     public Map<String, String> getCellAlignments() {
         return mainGridAreaComponentController.getCellAlignments();
     }
@@ -1316,12 +1131,6 @@ public class GridWindowController {
     public Map<String, TextField> getTextFieldMap() {
         return mainGridAreaComponentController.getTextFieldMap();
     }
-
-//    public EngineDTO getEngine() {
-//        return engine.getEngineData(userName, spreadsheetName);
-//    }
-
-
 
     public void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException, UserNotFoundException, SpreadsheetNotFoundException {
         engine.checkForCircularReferences(userName, spreadsheetName, cellId, newExpression);
@@ -1362,20 +1171,4 @@ public class GridWindowController {
     public Expression parseExpression (String input) throws InvalidExpressionException, UserNotFoundException, SpreadsheetNotFoundException {
         return engine.parseExpression(userName, spreadsheetName, input);
     }
-
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-        topGridWindowComponentController.setUsername(userName);
-    }
-//
-//    public void setEngine(Engine engine) {
-//        this.engine = engine;
-//    }
-
-    public void setClient(OkHttpClient client) {
-        this.client = client;
-    }
-
-
 }

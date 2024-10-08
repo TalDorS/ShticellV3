@@ -55,71 +55,6 @@ public class VersionsManager implements Serializable {
         currentVersionNumber = 0;
     }
 
-
-    public SpreadsheetDTO convertSpreadsheetToDTO(Spreadsheet spreadsheet) {
-        if (spreadsheet == null) {
-            return null;
-        }
-
-        return new SpreadsheetDTO(
-                spreadsheet.getName(),
-                spreadsheet.getRows(),
-                spreadsheet.getColumns(),
-                spreadsheet.getColumnWidth(),
-                spreadsheet.getRowHeight(),
-                spreadsheet.getVersionNumber(),
-                convertCellsToDTO(spreadsheet.getCells())
-        );
-    }
-
-    // Method to convert cells to DTO
-    private Map<String, CellDTO> convertCellsToDTO(Map<String, Cell> cells) {
-        // Create basic CellDTOs without dependencies
-        Map<String, CellDTO> cellDTOMap = new HashMap<>();
-        for (Map.Entry<String, Cell> entry : cells.entrySet()) {
-            Cell cell = entry.getValue();
-            CellDTO cellDTO = new CellDTO(
-                    cell.getOriginalValue(),
-                    cell.getEffectiveValue(),
-                    cell.getLastUpdatedVersion(),
-                    new ArrayList<>(), // Placeholder for dependsOnThemIds
-                    new ArrayList<>()  // Placeholder for dependsOnMeIds
-            );
-            cellDTOMap.put(entry.getKey(), cellDTO);
-        }
-        // Second pass: Populate dependencies by adding cell IDs
-        for (Map.Entry<String, Cell> entry : cells.entrySet()) {
-            String cellId = entry.getKey();
-            Cell cell = entry.getValue();
-            CellDTO cellDTO = cellDTOMap.get(cellId);
-
-            // Populate dependsOnThemIds
-            for (String dependsOnId : cell.getDependsOnThem().keySet()) {
-                cellDTO.getDependsOnThemIds().add(dependsOnId);
-            }
-
-            // Populate dependsOnMeIds
-            for (String dependsOnMeId : cell.getDependsOnMe().keySet()) {
-                cellDTO.getDependsOnMeIds().add(dependsOnMeId);
-            }
-        }
-
-        return cellDTOMap;
-    }
-
-    private RangeDTO convertRangeToDTO(Range range) {
-        if (range == null) {
-            return null; // Handle null case if necessary
-        }
-        return new RangeDTO(
-                range.getName(), // Assuming Range has a getName() method
-                range.getStartCell(),
-                range.getEndCell(),
-                range.getCells() // Assuming Range has a getCells() method returning List<String>
-        );
-    }
-
-
     public Spreadsheet getCurrentSpreadsheet() {
         if (currentVersionNumber == 0) {
             return null;
@@ -321,6 +256,7 @@ public class VersionsManager implements Serializable {
                 Cell cell = getOrCreateCell(cellId, versions.get(currentVersion).getSpreadsheet());
                 cell.setOriginalValue(cellValue);
                 cell.setLastUpdatedVersion(currentVersion);
+                cell.setLastUpdatedBy(getPermissionsManager().getOwner());
                 parseAndApplyNewExpressionToCell(cellId, cellValue, cell, versions.get(currentVersion).getSpreadsheet());
                 numOfCellsChanged++;
             } catch (InvalidCellIdFormatException | InvalidColumnException | InvalidRowException e) {
@@ -410,7 +346,7 @@ public class VersionsManager implements Serializable {
         }
     }
 
-    public void updateCellValue(String cellId, String newValue)
+    public void updateCellValue(String cellId, String newValue, String userName)
             throws CircularReferenceException, CellUpdateException {
         // Get the current spreadsheet instance
         Spreadsheet currentSpreadsheet = getCurrentSpreadsheet();
@@ -451,6 +387,7 @@ public class VersionsManager implements Serializable {
         if (isNewCellOrValueChanged(cell, valueChanged)) {
             // Update the cell's last updated version
             cell.setLastUpdatedVersion(getCurrentVersion() + 1);
+            cell.setLastUpdatedBy(userName);
             saveNewVersion(cellId, currentSpreadsheet);
             try {
                 // Recalculate the entire spreadsheet to update the effective values of all dependent cells

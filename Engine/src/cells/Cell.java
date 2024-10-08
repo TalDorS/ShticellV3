@@ -14,14 +14,16 @@ public class Cell implements Serializable {
     private Map<String, Cell> dependsOnThem; // Cells this cell depends on
     private Map<String, Cell> dependsOnMe; // Cells that depend on this cell
     private int lastUpdatedVersion; // The version number when the cell was last updated
+    private String lastUpdatedBy;
 
     // Constructor
-    public Cell(String originalValue, Expression expression, int lastUpdatedVersion) {
+    public Cell(String originalValue, Expression expression, int lastUpdatedVersion,String lastUpdatedBy) {
         this.originalValue = originalValue;
         this.expression = expression;
         this.dependsOnThem = new HashMap<>();
         this.dependsOnMe = new HashMap<>();
         this.lastUpdatedVersion = lastUpdatedVersion;
+        this.lastUpdatedBy = lastUpdatedBy;
         setEffectiveValue();
     }
 
@@ -32,6 +34,7 @@ public class Cell implements Serializable {
         this.dependsOnThem = new HashMap<>(original.dependsOnThem);
         this.dependsOnMe = new HashMap<>(original.dependsOnMe);
         this.lastUpdatedVersion = original.lastUpdatedVersion;
+        this.lastUpdatedBy = original.lastUpdatedBy;
         setEffectiveValue();
     }
 
@@ -43,6 +46,7 @@ public class Cell implements Serializable {
         this.dependsOnThem = new HashMap<>(); // Initialize with empty sets
         this.dependsOnMe = new HashMap<>();
         this.lastUpdatedVersion = 0; // Initialize with version 0
+        this.lastUpdatedBy = "";
     }
 
     public String getOriginalValue() {
@@ -139,18 +143,25 @@ public class Cell implements Serializable {
 
     public int getLastUpdatedVersion() { return lastUpdatedVersion; }
 
+    public String getLastUpdatedBy() { return lastUpdatedBy; }
+
     public void setLastUpdatedVersion(int lastUpdatedVersion) { this.lastUpdatedVersion = lastUpdatedVersion; }
+
+    public void setLastUpdatedBy(String lastUpdatedBy) { this.lastUpdatedBy = lastUpdatedBy; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Cell cell = (Cell) o;
-        return lastUpdatedVersion == cell.lastUpdatedVersion && Objects.equals(originalValue, cell.originalValue) && Objects.equals(expression, cell.expression) && Objects.equals(effectiveValue, cell.effectiveValue) && Objects.equals(dependsOnThem, cell.dependsOnThem) && Objects.equals(dependsOnMe, cell.dependsOnMe);
+        return lastUpdatedVersion == cell.lastUpdatedVersion && Objects.equals(originalValue, cell.originalValue) &&
+                Objects.equals(expression, cell.expression) && Objects.equals(effectiveValue, cell.effectiveValue) &&
+                Objects.equals(dependsOnThem, cell.dependsOnThem) && Objects.equals(dependsOnMe, cell.dependsOnMe) &&
+                Objects.equals(lastUpdatedBy, cell.lastUpdatedBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(originalValue, expression, effectiveValue, dependsOnThem, dependsOnMe, lastUpdatedVersion);
+        return Objects.hash(originalValue, expression, effectiveValue, dependsOnThem, dependsOnMe, lastUpdatedVersion, lastUpdatedBy);
     }
 }

@@ -241,7 +241,7 @@ public class FilterDialogController {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Selection Error");
                 alert.setHeaderText(null);
-                alert.setContentText("Please select at least one value.");
+                alert.setContentText("Please select at least one column.");
                 alert.showAndWait();
             } else {
                 // If values are selected, update the selected values map and close the dialog
@@ -423,7 +423,18 @@ public class FilterDialogController {
             String cellId = column + row; // Create cell ID like "A1", "B2", etc.
             CellDTO cell = currentSpreadsheet.getCellById(cellId);
             if (cell != null && cell.getEffectiveValue() != null) {
-                uniqueValues.add(cell.getEffectiveValue().toString());
+                Object effectiveValue = cell.getEffectiveValue();
+                if (effectiveValue instanceof Double) {
+                    Double doubleValue = (Double) effectiveValue;
+                    // Check if it's a whole number
+                    if (doubleValue == doubleValue.intValue()) {
+                        uniqueValues.add(String.valueOf(doubleValue.intValue()));
+                    } else {
+                        uniqueValues.add(doubleValue.toString());
+                    }
+                } else {
+                    uniqueValues.add(effectiveValue.toString());
+                }
             }
         }
 
