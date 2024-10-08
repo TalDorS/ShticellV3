@@ -2,6 +2,8 @@ package servlets;
 
 import api.Engine;
 import com.google.gson.Gson;
+import exceptions.engineexceptions.SpreadsheetNotFoundException;
+import exceptions.engineexceptions.UserNotFoundException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -58,6 +60,12 @@ public class FilterTableMultipleColumnsServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(new Gson().toJson(filteredTable)); // Write the table as JSON
 
+        }catch (SpreadsheetNotFoundException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("Spreadsheet not found.");
+        }catch(UserNotFoundException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("User not found.");
         } catch (Exception e) {
             // Handle any exceptions that occur during filtering
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

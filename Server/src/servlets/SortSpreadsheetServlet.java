@@ -4,6 +4,9 @@ import api.Engine;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dto.SpreadsheetDTO;
+import exceptions.engineexceptions.InvalidColumnException;
+import exceptions.engineexceptions.SpreadsheetNotFoundException;
+import exceptions.engineexceptions.UserNotFoundException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -54,7 +57,19 @@ public class SortSpreadsheetServlet extends HttpServlet {
                     "sortedSpreadsheet", sortedSpreadsheetDTO,
                     "idMapping", idMapping
             )));
-        } catch (Exception e) {
+        }catch (UserNotFoundException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("User not found.");
+        }
+        catch(SpreadsheetNotFoundException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            response.getWriter().write("Spreadsheet not found.");
+        }
+        catch(InvalidColumnException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(e.getMessage());
+        }
+        catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("Error sorting spreadsheet: " + e.getMessage());
             System.err.println("Error sorting spreadsheet: " + e.getMessage());

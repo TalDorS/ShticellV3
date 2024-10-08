@@ -28,5 +28,8 @@ public class ClientConstants {
     public static final String GET_COLUMN_INDEX = FULL_SERVER_PATH + "/getColumnIndex";
     public static final String GET_COLUMN_NAME = FULL_SERVER_PATH + "/getColumnName";
     public static final String FILTER_TABLE_MULTIPLE_COLUMNS = FULL_SERVER_PATH + "/filterTableMultipleColumns";
+    public static final String CHECK_CIRCULAR_REFERENCES = FULL_SERVER_PATH + "/checkCircularReferences";
+    public static final String PARSE_EXPRESSION = FULL_SERVER_PATH + "/parseExpression";
+
 
 }
