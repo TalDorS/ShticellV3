@@ -61,6 +61,9 @@ public class AvailableSheetTableController {
                 String selectedSheetName = newSelection.getSheetName();
                 // Fire the event to MenuWindowController to load the permissions for the selected sheet
                 mainController.loadPermissionsForSheet(selectedSheetName);
+
+                // Notify the main controller when a new row is selected
+                mainController.setSelectedSpreadsheetName(selectedSheetName);
             }
         });
 

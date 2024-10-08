@@ -14,7 +14,7 @@
     <VBox spacing="10.0" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 
         <!-- Chat display area -->
-        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
+        <ScrollPane fx:id="chatScrollPane" fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
             <VBox fx:id="messageContainer" spacing="5.0">
                 <padding>
                     <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>

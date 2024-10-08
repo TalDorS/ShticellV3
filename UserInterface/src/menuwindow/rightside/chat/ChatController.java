@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import menuwindow.MenuWindowController;
@@ -16,17 +17,27 @@ import utils.HttpClientUtil;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Timer;
 
 import static utils.AlertUtils.showError;
 
 public class ChatController {
     private RightSideController mainController;
+    private Timer chatTimer;
 
     @FXML
     private TextField messageTextField;
 
     @FXML
     private VBox messageContainer;
+
+    @FXML
+    private ScrollPane chatScrollPane;
+
+    @FXML
+    private void initialize() {
+        startChatRefresher();
+    }
 
     @FXML
     private void handleButtonClick() {
@@ -56,6 +67,10 @@ public class ChatController {
                     Platform.runLater(() -> {
                         messageTextField.clear();
                         updateMessagesTextField();
+
+                        // Scroll to the bottom after messages are added
+                        chatScrollPane.layout();
+                        chatScrollPane.setVvalue(1D); // Scroll to the bottom
                     });
                 } else {
                     Platform.runLater(() -> showError("Error: " + response.message()));
@@ -64,7 +79,7 @@ public class ChatController {
         });
     }
 
-    private void updateMessagesTextField() {
+    public void updateMessagesTextField() {
         String finalUrl = "http://localhost:8080/Server_Web_exploded/get-chat-data-list";
 
         // Make GET request
@@ -98,6 +113,13 @@ public class ChatController {
                 }
             }
         });
+    }
+
+    // Method to start the chat refresher
+    private void startChatRefresher() {
+        chatTimer = new Timer(true);  // Daemon timer, so it doesn't prevent app exit
+        ChatRefresher chatRefresher = new ChatRefresher(this);
+        chatTimer.schedule(chatRefresher, 0, 2000); // Schedule every 2 seconds
     }
 
     public void setMainController(RightSideController mainController) {
