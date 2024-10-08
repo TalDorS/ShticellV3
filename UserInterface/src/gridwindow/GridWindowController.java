@@ -1039,54 +1039,55 @@ public class GridWindowController {
             throw new IOException("Error occurred while fetching the column index", e);
         }
     }
-    public void checkForCircularReferences(String cellId, Expression newExpression) throws IOException {
-        String userName = this.userName;
-        String spreadsheetName = this.spreadsheetName;
-        String finalUrl = ClientConstants.CHECK_CIRCULAR_REFERENCES; // The endpoint for checking circular references
 
-        // Build the URL for the GET request
-        String urlWithParams = HttpUrl.parse(finalUrl)
-                .newBuilder()
-                .addQueryParameter("userName", userName)
-                .addQueryParameter("spreadsheetName", spreadsheetName)
-                .addQueryParameter("cellId", cellId)
-                .addQueryParameter("newExpression", newExpression.toString()) // Ensure to serialize this properly
-                .build()
-                .toString();
-
-        // Create the OkHttpClient instance
-        OkHttpClient client = new OkHttpClient();
-
-        // Create the request
-        Request request = new Request.Builder()
-                .url(urlWithParams)
-                .build();
-
-        // Execute the request synchronously
-        try {
-            Response response = client.newCall(request).execute();
-            if (response.isSuccessful()) {
-                // No circular references found
-                Platform.runLater(() -> {
-                    System.out.println("No circular references found.");
-                    //showAlert(Alert.AlertType.INFORMATION, "Success", "No circular references found.");
-                });
-            } else {
-                // Handle circular reference found
-                Platform.runLater(() -> {
-                    System.out.println("Circular reference detected: " + response.message());
-                    String errorMessage = response.message();
-                    showAlert(Alert.AlertType.ERROR, "Error", "Circular reference detected: " + errorMessage);
-                });
-            }
-        } catch (IOException e) {
-            // Handle exceptions
-            System.out.println("Failed to connect to the server: " + e.getMessage());
-            Platform.runLater(() -> {
-                showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
-            });
-        }
-    }
+//    public void checkForCircularReferences(String cellId, Expression newExpression) throws IOException {
+//        String userName = this.userName;
+//        String spreadsheetName = this.spreadsheetName;
+//        String finalUrl = ClientConstants.CHECK_CIRCULAR_REFERENCES; // The endpoint for checking circular references
+//
+//        // Build the URL for the GET request
+//        String urlWithParams = HttpUrl.parse(finalUrl)
+//                .newBuilder()
+//                .addQueryParameter("userName", userName)
+//                .addQueryParameter("spreadsheetName", spreadsheetName)
+//                .addQueryParameter("cellId", cellId)
+//                .addQueryParameter("newExpression", newExpression.toString()) // Ensure to serialize this properly
+//                .build()
+//                .toString();
+//
+//        // Create the OkHttpClient instance
+//        OkHttpClient client = new OkHttpClient();
+//
+//        // Create the request
+//        Request request = new Request.Builder()
+//                .url(urlWithParams)
+//                .build();
+//
+//        // Execute the request synchronously
+//        try {
+//            Response response = client.newCall(request).execute();
+//            if (response.isSuccessful()) {
+//                // No circular references found
+//                Platform.runLater(() -> {
+//                    System.out.println("No circular references found.");
+//                    //showAlert(Alert.AlertType.INFORMATION, "Success", "No circular references found.");
+//                });
+//            } else {
+//                // Handle circular reference found
+//                Platform.runLater(() -> {
+//                    System.out.println("Circular reference detected: " + response.message());
+//                    String errorMessage = response.message();
+//                    showAlert(Alert.AlertType.ERROR, "Error", "Circular reference detected: " + errorMessage);
+//                });
+//            }
+//        } catch (IOException e) {
+//            // Handle exceptions
+//            System.out.println("Failed to connect to the server: " + e.getMessage());
+//            Platform.runLater(() -> {
+//                showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
+//            });
+//        }
+//    }
 
     //todo- fix this when dealing with dynamic analysis
     public void updateDependentCellsForDynamicAnalysis(String cellId, double tempValue) {
@@ -1232,7 +1233,7 @@ public class GridWindowController {
 
     public Expression parseExpression(String expressionInput) throws IOException {
         String finalUrl = ClientConstants.PARSE_EXPRESSION; // Make sure this points to your servlet
-
+        System.out.println(expressionInput);
         // Create a request body with the required parameters
         RequestBody body = new FormBody.Builder()
                 .add("userName", userName) // Add userName to the request

@@ -179,10 +179,12 @@ public class InteractiveFormulaDialogController {
                 result = numberFormat.format(result);
             }
 
+            //fixme- i couldnt do that it will show it in the formula window
             // Check if this is not a nested window
-            if (getParentController() != null) {
-                mainController.checkForCircularReferences(parentController.getCurrentCellId(), parseResult);
-            }
+//            if (getParentController() != null) {
+//                mainController.checkForCircularReferences(parentController.getCurrentCellId(), parseResult);
+//            }
+
             resultPreview.setText("Result: " + result.toString());
         } catch (Exception e) {
             resultPreview.setText("Error: " + e.getMessage());
