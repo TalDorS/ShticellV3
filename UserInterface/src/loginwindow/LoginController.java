@@ -112,6 +112,7 @@ public class LoginController {
             // Set the scene to the menu
             Stage stage = (Stage) loginButton.getScene().getWindow();  // Get the current window
             stage.setTitle("Menu Window for " + userNameField.getText());
+            stage.setResizable(true);
             // Pass the stage to the menu controller
             menuController.setStage(stage);
             // Set the new scene and show it
