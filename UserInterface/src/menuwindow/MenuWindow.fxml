@@ -4,9 +4,9 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="684.0" prefWidth="953.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="menuwindow.MenuWindowController">
+<ScrollPane fitToHeight="true" fitToWidth="true" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="menuwindow.MenuWindowController">
    <content>
-      <BorderPane prefHeight="690.0" prefWidth="900.0">
+      <BorderPane minHeight="-Infinity" minWidth="-Infinity">
          <top>
             <fx:include fx:id="headerLoadComponent" source="top/HeaderAndLoad.fxml" BorderPane.alignment="TOP_CENTER" />
          </top>
