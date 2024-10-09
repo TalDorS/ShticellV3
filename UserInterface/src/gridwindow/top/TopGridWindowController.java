@@ -1,11 +1,13 @@
 package gridwindow.top;
 
+import exceptions.engineexceptions.*;
 import gridwindow.GridWindowController;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import menuwindow.center.sheettable.SheetRefresher;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class TopGridWindowController {
     @FXML
@@ -17,12 +19,34 @@ public class TopGridWindowController {
     @FXML
     private MenuButton animationDisplay;
 
+    @FXML
+    private Button updateNewVersionButton;
+
+    @FXML
+    private Label newVersionLabel;
+
     private GridWindowController mainController;
+    private SpreadsheetVersionRefresher versionRefresher;  // Add this line
+
 
     @FXML
     public void initialize() {
         colorDisplay.setOnShowing(event -> handleColorDisplay());
         animationDisplay.setOnShowing(event -> handleAnimationDisplay());
+    }
+
+    public void startVersionRefresher() {
+        if (versionRefresher == null) {
+            versionRefresher = new SpreadsheetVersionRefresher(mainController);
+            versionRefresher.startRefreshing();
+        }
+    }
+
+    public void stopVersionRefresher() {
+        if (versionRefresher != null) {
+            versionRefresher.stopRefreshing();
+            versionRefresher = null;  // Clear the reference
+        }
     }
 
     public void setMainController(GridWindowController gridWindowController) {
@@ -63,5 +87,21 @@ public class TopGridWindowController {
     private void handleAnimationChange(Animation animation) {
         mainController.setAnimation(animation.getIdentifier());
         animationDisplay.setText(animation.getDisplayName());
+    }
+
+    public void setNewVersionVisiblity(boolean visible) {
+        newVersionLabel.setVisible(visible);
+        updateNewVersionButton.setVisible(visible);
+    }
+
+    public boolean isNewVersionVisible() {
+        return newVersionLabel.isVisible();
+    }
+
+    public void handleUpdateNewVersionButton() throws CellUpdateException, InvalidExpressionException, SpreadsheetLoadingException,
+            RangeProcessException, CircularReferenceException {
+        // Load the new version or prompt the user
+        mainController.setSpreadsheetData(mainController.getSpreadsheetName());
+        setNewVersionVisiblity(false);
     }
 }
