@@ -276,7 +276,7 @@ public class GridWindowController {
         }
     }
 
-    public void updateCellValue(String cellId, String newValue) {
+    public void updateCellValue(String cellId, String newValue, Boolean isDynamicAnalysis) {
         if (topGridWindowComponentController.isNewVersionVisible()) {
             showAlert(Alert.AlertType.ERROR, "Error", "Cannot update cell value when a new version is available.");
             return;
@@ -291,6 +291,7 @@ public class GridWindowController {
                 .add("spreadsheetName", spreadsheetName)
                 .add("cellId", cellId)
                 .add("newValue", newValue)
+                .add("isDynamicAnalysis", isDynamicAnalysis.toString())
                 .build();
 
 
@@ -1083,55 +1084,6 @@ public class GridWindowController {
 //        }
 //    }
 
-    public void updateDependentCellsForDynamicAnalysis(String cellId, double tempValue) {
-        DynamicAnalysisRequest requestPayload = new DynamicAnalysisRequest(cellId, userName, spreadsheetName, tempValue);
-        Gson gson = new Gson();
-
-        Task<Void> task = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                HttpURLConnection connection = null;
-                try {
-                    // Create the URL connection
-                    URL url = new URL(ClientConstants.DYNAMIC_ANALYSIS);
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("POST");
-                    connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
-                    connection.setDoOutput(true);
-
-                    // Convert the request object to JSON
-                    String jsonRequest = gson.toJson(requestPayload);
-
-                    // Write the JSON to the output stream
-                    try (OutputStream os = connection.getOutputStream()) {
-                        os.write(jsonRequest.getBytes());
-                        os.flush();
-                    }
-
-                    // Get the response code
-                    int responseCode = connection.getResponseCode();
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        // Read the response from the server
-                        try (InputStreamReader reader = new InputStreamReader(connection.getInputStream())) {
-                            List<UpdatedCell> updatedCells = gson.fromJson(reader, new TypeToken<List<UpdatedCell>>() {}.getType());
-                            updateUI(updatedCells);
-                        }
-                    } else {
-                        // Handle error response
-                        throw new IOException("Server responded with code: " + responseCode);
-                    }
-                } finally {
-                    if (connection != null) {
-                        connection.disconnect();
-                    }
-                }
-                return null;
-            }
-        };
-
-        new Thread(task).start(); // Run the task in a separate thread to avoid blocking the UI
-    }
-
     private void updateUI(List<UpdatedCell> updatedCells) {
         for (UpdatedCell cell : updatedCells) {
             StringProperty cellProperty = mainGridAreaComponentController.getCellProperty(cell.getCellId());
@@ -1210,7 +1162,7 @@ public class GridWindowController {
             dynamicAnalysisComponentController.setMainController(this);
 
             // Pass the cell ID to the dialog
-            dynamicAnalysisComponentController.openDynamicAnalysisDialog(cellId);
+            dynamicAnalysisComponentController.openDynamicAnalysisDialog();
         } catch (IOException e) {
             showError("Failed to open dynamic analysis dialog: " + e.getMessage());
         }
@@ -1346,8 +1298,7 @@ public class GridWindowController {
         }
     }
 
-// Helper methods for clarity and separation of logic
-
+    // Helper methods for clarity and separation of logic
     private Expression parseLiteralExpression(JsonObject jsonObject) {
         JsonElement valueElement = jsonObject.get("value");
         Object literalValue;
@@ -1458,6 +1409,7 @@ public class GridWindowController {
         }
         return cellMap; // Return the map of cells
     }
+
     // Helper method to convert strings to numeric values when applicable
     private Object convertToNumericIfPossible(Object value) {
         if (value instanceof String) {
@@ -1477,6 +1429,43 @@ public class GridWindowController {
             }
         }
         return value; // Return as is if it's not a string
+    }
+
+    // Helper method to check if dynamic analysis can be done on a cell
+    public void canDynamicAnalysisBeDone(String cellId) throws IOException {
+        // POST request body
+        String finalUrl = "http://localhost:8080/Server_Web_exploded/can-dynamic-analysis-be-done";
+        RequestBody body = new FormBody.Builder()
+                .add("spreadsheetName", spreadsheetName)
+                .add("cellId", cellId)
+                .build();
+
+        // Make HTTP Request
+        HttpClientUtil.runAsyncPost(finalUrl, body, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Platform.runLater(() -> showError("Failed to connect to the server. Please try again."));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String jsonResponse = response.body().string();
+                    Gson gson = new Gson();
+                    Map<String, String> result = gson.fromJson(jsonResponse, Map.class);
+
+                    Platform.runLater(() -> {
+                        if ("ERROR".equals(result.get("status"))) {
+                            showError(result.get("message"));  // Show error from server
+                        } else if ("SUCCESS".equals(result.get("status"))) {
+                            return;
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> showError("Failed to retrieve analysis status: " + response.message()));
+                }
+            }
+        });
     }
 
     @Override

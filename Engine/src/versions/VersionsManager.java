@@ -346,7 +346,7 @@ public class VersionsManager implements Serializable {
         }
     }
 
-    public void updateCellValue(String cellId, String newValue, String userName)
+    public void updateCellValue(String cellId, String newValue, String userName, Boolean isDynamicAnalysis)
             throws CircularReferenceException, CellUpdateException {
         // Get the current spreadsheet instance
         Spreadsheet currentSpreadsheet = getCurrentSpreadsheet();
@@ -357,8 +357,10 @@ public class VersionsManager implements Serializable {
         // Strip new value of white spaces
         newValue = newValue.strip();
 
-        // We want to create a new version, so create a new spreadsheet
-        currentSpreadsheet = new Spreadsheet(currentSpreadsheet);
+        // We want to create a new version if it's not DynamicAnalysis, so create a new spreadsheet
+        if (!isDynamicAnalysis) {
+            currentSpreadsheet = new Spreadsheet(currentSpreadsheet);
+        }
 
         // Ensure that a spreadsheet is loaded, otherwise throw an exception
         validateSpreadsheetLoaded(currentSpreadsheet);
@@ -385,10 +387,12 @@ public class VersionsManager implements Serializable {
 
         // If the cell was new or its value changed, create a new version of the spreadsheet
         if (isNewCellOrValueChanged(cell, valueChanged)) {
-            // Update the cell's last updated version
-            cell.setLastUpdatedVersion(getCurrentVersion() + 1);
-            cell.setLastUpdatedBy(userName);
-            saveNewVersion(cellId, currentSpreadsheet);
+            if(!isDynamicAnalysis) {
+                // Update the cell's last updated version
+                cell.setLastUpdatedVersion(getCurrentVersion() + 1);
+                cell.setLastUpdatedBy(userName);
+                saveNewVersion(cellId, currentSpreadsheet);
+            }
             try {
                 // Recalculate the entire spreadsheet to update the effective values of all dependent cells
                 getCurrentSpreadsheet().recalculateEffectiveCellValues(getCurrentVersion());
@@ -788,6 +792,13 @@ public class VersionsManager implements Serializable {
 
     public int getCols() {
         return getCurrentSpreadsheet().getColumns();
+    }
+
+    public Cell getCell(String cellId) {
+        // Retrieve the VersionsManager for the specified spreadsheet name
+        Cell cell = getCurrentSpreadsheet().getCellById(cellId);
+
+        return cell;
     }
 
     public String getSpreadsheetName() {

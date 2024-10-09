@@ -1,4 +1,4 @@
-package servlets;
+package servlets.postservlets;
 
 import api.Engine;
 
@@ -22,36 +22,41 @@ public class UpdateCellValueServlet extends HttpServlet {
         String spreadsheetName = request.getParameter("spreadsheetName");
         String cellId = request.getParameter("cellId");
         String newValue = request.getParameter("newValue");
+        String dynamic = request.getParameter("isDynamicAnalysis");
+        Boolean isDynamicAnalysis = Boolean.parseBoolean(dynamic);
 
         Engine engine = ServletUtils.getEngine(getServletContext());
 
-        try {
-            // Call your engine method to update the cell
-            engine.updateCellValue(userName, spreadsheetName, cellId, newValue); // Implement this method in your Engine class
-            // If successful, return a success message
-            response.setStatus(HttpServletResponse.SC_OK);
+        synchronized (engine) {
+            try {
+                // Call your engine method to update the cell
+                engine.updateCellValue(userName, spreadsheetName, cellId, newValue, isDynamicAnalysis);
+                // If successful, return a success message
+                response.setStatus(HttpServletResponse.SC_OK);
 
-        } catch(UserNotFoundException e) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            response.getWriter().write("User not found.");
-        } catch(SpreadsheetNotFoundException e) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            response.getWriter().write("Spreadsheet not found.");
+            } catch(UserNotFoundException e) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.getWriter().write("User not found.");
+            } catch(SpreadsheetNotFoundException e) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.getWriter().write("Spreadsheet not found.");
+            }
+            catch(CircularReferenceException e) {
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
+                response.getWriter().write(e.getMessage());
+            } catch(InvalidExpressionException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write(e.getMessage());
+            } catch(CellUpdateException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write( e.getMessage());
+            }
+            catch (Exception e) {
+                // Handle exceptions such as CellUpdateException, InvalidExpressionException, etc.
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write(e.getMessage());
+            }
         }
-        catch(CircularReferenceException e) {
-            response.setStatus(HttpServletResponse.SC_CONFLICT);
-            response.getWriter().write(e.getMessage());
-        } catch(InvalidExpressionException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write(e.getMessage());
-        } catch(CellUpdateException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write( e.getMessage());
-        }
-        catch (Exception e) {
-            // Handle exceptions such as CellUpdateException, InvalidExpressionException, etc.
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write(e.getMessage());
-        }
+
     }
 }

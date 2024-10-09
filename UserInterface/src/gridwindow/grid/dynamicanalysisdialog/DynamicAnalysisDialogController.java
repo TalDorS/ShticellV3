@@ -11,12 +11,13 @@ import cells.Cell;
 
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static utils.AlertUtils.showError;
 
 public class DynamicAnalysisDialogController {
-
     @FXML
     private TextField minField;
 
@@ -29,59 +30,66 @@ public class DynamicAnalysisDialogController {
     @FXML
     private Slider valueSlider;
 
+    @FXML
+    private TextField cellIdField;  // New field to input cell ID
+
+    @FXML
+    private Button addCellButton;   // Button to add cell
+
+    @FXML
+    private ListView<String> selectedCellsListView;  // List to display selected cells
+
     private GridWindowController mainController;
-    private double originalValue;
-    private String cellId;
+    private List<String> selectedCells = new ArrayList<>();  // List to store multiple selected cell IDs
+    private List<Double> originalValues = new ArrayList<>();  // List to store the original values of each cell
+
+    @FXML
+    private void handleAddCell() {
+        String cellId = cellIdField.getText().trim();
+
+        if (!cellId.isEmpty()) {
+            try {
+                // Add the cell to the analysis list
+                addCellToAnalysis(cellId.toUpperCase());
+                cellIdField.clear();  // Clear the input field after adding
+            } catch (IOException e) {
+                showError("Failed to add the cell to the analysis: " + e.getMessage());
+            }
+        } else {
+            showError("Please enter a valid cell ID.");
+        }
+    }
 
     public void setMainController(GridWindowController gridWindowController) {
         this.mainController = gridWindowController;
     }
-//    public void openDynamicAnalysisDialog(String cellId) {
-//        this.cellId = cellId;
-//
-//        // Fetch the cell asynchronously
-//        gridWindowController.fetchCellById(cellId, new GridWindowController.CellCallback() {
-//            @Override
-//            public void onCellReceived(Cell cell) {
-//                if (cell == null || !(cell.getEffectiveValue() instanceof Number)) {
-//                    showError("Dynamic Analysis can only be performed on cells with numeric values.");
-//                    return;
-//                }
-//                if (cell.getExpression() instanceof FunctionExpression) {
-//                    showError("Dynamic Analysis cannot be performed on numbers made out of functions.");
-//                    return;
-//                }
-//
-//                originalValue = Double.parseDouble(cell.getEffectiveValue().toString());
-//
-//                // Set listeners for dynamic behavior
-//                setListeners();
-//
-//                // Show the dialog
-//                createAndShowDialog();
-//            }
-//        });
-//    }
 
+    // Method to add a cell to the dynamic analysis list
+    public void addCellToAnalysis(String cellId) throws IOException {
+        try {
+            // Get CellDTO and save its original value before changes are made
+            CellDTO cell = mainController.getCellDTOById(cellId);
 
-    public void openDynamicAnalysisDialog(String cellId) throws IOException {
-        this.cellId = cellId;
-        CellDTO cell = mainController.getCellDTOById(cellId);
+            if (cell == null) {
+                throw new IOException(cellId + " does not exist");
+            }
 
-        if (cell == null || !(cell.getEffectiveValue() instanceof Number)) {
-            showError("Dynamic Analysis can only be performed on cells with numeric values.");
-            return;
+            // Check if cell original value is a number
+            Double.parseDouble(cell.getOriginalValue());
+
+            originalValues.add(Double.parseDouble(cell.getEffectiveValue().toString()));
+            selectedCells.add(cellId);
+
+            // Update the ListView to show the selected cells
+            selectedCellsListView.getItems().add(cellId);
+        } catch (NumberFormatException e) {
+            showError("Failed to add the cell to the analysis: Cell must be of number value and not created by a function");
+        } catch (Exception e) {
+            showError("Failed to add the cell to the analysis: " + e.getMessage());
         }
-        String originalValue = cell.getOriginalValue();
-        Expression parseResult = mainController.parseExpression(originalValue);
+    }
 
-        if (parseResult instanceof FunctionExpression) {
-            showError("Dynamic Analysis cannot be performed on numbers made out of functions.");
-            return;
-        }
-
-        this.originalValue = Double.parseDouble(cell.getEffectiveValue().toString());
-
+    public void openDynamicAnalysisDialog() throws IOException {
         // Set listeners for dynamic behavior
         setListeners();
 
@@ -160,65 +168,52 @@ public class DynamicAnalysisDialogController {
         });
     }
 
-    // Sets listener for the slider value change
+    // Sets listener for the slider value change to update multiple cells
     private void setSliderListener() {
         valueSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            // Perform dynamic analysis whenever the slider value changes
-            double tempValue = newValue.doubleValue();
-            performDynamicAnalysis(tempValue);
+            double step = valueSlider.getMajorTickUnit();
+
+            // Check if the slider value is on a tick (i.e., an exact multiple of the step size)
+            if (newValue.doubleValue() % step == 0) {
+                double tempValue = newValue.doubleValue();
+
+                // Update all selected cells with the slider value
+                for (String cellId : selectedCells) {
+                    mainController.updateCellValue(cellId, Double.toString(tempValue), true);
+                }
+            }
         });
     }
 
     // Method to create and display the dynamic analysis dialog
     private void createAndShowDialog() {
-        // Create a new dialog window
         Dialog<Void> dialog = new Dialog<>();
 
-        // Set the dialog title and header text
-        dialog.setTitle("Dynamic Analysis for " + cellId);
-        dialog.setHeaderText("Analyze changes dynamically for cell: " + cellId);
+        dialog.setTitle("Dynamic Analysis for Multiple Cells");
+        dialog.setHeaderText("Analyze changes dynamically for multiple cells.");
 
-        // Set the dialog content to the parent container of minField (e.g., a VBox)
-        dialog.getDialogPane().setContent(minField.getParent()); // Assuming minField is in a VBox or another parent
+        dialog.getDialogPane().setContent(minField.getParent());  // Assuming minField is in a parent like VBox
 
-        // Add a 'Close' button to the dialog
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
-
-        // Define the action to take when the dialog is closed
         dialog.setOnCloseRequest(event -> revertChangesToOriginalValue());
 
-        // Display the dialog and wait for it to be closed
         dialog.showAndWait();
     }
 
     // Method to revert any changes made during the dynamic analysis to the original value
     private void revertChangesToOriginalValue() {
-        // Revert the cell value back to its original value
-        performDynamicAnalysis(originalValue);
+        for (int i = 0; i < selectedCells.size(); i++) {
+            String cellId = selectedCells.get(i);
+            double originalValue = originalValues.get(i);
+            String valueToRevert;
 
-        // Update the dependent cells with the original value
-        mainController.updateDependentCellsForDynamicAnalysis(cellId, originalValue);
-    }
+            if (originalValue % 1 == 0) {
+                valueToRevert = Integer.toString((int) originalValue);
+            } else {
+                valueToRevert = Double.toString(originalValue);
+            }
 
-    // Method to perform dynamic analysis by temporarily updating the cell value
-    private void performDynamicAnalysis(double tempValue) {
-        // Retrieve the StringProperty of the target cell
-        StringProperty cellProperty = mainController.getCellProperty(cellId);
-
-        if (cellProperty != null) {
-            // Format the number with thousands separators and up to two decimal places
-            NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
-            numberFormat.setMinimumFractionDigits(0);  // No minimum decimal digits
-            numberFormat.setMaximumFractionDigits(2);  // Maximum 2 decimal digits
-
-            // Format the temporary value according to the number format
-            String formattedValue = numberFormat.format(tempValue);
-
-            // Update the cell's property to display the formatted value
-            cellProperty.set(formattedValue);
-
-            // Update dependent cells dynamically based on the temporary value
-            mainController.updateDependentCellsForDynamicAnalysis(cellId, tempValue);
+            mainController.updateCellValue(cellId, valueToRevert, true);
         }
     }
 }
