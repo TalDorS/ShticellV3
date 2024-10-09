@@ -8,7 +8,7 @@
 <AnchorPane  stylesheets="@Login.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="loginwindow.LoginController">
 
     <!-- Card container for login form -->
-    <AnchorPane styleClass="login-card" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+    <AnchorPane layoutX="50.0" layoutY="50.0" prefHeight="311.0" prefWidth="300.0" styleClass="login-card" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
 
         <!-- Welcome message label -->
         <Label fx:id="welcomeLabel" layoutX="29.0" layoutY="23.0" prefHeight="27.0" prefWidth="248.0" styleClass="welcome-label" text="Welcome To Shticell!" />
