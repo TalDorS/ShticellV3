@@ -16,8 +16,8 @@
          <center>
             <VBox BorderPane.alignment="CENTER">
                <children>
-                  <fx:include fx:id="availableSheetTableComponent" source="center/sheettable/AvailableSheetTable.fxml" />
-                  <fx:include fx:id="permissionsTableComponent" source="center/permissionstable/PermissionsTable.fxml" />
+                  <fx:include fx:id="availableSheetTableComponent" source="center/sheettable/AvailableSheetTable.fxml" VBox.vgrow="ALWAYS" />
+                  <fx:include fx:id="permissionsTableComponent" source="center/permissionstable/PermissionsTable.fxml" VBox.vgrow="ALWAYS" />
                </children>
             </VBox>
          </center>

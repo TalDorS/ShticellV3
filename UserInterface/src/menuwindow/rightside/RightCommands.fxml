@@ -5,40 +5,38 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.fxml.FXMLLoader?>
 
 <VBox alignment="TOP_CENTER" prefHeight="600.0" prefWidth="256.0" style="-fx-border-color: lightgray;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="menuwindow.rightside.RightSideController">
    <children>
-      <Label id="co" alignment="TOP_CENTER" prefHeight="18.0" prefWidth="622.0" text="Commands">
+      <Label id="co" alignment="TOP_CENTER" prefHeight="18.0" prefWidth="622.0" text="Commands" VBox.vgrow="ALWAYS">
          <font>
             <Font name="System Bold" size="20.0" />
          </font>
       </Label>
-      <Button fx:id="viewSheetButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="398.0" text="View Sheet">
+      <Button fx:id="viewSheetButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="398.0" text="View Sheet" VBox.vgrow="ALWAYS">
          <VBox.margin>
-            <Insets top="30.0" />
+            <Insets top="15.0" />
          </VBox.margin>
          <font>
             <Font size="15.0" />
          </font>
       </Button>
-      <Button fx:id="requestPermissionButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="398.0" text="Request Permission">
+      <Button fx:id="requestPermissionButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="398.0" text="Request Permission" VBox.vgrow="ALWAYS">
          <font>
             <Font size="15.0" />
          </font>
          <VBox.margin>
-            <Insets top="30.0" />
+            <Insets top="10.0" />
          </VBox.margin>
       </Button>
-      <Button fx:id="ackOrDenyPermissionRequestButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="398.0" text="Ack\Deny Permission Request">
+      <Button fx:id="ackOrDenyPermissionRequestButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="398.0" text="Ack\Deny Permission Request" VBox.vgrow="ALWAYS">
          <font>
             <Font size="15.0" />
          </font>
          <VBox.margin>
-            <Insets top="30.0" />
+            <Insets bottom="15.0" top="10.0" />
          </VBox.margin>
       </Button>
-      <fx:include fx:id="chatComponent" source="chat/Chat.fxml" />
+      <fx:include fx:id="chatComponent" source="chat/Chat.fxml" VBox.vgrow="ALWAYS" />
    </children>
 </VBox>
