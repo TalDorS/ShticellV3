@@ -1,4 +1,5 @@
 package api;
+import cells.Cell;
 import enums.PermissionStatus;
 import enums.PermissionType;
 import exceptions.engineexceptions.*;
@@ -14,7 +15,7 @@ import versions.VersionsManager;
 //It contains the main logic methods to run the SheetSpread
 public interface Engine {
     String loadSpreadsheet(String username, String filePath) throws Exception;
-    void updateCellValue(String username, String spreadsheetName, String cellId, String newValue) throws InvalidExpressionException, CircularReferenceException, CellUpdateException, SpreadsheetLoadingException, SpreadsheetNotFoundException, UserNotFoundException;
+    void updateCellValue(String username, String spreadsheetName, String cellId, String newValue, Boolean isDynamicAnalysis) throws InvalidExpressionException, CircularReferenceException, CellUpdateException, SpreadsheetLoadingException, SpreadsheetNotFoundException, UserNotFoundException;
     Spreadsheet getCurrentSpreadsheet(String username, String spreadsheetName);
     Spreadsheet getSpreadsheetByVersion(String username, String spreadsheetName, int versionNumber) throws IndexOutOfBoundsException, SpreadsheetNotFoundException,UserNotFoundException;
     EngineDTO getEngineData(String username, String spreadsheetName);
@@ -37,5 +38,6 @@ public interface Engine {
     PermissionsManagerDTO getPermissionsData(String spreadsheetName);
     void askForPermission(String username, String spreadsheetName, PermissionType permissionType);
     void handlePermissionRequest(String applicantName, String handlerName, String spreadsheetName, PermissionStatus permissionStatus, PermissionType permissionType);
+    Cell getCell(String spreadsheetName, String cellId);
 }
 

@@ -74,7 +74,7 @@ public class OptionsBarController {
         String cellId = selectedCellId.getText(); // Get the ID of the selected cell
 
         if (mainController != null && !cellId.isEmpty()) {
-            mainController.updateCellValue(cellId, newValue); // Pass the update request to AppController
+            mainController.updateCellValue(cellId, newValue, false); // Pass the update request to AppController
         } else {
             showAlert(Alert.AlertType.ERROR, "Error", "No cell selected or invalid input.");
         }

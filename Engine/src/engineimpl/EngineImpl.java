@@ -235,7 +235,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void updateCellValue(String username, String spreadsheetName, String cellId, String newValue)
+    public void updateCellValue(String username, String spreadsheetName, String cellId, String newValue, Boolean isDynamicAnalysis)
             throws CircularReferenceException, CellUpdateException, SpreadsheetNotFoundException, UserNotFoundException {
         // Retrieve the VersionsManager for the specified filePath
         VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
@@ -243,7 +243,7 @@ public class EngineImpl implements Engine {
         // Check if the VersionsManager exists
         if (versionsManager != null) {
             // Update the cell value in the VersionsManager
-            versionsManager.updateCellValue(cellId, newValue, username);
+            versionsManager.updateCellValue(cellId, newValue, username, isDynamicAnalysis);
         } else {
             throw new SpreadsheetNotFoundException("The specified file does not exist for this user.");
         }
@@ -431,6 +431,19 @@ public class EngineImpl implements Engine {
             // Call the getSpreadsheetByVersion method from the VersionsManager
             versionsManager.handlePermissionRequest(applicantName, handlerName, permissionStatus, permissionType);
         }
+    }
+
+    @Override
+    public Cell getCell(String spreadsheetName, String cellId) {
+        // Retrieve the VersionsManager for the specified spreadsheet name
+        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
+
+        if (versionsManager != null) {
+            // Call the getSpreadsheetByVersion method from the VersionsManager
+            return versionsManager.getCell(cellId);
+        }
+
+        return null;
     }
 
     @Override
