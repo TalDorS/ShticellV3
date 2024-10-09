@@ -75,6 +75,8 @@ public class GridWindowController {
     private SimpleCookieManager cookieManager;
     private Stage stage;       // The main window (same stage for both views)
     private Parent menuRoot;   // The root node of the main menu
+    private boolean spreadsheetModified = false;  // Track if the user has modified the spreadsheet
+    private SpreadsheetVersionRefresher spreadsheetVersionRefresher;
 
     @FXML
     private ScrollPane scrollPane;
@@ -105,7 +107,9 @@ public class GridWindowController {
 
     @FXML
     public void initialize() {
-
+        if(topGridWindowComponentController != null){
+            topGridWindowComponentController.setMainController(this);
+        }
         if (optionsBarComponentController != null) {
             optionsBarComponentController.setMainController(this);
         }
@@ -124,13 +128,15 @@ public class GridWindowController {
         if(dynamicAnalysisComponentController != null){
             dynamicAnalysisComponentController.setMainController(this);
         }
-        if(topGridWindowComponentController != null){
-            topGridWindowComponentController.setMainController(this);
-        }
         if (backComponentController != null) {
             backComponentController.setMainController(this);
         }
+
+        if(spreadsheetVersionRefresher != null){
+            spreadsheetVersionRefresher = new SpreadsheetVersionRefresher(this);
+        }
     }
+
 
     public void setName(String name) {
         if (topGridWindowComponentController != null) {
@@ -161,6 +167,28 @@ public class GridWindowController {
         this.menuRoot = menuRoot;
     }
 
+    public boolean isSpreadsheetModified() {
+        return spreadsheetModified;
+    }
+
+    public void setSpreadsheetModified(boolean modified) {
+        this.spreadsheetModified = modified;
+        if (modified) {
+            stopVersionRefresher(); // Stop refreshing if the spreadsheet is modified
+        }
+    }
+    public void stopVersionRefresher() {
+        if (spreadsheetVersionRefresher != null) {
+            spreadsheetVersionRefresher.stopRefreshing();
+            spreadsheetVersionRefresher = null;  // Clear the reference
+        }
+    }
+
+    public void showNewVersionAvailable() {
+        // Show the label and button in the UI
+        topGridWindowComponentController.setNewVersionVisiblity(true);
+    }
+
     // Method to hide the grid and show the main menu in the same stage
     public void hideMainGridAndShowMenu() {
         // Switch back to the menu window
@@ -181,7 +209,7 @@ public class GridWindowController {
                 .parse(ClientConstants.GET_ENGINE_DATA) // URL of the servlet you created
                 .newBuilder()
                 .addQueryParameter("userName", userName)
-                .addQueryParameter("spreadsheetName", this.spreadsheetName)
+                .addQueryParameter("spreadsheetName", spreadsheetName)
                 .build()
                 .toString();
 
@@ -211,10 +239,11 @@ public class GridWindowController {
 
                         // Update the table view and UI
                         Platform.runLater(() -> {
+                            topGridWindowComponentController.startVersionRefresher();
                             mainGridAreaComponentController.clearGrid();
                             optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber);
                             mainGridAreaComponentController.start(spreadsheetDTO, false);
-
+                            topGridWindowComponentController.setNewVersionVisiblity(false); // Hide the new version label
                             // Refresh dependent UI elements
                             leftSideComponentController.refreshRanges(rangesDTO);
                         });
@@ -248,6 +277,10 @@ public class GridWindowController {
     }
 
     public void updateCellValue(String cellId, String newValue) {
+        if (topGridWindowComponentController.isNewVersionVisible()) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Cannot update cell value when a new version is available.");
+            return;
+        }
         String userName = this.userName ;
         String spreadsheetName = this.spreadsheetName;
         String finalUrl = ClientConstants.UPDATE_CELL_VALUE; // The endpoint for updating the cell
@@ -277,9 +310,11 @@ public class GridWindowController {
                     String responseBody = response.body().string(); // Read the response body
 
                     if (response.isSuccessful()) {
+
                         // If the cell update is successful, now retrieve the updated spreadsheet data
                         Platform.runLater(() -> {
                             try {
+                                setSpreadsheetModified(true);  // Mark the spreadsheet as modified by the user
                                 setSpreadsheetData(spreadsheetName); // Retrieve the full spreadsheet data after the cell update
                                 //showAlert(Alert.AlertType.INFORMATION, "Success", "Cell updated successfully and spreadsheet reloaded.");
                             } catch (Exception e) {
@@ -897,6 +932,7 @@ public class GridWindowController {
                 // Use Gson to parse the JSON response to SpreadsheetDTO
                 Gson gson = new GsonBuilder().setPrettyPrinting().create(); // Enable pretty printing
                 System.out.println("Response body: " + responseBody);
+                setSpreadsheetModified(false);
                 return gson.fromJson(responseBody, SpreadsheetDTO.class);
             } else {
                 // Handle error response
@@ -1454,5 +1490,9 @@ public class GridWindowController {
     @Override
     public int hashCode() {
         return Objects.hash(activeFadeTransitions, activeRotateTransitions, spreadsheetName, userName, client, cookieManager, stage, menuRoot, scrollPane, topGridWindowComponentController, optionsBarComponentController, leftSideComponentController, mainGridAreaComponentController, dynamicAnalysisComponentController, sortDialogController, addRangeDialogController, backComponentController);
+    }
+
+    public String getSpreadsheetName() {
+        return spreadsheetName;
     }
 }
