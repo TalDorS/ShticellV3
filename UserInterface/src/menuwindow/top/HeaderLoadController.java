@@ -36,6 +36,10 @@ public class HeaderLoadController {
         this.mainController = MenuWindowController;
     }
 
+    public String getUserName() {
+        return nameLabel.getText();
+    }
+
     public void setUserName(String username) {
         nameLabel.setText(username);
     }
@@ -158,23 +162,20 @@ public class HeaderLoadController {
             }
         };
     }
+
     @Override
     public boolean equals(Object o) {
+
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HeaderLoadController that = (HeaderLoadController) o;
-        return Objects.equals(mainController, that.mainController) && Objects.equals(loadFileButton, that.loadFileButton)
-                && Objects.equals(loadedFilePath, that.loadedFilePath)
-                && Objects.equals(progressIndicator, that.progressIndicator);
+        return Objects.equals(mainController, that.mainController) && Objects.equals(previousFilePath, that.previousFilePath)
+                && Objects.equals(loadFileButton, that.loadFileButton) && Objects.equals(loadedFilePath, that.loadedFilePath)
+                && Objects.equals(progressIndicator, that.progressIndicator) && Objects.equals(nameLabel, that.nameLabel);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mainController, loadFileButton, loadedFilePath, progressIndicator);
-    }
-
-
-    public String getUserName() {
-        return nameLabel.getText();
+        return Objects.hash(mainController, previousFilePath, loadFileButton, loadedFilePath, progressIndicator, nameLabel);
     }
 }

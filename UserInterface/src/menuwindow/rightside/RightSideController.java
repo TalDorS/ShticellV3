@@ -14,6 +14,7 @@ import menuwindow.rightside.chat.ChatController;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import utils.AlertUtils;
+import utils.ClientConstants;
 import utils.HttpClientUtil;
 
 import java.io.IOException;
@@ -97,7 +98,7 @@ public class RightSideController {
                 PermissionStatus newStatus = approveRadio.isSelected() ? PermissionStatus.APPROVED : PermissionStatus.REJECTED;
 
                 // Prepare the POST request to handle the permission request
-                String finalUrl = "http://localhost:8080/Server_Web_exploded/handle-permission-request";
+                String finalUrl = ClientConstants.HANDLE_PERMISSION_REQUEST;
                 RequestBody body = new FormBody.Builder()
                         .add("applicantName", applicantUsername)
                         .add("handlerName", currentUsername)
@@ -109,12 +110,12 @@ public class RightSideController {
                 // Run the async POST request
                 HttpClientUtil.runAsyncPost(finalUrl, body, new Callback() {
                     @Override
-                    public void onFailure(Call call, IOException e) {
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         Platform.runLater(() -> showError("Failed to process the request. Please try again."));
                     }
 
                     @Override
-                    public void onResponse(Call call, Response response) throws IOException {
+                    public void onResponse(@NotNull Call call,@NotNull Response response) {
                         if (response.isSuccessful()) {
                             Platform.runLater(() -> showAlert(Alert.AlertType.INFORMATION, "Success", "Request handled successfully."));
                         } else {
@@ -125,7 +126,6 @@ public class RightSideController {
             }
         });
     }
-
 
     private void handleRequestPermissionButtonAction() {
         String uploaderName = mainController.getAvailableSheetTableController().getSelectedSpreadsheetUploaderName();
@@ -181,7 +181,7 @@ public class RightSideController {
                 PermissionType selectedPermission = writerRadio.isSelected() ? PermissionType.WRITER : PermissionType.READER;
 
                 // POST request body
-                String finalUrl = "http://localhost:8080/Server_Web_exploded/request-permission";
+                String finalUrl = ClientConstants.REQUEST_PERMISSION;
                 RequestBody body = new FormBody.Builder()
                         .add("username", username)
                         .add("spreadsheetName", spreadsheetName)
@@ -199,7 +199,7 @@ public class RightSideController {
                     }
 
                     @Override
-                    public void onResponse(Call call, Response response) throws IOException {
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                         if (response.isSuccessful()) {
                             // Parse the JSON response using Gson
                             Gson gson = new Gson();
@@ -222,7 +222,6 @@ public class RightSideController {
         });
     }
 
-    //todo- change to file name instead of file path?? not sureee
     private void handleViewSheetButtonAction() {
         String selectedFileName = mainController.getAvailableSheetTableController().getSelectedSpreadsheetName();
         String permission = mainController.getAvailableSheetTableController().getSelectedSpreadsheetPermission();
@@ -244,5 +243,20 @@ public class RightSideController {
 
     public void setMainController(MenuWindowController mainController) {
         this.mainController = mainController;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RightSideController that = (RightSideController) o;
+        return Objects.equals(mainController, that.mainController) && Objects.equals(viewSheetButton, that.viewSheetButton)
+                && Objects.equals(requestPermissionButton, that.requestPermissionButton) && Objects.equals(ackOrDenyPermissionRequestButton, that.ackOrDenyPermissionRequestButton)
+                && Objects.equals(chatComponentController, that.chatComponentController);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mainController, viewSheetButton, requestPermissionButton, ackOrDenyPermissionRequestButton, chatComponentController);
     }
 }

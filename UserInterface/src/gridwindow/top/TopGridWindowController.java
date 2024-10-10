@@ -4,10 +4,8 @@ import exceptions.engineexceptions.*;
 import gridwindow.GridWindowController;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import menuwindow.center.sheettable.SheetRefresher;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Objects;
 
 public class TopGridWindowController {
     @FXML
@@ -26,8 +24,7 @@ public class TopGridWindowController {
     private Label newVersionLabel;
 
     private GridWindowController mainController;
-    private SpreadsheetVersionRefresher versionRefresher;  // Add this line
-
+    private SpreadsheetVersionRefresher versionRefresher;
 
     @FXML
     public void initialize() {
@@ -103,5 +100,20 @@ public class TopGridWindowController {
         // Load the new version or prompt the user
         mainController.setSpreadsheetData(mainController.getSpreadsheetName());
         setNewVersionVisiblity(false);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TopGridWindowController that = (TopGridWindowController) o;
+        return Objects.equals(nameLabel, that.nameLabel) && Objects.equals(colorDisplay, that.colorDisplay) && Objects.equals(animationDisplay, that.animationDisplay)
+                && Objects.equals(updateNewVersionButton, that.updateNewVersionButton) && Objects.equals(newVersionLabel, that.newVersionLabel)
+                && Objects.equals(mainController, that.mainController) && Objects.equals(versionRefresher, that.versionRefresher);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nameLabel, colorDisplay, animationDisplay, updateNewVersionButton, newVersionLabel, mainController, versionRefresher);
     }
 }

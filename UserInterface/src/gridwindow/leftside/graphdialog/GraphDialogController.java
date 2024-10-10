@@ -12,6 +12,7 @@ import utils.AlertUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class GraphDialogController {
@@ -217,7 +218,6 @@ public class GraphDialogController {
         }
     }
 
-
     private void createBarGraph(String[] xValues, double[] yValues) {
         // Set X-axis as a CategoryAxis for categorical data
         CategoryAxis xAxis = new CategoryAxis();
@@ -288,5 +288,22 @@ public class GraphDialogController {
         }
 
         return values;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GraphDialogController that = (GraphDialogController) o;
+        return Objects.equals(mainController, that.mainController) && Objects.equals(xRangeTextField, that.xRangeTextField)
+                && Objects.equals(yRangeTextField, that.yRangeTextField) && Objects.equals(barGraphRadioButton, that.barGraphRadioButton)
+                && Objects.equals(lineGraphRadioButton, that.lineGraphRadioButton) && Objects.equals(graphContainer, that.graphContainer)
+                && Objects.equals(createGraphButton, that.createGraphButton) && Objects.equals(rangePattern, that.rangePattern);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mainController, xRangeTextField, yRangeTextField, barGraphRadioButton, lineGraphRadioButton, graphContainer, createGraphButton, rangePattern);
     }
 }

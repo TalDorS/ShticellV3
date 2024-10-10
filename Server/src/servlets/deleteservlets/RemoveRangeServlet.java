@@ -10,14 +10,14 @@ import utils.ServletUtils;
 
 import java.io.IOException;
 
-@WebServlet("/removeRange") // Specify the URL pattern for this servlet
+@WebServlet("/removeRange")
 public class RemoveRangeServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=UTF-8");
 
-        // Get the engine instance (assuming it's stored in the servlet context)
+        // Get the engine instance
         Engine engine = ServletUtils.getEngine(getServletContext());
 
         // Retrieve parameters from the request

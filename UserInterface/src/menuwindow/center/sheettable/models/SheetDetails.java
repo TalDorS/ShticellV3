@@ -27,7 +27,7 @@ public class SheetDetails {
         return uploaderName;
     }
 
-    public void setUploadername(String uploaderName) {
+    public void setUploaderName(String uploaderName) {
         this.uploaderName = uploaderName;
     }
 
@@ -52,7 +52,8 @@ public class SheetDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SheetDetails that = (SheetDetails) o;
-        return Objects.equals(sheetName, that.sheetName) && Objects.equals(uploaderName, that.uploaderName) && Objects.equals(sheetSize, that.sheetSize) && Objects.equals(permission, that.permission);
+        return Objects.equals(sheetName, that.sheetName) && Objects.equals(uploaderName, that.uploaderName)
+                && Objects.equals(sheetSize, that.sheetSize) && Objects.equals(permission, that.permission);
     }
 
     @Override

@@ -14,7 +14,7 @@ import utils.ServletUtils;
 import java.io.IOException;
 import java.util.*;
 
-@WebServlet("/filterTableMultipleColumns") // Define the URL pattern for the servlet
+@WebServlet("/filterTableMultipleColumns")
 public class FilterTableMultipleColumnsServlet extends HttpServlet {
 
     @Override
@@ -70,7 +70,6 @@ public class FilterTableMultipleColumnsServlet extends HttpServlet {
             // Handle any exceptions that occur during filtering
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("An error occurred: " + e.getMessage());
-            System.err.println("Error filtering table: " + e.getMessage());
         }
     }
 }

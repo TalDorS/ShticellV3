@@ -5,7 +5,7 @@
 //
 
 
-package generatedschemafilesv2;
+package generatedschemafilesv3;
 
 import javax.xml.namespace.QName;
 import jakarta.xml.bind.JAXBElement;

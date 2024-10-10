@@ -14,7 +14,6 @@ public class ClientConstants {
     public final static String LOGIN_PAGE = FULL_SERVER_PATH + "/login";
     public final static String LOAD_SPREADSHEET = FULL_SERVER_PATH + "/loadSpreadsheet";
     public final static String GET_ENGINE_DATA = FULL_SERVER_PATH + "/getEngineData";
-    public static final  String GET_CELL_BY_ID = FULL_SERVER_PATH + "/getCellById";
     public static final  String GET_CELLDTO_BY_ID = FULL_SERVER_PATH + "/getCellDTOById";
     public static final String UPDATE_CELL_VALUE = FULL_SERVER_PATH + "/updateCellValue";
     public static final String GET_SPREADSHEET_BY_VERSION = FULL_SERVER_PATH + "/getSpreadsheetByVersion";
@@ -31,5 +30,13 @@ public class ClientConstants {
     public static final String CHECK_CIRCULAR_REFERENCES = FULL_SERVER_PATH + "/checkCircularReferences";
     public static final String PARSE_EXPRESSION = FULL_SERVER_PATH + "/parseExpression";
     public static final String DYNAMIC_ANALYSIS = FULL_SERVER_PATH + "/dynamicAnalysis";
+    public static final String GET_USER_PERMISSIONS = FULL_SERVER_PATH + "/getUserPermissions";
+    public static final String GET_PERMISSIONS = FULL_SERVER_PATH + "/getPermissions";
+    public static final String GET_CHAT_DATA_LIST = FULL_SERVER_PATH + "/getChatDataList";
+    public static final String ADD_CHAT_MESSAGE = FULL_SERVER_PATH + "/addChatMessage";
+    public static final String GET_SHEET_DETAILS = FULL_SERVER_PATH + "/getSheetDetails";
+    public static final String REQUEST_PERMISSION = FULL_SERVER_PATH + "/requestPermission";
+    public static final String HANDLE_PERMISSION_REQUEST = FULL_SERVER_PATH + "/handlePermissionRequest";
+    public static final String CAN_DYNAMIC_ANALYSIS_BE_DONE = FULL_SERVER_PATH + "/canDynamicAnalysisBeDone";
 
 }

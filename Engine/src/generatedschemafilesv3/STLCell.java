@@ -5,7 +5,7 @@
 //
 
 
-package generatedschemafilesv2;
+package generatedschemafilesv3;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;

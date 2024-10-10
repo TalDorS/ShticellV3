@@ -327,12 +327,9 @@ public class SortDialogController {
                 // Update the state of the add button after removal
                 try {
                     checkAndUpdateAddButtonState();
-                } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException | InvalidInputFormatException e) {
                     AlertUtils.showAlert(Alert.AlertType.ERROR, "Error", e.getMessage());
-                    return;
-                } catch (InvalidInputFormatException e) {
-                    AlertUtils.showAlert(Alert.AlertType.ERROR, "Error", e.getMessage());
-                    return;            }
+                }
             });
 
             sortColumnRow.getChildren().addAll(newSortByLabel, newSortByMenuButton, deleteButton);
@@ -431,9 +428,7 @@ public class SortDialogController {
 
             popupStage.showAndWait(); // Show the popup and wait for it to be closed
 
-        } catch (IOException e) {
-            e.printStackTrace(); // Log the exception for debugging
-        }
+        } catch (IOException e) {}
     }
 
     @FXML
@@ -492,4 +487,21 @@ public class SortDialogController {
         return true;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SortDialogController that = (SortDialogController) o;
+        return lastColumnSet == that.lastColumnSet && isNewRangeSelected == that.isNewRangeSelected && Objects.equals(mainController, that.mainController)
+                && Objects.equals(selectedTableArea, that.selectedTableArea) && Objects.equals(chooseRangeButton, that.chooseRangeButton)
+                && Objects.equals(sortByDropMenu, that.sortByDropMenu) && Objects.equals(sortButton, that.sortButton) && Objects.equals(chooseToProceedLabel, that.chooseToProceedLabel)
+                && Objects.equals(cancelButton, that.cancelButton) && Objects.equals(scrollPane, that.scrollPane) && Objects.equals(sortColumnsContainer, that.sortColumnsContainer)
+                && Objects.equals(addAnotherColumnButton, that.addAnotherColumnButton) && Objects.equals(sortColumns, that.sortColumns);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mainController, selectedTableArea, chooseRangeButton, sortByDropMenu, sortButton, chooseToProceedLabel,
+                cancelButton, scrollPane, sortColumnsContainer, addAnotherColumnButton, sortColumns, lastColumnSet, isNewRangeSelected);
+    }
 }

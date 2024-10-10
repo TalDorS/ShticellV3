@@ -12,7 +12,7 @@ import utils.ServletUtils;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "GetChatDataListServlet", urlPatterns = "/get-chat-data-list")
+@WebServlet(name = "GetChatDataListServlet", urlPatterns = "/getChatDataList")
 public class GetChatDataListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {

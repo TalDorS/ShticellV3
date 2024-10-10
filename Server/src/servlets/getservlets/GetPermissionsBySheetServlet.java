@@ -23,7 +23,7 @@ public class GetPermissionsBySheetServlet extends HttpServlet {
 
         if (spreadsheetName == null || spreadsheetName.isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("{\"error\": \"Missing or empty parameters: Spreadsheet Name.\"}");
+            resp.getWriter().write("Missing or empty parameters: Spreadsheet Name.");
             return;
         }
 
@@ -42,7 +42,7 @@ public class GetPermissionsBySheetServlet extends HttpServlet {
             resp.getWriter().write(jsonResponse);
         } else {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.getWriter().write("{\"error\": \"Permissions not found for the spreadsheet.\"}");
+            resp.getWriter().write("Permissions not found for the spreadsheet.");
         }
     }
 }

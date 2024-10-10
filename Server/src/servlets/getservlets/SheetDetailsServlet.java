@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet(name = "SheetDetailsServlet", urlPatterns = "/sheet-details")
+@WebServlet(name = "SheetDetailsServlet", urlPatterns = "/getSheetDetails")
 public class SheetDetailsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         List<SheetDetails> sheets = new ArrayList<>();

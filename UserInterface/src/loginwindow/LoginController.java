@@ -121,7 +121,6 @@ public class LoginController {
 
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
             messageLabel.setText("Failed to load the menu.");
         }
     }
@@ -145,19 +144,19 @@ public class LoginController {
         // Make the logout request
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 // Optionally log or handle logout failure
-                System.out.println("Logout request failed: " + e.getMessage());
+                //System.out.println("Logout request failed: " + e.getMessage());
                 Platform.exit(); // Exit after handling response
                 System.exit(0);  // Forcefully terminate all threads
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    System.out.println("Logout successful");
+                    //System.out.println("Logout successful");
                 } else {
-                    System.err.println("Logout failed with response code: " + response.code());
+                    //System.err.println("Logout failed with response code: " + response.code());
                 }
                 response.close();
                 Platform.exit(); // Exit after handling response

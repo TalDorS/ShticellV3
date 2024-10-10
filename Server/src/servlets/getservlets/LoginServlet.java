@@ -1,4 +1,4 @@
-package servlets;
+package servlets.getservlets;
 
 import api.Engine;
 
@@ -24,7 +24,7 @@ public class LoginServlet extends HttpServlet {
         response.setContentType("text/plain;charset=UTF-8");
 
         String usernameFromSession = SessionUtils.getUsername(request);
-        Engine engine = (EngineImpl) ServletUtils.getEngine(getServletContext());
+        Engine engine = ServletUtils.getEngine(getServletContext());
 
         if (usernameFromSession == null) { //user is not logged in yet
 
@@ -59,7 +59,6 @@ public class LoginServlet extends HttpServlet {
                         request.getSession(true).setAttribute(Constants.USERNAME, usernameFromParameter);
 
                         //redirect the request to the chat room - in order to actually change the URL
-                        System.out.println("On login, request URI is: " + request.getRequestURI()); //todo remove
                         response.setStatus(HttpServletResponse.SC_OK);
                     }
                 }

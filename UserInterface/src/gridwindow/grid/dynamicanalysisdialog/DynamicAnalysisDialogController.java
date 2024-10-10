@@ -14,6 +14,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import static utils.AlertUtils.showError;
 
@@ -215,5 +216,22 @@ public class DynamicAnalysisDialogController {
 
             mainController.updateCellValue(cellId, valueToRevert, true);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DynamicAnalysisDialogController that = (DynamicAnalysisDialogController) o;
+        return Objects.equals(minField, that.minField) && Objects.equals(maxField, that.maxField)
+                && Objects.equals(stepField, that.stepField) && Objects.equals(valueSlider, that.valueSlider)
+                && Objects.equals(cellIdField, that.cellIdField) && Objects.equals(addCellButton, that.addCellButton)
+                && Objects.equals(selectedCellsListView, that.selectedCellsListView) && Objects.equals(mainController, that.mainController)
+                && Objects.equals(selectedCells, that.selectedCells) && Objects.equals(originalValues, that.originalValues);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(minField, maxField, stepField, valueSlider, cellIdField, addCellButton, selectedCellsListView, mainController, selectedCells, originalValues);
     }
 }

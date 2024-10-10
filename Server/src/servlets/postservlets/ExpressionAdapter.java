@@ -1,4 +1,4 @@
-package servlets;
+package servlets.postservlets;
 
 import api.Expression;
 import api.Function;
@@ -26,7 +26,6 @@ public class ExpressionAdapter extends TypeAdapter<Expression> {
         // Serialize the type of the Expression
         jsonObject.addProperty("type", value.getClass().getSimpleName());
 
-        // Serialize specific fields based on the type of Expression
         // Serialize specific fields based on the type of Expression
         if (value instanceof LiteralExpression) {
             Object literalValue = ((LiteralExpression) value).evaluate();
@@ -112,61 +111,4 @@ public class ExpressionAdapter extends TypeAdapter<Expression> {
                 throw new JsonParseException("Unknown expression type: " + type);
         }
     }
-
-//    // Helper method to handle recursive parsing
-//    private Expression readFromJsonObject(JsonObject jsonObject) throws IOException {
-//        String type = jsonObject.get("type").getAsString();
-//
-//        switch (type) {
-//            case "LiteralExpression":
-//                // Handling literal value based on its type (String, Number, Boolean)
-//                JsonElement valueElement = jsonObject.get("value");
-//                Object literalValue;
-//
-//                if (valueElement.isJsonPrimitive()) {
-//                    if (valueElement.getAsJsonPrimitive().isNumber()) {
-//                        literalValue = valueElement.getAsNumber();
-//                    } else if (valueElement.getAsJsonPrimitive().isBoolean()) {
-//                        literalValue = valueElement.getAsBoolean();
-//                    } else {
-//                        literalValue = valueElement.getAsString();
-//                    }
-//                } else {
-//                    throw new JsonParseException("Invalid literal value");
-//                }
-//
-//                return new LiteralExpression(literalValue);
-//
-//            case "FunctionExpression":
-//                String functionName = jsonObject.get("functionName").getAsString();
-//                List<Expression> arguments = new ArrayList<>();
-//                for (JsonElement argElement : jsonObject.get("arguments").getAsJsonArray()) {
-//                    arguments.add(readFromJsonObject(argElement.getAsJsonObject()));  // Recursively call to read arguments
-//                }
-//                Function function = FunctionFactory.getFunction(functionName);
-//                return new FunctionExpression(functionName, arguments, function);
-//
-//            case "ReferenceExpression":
-//                String cellId = jsonObject.get("cellId").getAsString();
-//                Supplier<Spreadsheet> spreadsheetSupplier = () -> null;  // Placeholder
-//                return new ReferenceExpression(cellId, spreadsheetSupplier);
-//
-//            case "RangeExpression":
-//                String rangeName = jsonObject.get("rangeName").getAsString();
-//                // Extract the range object
-//                JsonObject rangeObject = jsonObject.getAsJsonObject("range");
-//                String rangeStartCell = rangeObject.get("startCell").getAsString();
-//                String rangeEndCell = rangeObject.get("endCell").getAsString();
-//                String rangeObjName = rangeObject.get("name").getAsString();
-//
-//                // Construct the RangeImpl object
-//                RangeImpl range = new RangeImpl(rangeObjName, rangeStartCell, rangeEndCell);
-//                Supplier<Spreadsheet> rangeSupplier = () -> null;  // Placeholder
-//                return new RangeExpression(rangeName, range, rangeSupplier);
-//
-//            default:
-//                throw new JsonParseException("Unknown expression type: " + type);
-//        }
-//    }
-
 }

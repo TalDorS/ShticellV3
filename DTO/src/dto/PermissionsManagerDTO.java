@@ -5,6 +5,7 @@ import enums.PermissionStatus;
 import java.util.HashMap;
 import java.util.Map;
 
+// This class is for creating the permissions manager data transfer object
 public class PermissionsManagerDTO {
     private String owner;
     private final Map<String, PermissionStatus> writers;

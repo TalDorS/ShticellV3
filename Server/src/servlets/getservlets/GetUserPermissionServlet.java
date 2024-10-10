@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-@WebServlet(name = "GetUserPermissionServlet", urlPatterns = "/get-user-permission")
+@WebServlet(name = "GetUserPermissionServlet", urlPatterns = "/getUserPermissions")
 public class GetUserPermissionServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {

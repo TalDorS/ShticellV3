@@ -7,11 +7,15 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import menuwindow.MenuWindowController;
 import menuwindow.center.sheettable.models.SheetDetails;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
+import utils.AlertUtils;
+import utils.ClientConstants;
 import utils.HttpClientUtil;
 
 import java.io.IOException;
@@ -38,7 +42,6 @@ public class AvailableSheetTableController {
 
     // ObservableList to hold the SheetDetails objects
     private ObservableList<SheetDetails> sheetDetailsList;
-
     private Timer timer;
 
     @FXML
@@ -82,18 +85,18 @@ public class AvailableSheetTableController {
 
     // Method to update sheetDetails with an http request
     public void updateSheetDetails() {
-        String finalUrl = "http://localhost:8080/Server_Web_exploded/sheet-details";
+        String finalUrl = ClientConstants.GET_SHEET_DETAILS;
 
         HttpClientUtil.runAsyncGet(finalUrl, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call,@NotNull IOException e) {
                 Platform.runLater(() -> {
-                    System.out.println("Failed to fetch sheet details: " + e.getMessage());
+                    AlertUtils.showAlert(Alert.AlertType.ERROR,"Failed to fetch sheet details: " + e.getMessage());
                 });
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
 
@@ -109,7 +112,7 @@ public class AvailableSheetTableController {
                     });
                 } else {
                     Platform.runLater(() -> {
-                        System.out.println("Failed to fetch sheet details: " + response.message());
+                        AlertUtils.showAlert(Alert.AlertType.ERROR,"Failed to fetch sheet details: " + response.message());
                     });
                 }
             }
@@ -166,5 +169,21 @@ public class AvailableSheetTableController {
         }
 
         return null; // Return null if no row is selected
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AvailableSheetTableController that = (AvailableSheetTableController) o;
+        return Objects.equals(mainController, that.mainController) && Objects.equals(sheetTableView, that.sheetTableView)
+                && Objects.equals(userColumn, that.userColumn) && Objects.equals(sheetNameColumn, that.sheetNameColumn)
+                && Objects.equals(sheetSizeColumn, that.sheetSizeColumn) && Objects.equals(permissionColumn, that.permissionColumn)
+                && Objects.equals(sheetDetailsList, that.sheetDetailsList) && Objects.equals(timer, that.timer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mainController, sheetTableView, userColumn, sheetNameColumn, sheetSizeColumn, permissionColumn, sheetDetailsList, timer);
     }
 }

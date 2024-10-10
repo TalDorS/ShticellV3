@@ -21,6 +21,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+
+import static utils.CommonResourcesPaths.INTERACTIVE_FORMULA_DIALOG_FXML;
 
 public class InteractiveFormulaDialogController {
     @FXML
@@ -111,7 +114,7 @@ public class InteractiveFormulaDialogController {
 
     private void openNestedFormulaDialog(TextField targetField) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gridwindow/top/interactiveformuladialog/InteractiveFormulaDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(INTERACTIVE_FORMULA_DIALOG_FXML));
             Parent root = loader.load();
 
             InteractiveFormulaDialogController nestedController = loader.getController();
@@ -180,7 +183,6 @@ public class InteractiveFormulaDialogController {
             }
 
             //fixme- i couldnt do that it will show it in the formula window
-            // Check if this is not a nested window
 //            if (getParentController() != null) {
 //                mainController.checkForCircularReferences(parentController.getCurrentCellId(), parseResult);
 //            }
@@ -220,5 +222,24 @@ public class InteractiveFormulaDialogController {
     private void handleCancelButton() {
         this.applied = false; // Ensure 'applied' is false if Cancel is pressed
         ((Stage) cancelButton.getScene().getWindow()).close(); // Close the dialog without applying any changes
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        InteractiveFormulaDialogController that = (InteractiveFormulaDialogController) o;
+        return applied == that.applied && Objects.equals(functionComboBox, that.functionComboBox)
+                && Objects.equals(argumentContainer, that.argumentContainer) && Objects.equals(expressionTextField, that.expressionTextField)
+                && Objects.equals(calculateButton, that.calculateButton) && Objects.equals(resultPreview, that.resultPreview)
+                && Objects.equals(applyButton, that.applyButton) && Objects.equals(cancelButton, that.cancelButton) && Objects.equals(mainController, that.mainController)
+                && Objects.equals(argumentExpressions, that.argumentExpressions) && Objects.equals(currentFunctionName, that.currentFunctionName)
+                && Objects.equals(argumentValues, that.argumentValues) && Objects.equals(parentController, that.parentController);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(functionComboBox, argumentContainer, expressionTextField, calculateButton, resultPreview, applyButton,
+                cancelButton, mainController, argumentExpressions, currentFunctionName, argumentValues, applied, parentController);
     }
 }

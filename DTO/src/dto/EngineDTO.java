@@ -45,6 +45,4 @@ public class EngineDTO {
     public List<RangeDTO> getRanges(){
         return versions.get(currentVersionNumber).getRanges();
     }
-
-
 }

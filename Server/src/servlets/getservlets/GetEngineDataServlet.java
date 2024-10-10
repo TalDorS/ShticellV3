@@ -19,7 +19,7 @@ public class GetEngineDataServlet extends HttpServlet {
     Gson gson = new GsonBuilder()
             .disableHtmlEscaping()  // Slightly improve speed
             .serializeNulls()       // Handle null values more explicitly
-            .setPrettyPrinting()    // Optional: for readable output
+            .setPrettyPrinting()    // for readable output
             .create();
 
     @Override

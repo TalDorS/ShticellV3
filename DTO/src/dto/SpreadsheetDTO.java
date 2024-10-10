@@ -51,5 +51,4 @@ public class SpreadsheetDTO {
     }
 
     public int getVersionNumber() { return versionNumber;}
-
 }

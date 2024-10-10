@@ -298,26 +298,6 @@ public class MainGridAreaController implements SpreadsheetController {
             }
         }
     }
-//    private void handleCellClick(String cellId) {
-//        if (isPopup) {
-//            return;
-//        }
-//
-//        // Fetch the cell asynchronously
-//        mainController.fetchCellById(cellId, new GridWindowController.CellCallback() {
-//            @Override
-//            public void onCellReceived(Cell currentCell) {
-//                if (currentCell != null) {
-//                    highlightDependencies(currentCell);
-//                }
-//
-//                String lastUpdateVersion = (currentCell != null) ? Integer.toString(currentCell.getLastUpdatedVersion()) : "1";
-//                String cellOriginalValue = (currentCell != null) ? String.valueOf(currentCell.getOriginalValue()) : "";
-//
-//                mainController.updateSelectedCellInfo(cellId, cellOriginalValue, lastUpdateVersion);
-//            }
-//        });
-//    }
 
     private void handleCellClick(String cellId) {
         if (isPopup) {
@@ -336,15 +316,6 @@ public class MainGridAreaController implements SpreadsheetController {
         mainController.updateSelectedCellInfo(cellId, cellOriginalValue, lastUpdateVersion, lastUpdatedBy);
     }
 
-//    private void highlightDependencies(CellDTO currentCell) {
-//        for (String dependsOnId : currentCell.getDependsOnThem().keySet()) {
-//            changeCellBackground(dependsOnId, "#ADD8E6");
-//        }
-//
-//        for (String dependsOnMeId : currentCell.getDependsOnMe().keySet()) {
-//            changeCellBackground(dependsOnMeId, "#90EE90");
-//        }
-//    }
     private void highlightDependencies(CellDTO currentCell) {
         // Highlight cells that this cell depends on
         for (String dependsOnId : currentCell.getDependsOnThemIds()) {
@@ -547,20 +518,21 @@ public class MainGridAreaController implements SpreadsheetController {
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MainGridAreaController that = (MainGridAreaController) o;
         return isPopup == that.isPopup && Objects.equals(mainController, that.mainController)
                 && Objects.equals(spreadsheetGrid, that.spreadsheetGrid) && Objects.equals(scrollPane, that.scrollPane)
                 && Objects.equals(backgroundColorPicker, that.backgroundColorPicker) && Objects.equals(textColorPicker, that.textColorPicker)
-                && Objects.equals(columnHeaders, that.columnHeaders) && Objects.equals(rowHeaders, that.rowHeaders)
+                && Objects.equals(cellProperties, that.cellProperties) && Objects.equals(columnHeaders, that.columnHeaders) && Objects.equals(rowHeaders, that.rowHeaders)
                 && Objects.equals(cellBackgroundColors, that.cellBackgroundColors) && Objects.equals(cellTextColors, that.cellTextColors)
-                && Objects.equals(cellAlignments, that.cellAlignments) && Objects.equals(originalColors, that.originalColors);
+                && Objects.equals(cellAlignments, that.cellAlignments) && Objects.equals(originalColors, that.originalColors) && Objects.equals(textFieldMap, that.textFieldMap);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mainController, isPopup, spreadsheetGrid, scrollPane, backgroundColorPicker, textColorPicker, cellProperties, columnHeaders, rowHeaders, cellBackgroundColors, cellTextColors, cellAlignments, originalColors);
+        return Objects.hash(mainController, isPopup, spreadsheetGrid, scrollPane, backgroundColorPicker, textColorPicker,
+                cellProperties, columnHeaders, rowHeaders, cellBackgroundColors, cellTextColors, cellAlignments, originalColors, textFieldMap);
     }
-
 }

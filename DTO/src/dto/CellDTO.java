@@ -14,7 +14,6 @@ public class CellDTO {
     private final List<String> dependsOnThemIds; // Cell IDs this cell depends on
     private final List<String> dependsOnMeIds; // Cell IDs that depend on this cell
 
-
     public CellDTO(String originalValue, Object effectiveValue, int lastUpdatedVersion,String lastUpdatedBy, List<String> dependsOnThemIds, List<String> dependsOnMeIds) {
         this.originalValue = originalValue;
         this.effectiveValue = effectiveValue;
@@ -23,7 +22,6 @@ public class CellDTO {
         this.dependsOnThemIds = dependsOnThemIds;
         this.dependsOnMeIds = dependsOnMeIds;
     }
-
 
     // Getters and Setters
     public String getOriginalValue() {

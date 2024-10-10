@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet("/can-dynamic-analysis-be-done")
+@WebServlet("/canDynamicAnalysisBeDone")
 public class CanDynamicAnalysisBeDoneServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

@@ -31,5 +31,17 @@ public class UserManager {
         return usersMap.containsKey(username);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserManager that = (UserManager) o;
+        return Objects.equals(usersMap, that.usersMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(usersMap);
+    }
 }
 

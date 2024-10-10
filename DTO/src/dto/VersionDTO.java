@@ -9,14 +9,12 @@ public class VersionDTO {
     private final SpreadsheetDTO spreadsheet;
     private final List<RangeDTO> ranges; // Add a field for ranges
 
-
     public VersionDTO(int versionNumber, int changedCellsCount, SpreadsheetDTO spreadsheet, List<RangeDTO> ranges) {
         this.versionNumber = versionNumber;
         this.changedCellsCount = changedCellsCount;
         this.spreadsheet = spreadsheet;
         this.ranges = ranges;
     }
-
 
     public int getVersionNumber() {
         return versionNumber;
@@ -33,6 +31,4 @@ public class VersionDTO {
     public List<RangeDTO> getRanges() {
         return ranges;
     }
-
-
 }

@@ -1,4 +1,4 @@
-package servlets;
+package servlets.getservlets;
 
 import api.Engine;
 
@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import utils.ServletUtils;
 import java.io.IOException;
 
-@WebServlet("/getCellById") // This URL maps to the servlet
+@WebServlet("/getCellById")
 public class GetCellByIdServlet extends HttpServlet {
 
 

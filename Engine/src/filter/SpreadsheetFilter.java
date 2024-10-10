@@ -8,6 +8,7 @@ import versions.VersionsManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class SpreadsheetFilter {
     private final VersionsManager versionsManager;
@@ -143,5 +144,18 @@ public class SpreadsheetFilter {
             index = (index / 26) - 1;
         }
         return columnName.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SpreadsheetFilter that = (SpreadsheetFilter) o;
+        return Objects.equals(versionsManager, that.versionsManager);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(versionsManager);
     }
 }

@@ -1,5 +1,7 @@
 package models;
 
+import java.util.Objects;
+
 public class SheetDetails {
     private String sheetName;
     private String uploaderName;
@@ -43,5 +45,19 @@ public class SheetDetails {
 
     public void setPermission(String permission) {
         this.permission = permission;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SheetDetails that = (SheetDetails) o;
+        return Objects.equals(sheetName, that.sheetName) && Objects.equals(uploaderName, that.uploaderName)
+                && Objects.equals(sheetSize, that.sheetSize) && Objects.equals(permission, that.permission);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sheetName, uploaderName, sheetSize, permission);
     }
 }
