@@ -1,6 +1,6 @@
 package gridwindow.top;
 
-import exceptions.engineexceptions.*;
+import exceptions.*;
 import gridwindow.GridWindowController;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -95,8 +95,7 @@ public class TopGridWindowController {
         return newVersionLabel.isVisible();
     }
 
-    public void handleUpdateNewVersionButton() throws CellUpdateException, InvalidExpressionException, SpreadsheetLoadingException,
-            RangeProcessException, CircularReferenceException {
+    public void handleUpdateNewVersionButton() {
         // Load the new version or prompt the user
         mainController.setSpreadsheetData(mainController.getSpreadsheetName());
         setNewVersionVisiblity(false);

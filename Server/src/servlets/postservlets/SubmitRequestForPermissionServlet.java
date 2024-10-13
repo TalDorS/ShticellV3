@@ -3,7 +3,7 @@ package servlets.postservlets;
 import api.Engine;
 import com.google.gson.Gson;
 import enums.PermissionType;
-import exceptions.engineexceptions.SpreadsheetNotFoundException;
+import exceptions.SpreadsheetNotFoundException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

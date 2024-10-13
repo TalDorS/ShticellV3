@@ -2,8 +2,7 @@ package servlets.postservlets;
 
 import api.Engine;
 
-import engineimpl.EngineImpl;
-import exceptions.engineexceptions.*;
+import exceptions.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

@@ -6,10 +6,9 @@ import dto.*;
 import dto.VersionDTO;
 import enums.PermissionStatus;
 import enums.PermissionType;
-import exceptions.engineexceptions.*;
+import exceptions.*;
 import cells.Cell;
 import spreadsheet.Spreadsheet;
-import user.User;
 import user.UserManager;
 import versions.Version;
 

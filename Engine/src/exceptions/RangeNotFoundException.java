@@ -1,4 +1,4 @@
-package exceptions.engineexceptions;
+package exceptions;
 
 public class RangeNotFoundException extends Exception {
     public RangeNotFoundException(String message) {

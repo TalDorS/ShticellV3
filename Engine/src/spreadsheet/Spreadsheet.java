@@ -1,8 +1,8 @@
 package spreadsheet;
 
 import cells.Cell;
-import exceptions.engineexceptions.CircularReferenceException;
-import exceptions.engineexceptions.InvalidColumnException;
+import exceptions.CircularReferenceException;
+import exceptions.InvalidColumnException;
 
 import java.io.Serializable;
 import java.util.*;

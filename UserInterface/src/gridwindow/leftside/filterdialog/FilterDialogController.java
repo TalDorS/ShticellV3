@@ -1,10 +1,9 @@
 package gridwindow.leftside.filterdialog;
 
-import cells.Cell;
 import dto.CellDTO;
 import dto.SpreadsheetDTO;
-import exceptions.engineexceptions.SpreadsheetNotFoundException;
-import exceptions.engineexceptions.UserNotFoundException;
+import exceptions.SpreadsheetNotFoundException;
+import exceptions.UserNotFoundException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -18,7 +17,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import gridwindow.GridWindowController;
-import spreadsheet.Spreadsheet;
 import javafx.scene.layout.HBox;
 
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package exceptions.engineexceptions;
+package exceptions;
 
 public class CellUpdateException extends Exception {
     public CellUpdateException(String message) {

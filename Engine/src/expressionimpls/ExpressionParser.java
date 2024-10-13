@@ -4,7 +4,7 @@ import api.Expression;
 import api.Function;
 import api.Range;
 import functionsimpl.FunctionFactory;
-import exceptions.engineexceptions.InvalidExpressionException;
+import exceptions.InvalidExpressionException;
 import ranges.RangesManager;
 import spreadsheet.Spreadsheet;
 

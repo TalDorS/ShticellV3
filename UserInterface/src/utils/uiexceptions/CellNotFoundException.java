@@ -1,4 +1,4 @@
-package exceptions.uiexceptions;
+package utils.uiexceptions;
 
 public class CellNotFoundException extends Exception {
     public CellNotFoundException(String cellId) {

@@ -2,7 +2,7 @@ package menuwindow;
 
 import com.google.gson.Gson;
 import enums.PermissionType;
-import exceptions.engineexceptions.*;
+import exceptions.*;
 import gridwindow.GridWindowController;
 import gridwindow.top.Skin;
 import javafx.application.Platform;
@@ -201,10 +201,6 @@ public class MenuWindowController {
             getUserPermissionAndLockGridIfNeedBe(spreadsheetName, username);
             stage.show();
         } catch (IOException e) {
-
-        } catch (CellUpdateException | InvalidExpressionException | SpreadsheetLoadingException |
-                 RangeProcessException | CircularReferenceException e) {
-            throw new RuntimeException(e);
         }
     }
 
