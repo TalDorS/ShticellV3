@@ -173,10 +173,15 @@ public class DynamicAnalysisDialogController {
     private void setSliderListener() {
         valueSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             double step = valueSlider.getMajorTickUnit();
+            double min = valueSlider.getMin();
+            double currentValue = newValue.doubleValue();
 
-            // Check if the slider value is on a tick (i.e., an exact multiple of the step size)
-            if (newValue.doubleValue() % step == 0) {
-                double tempValue = newValue.doubleValue();
+            // Calculate the difference between the current value and the min value
+            double differenceFromMin = currentValue - min;
+
+            // Check if the difference is a multiple of the step size
+            if (Math.abs(differenceFromMin % step) < 1e-6) {  // Small tolerance for floating-point precision
+                double tempValue = currentValue;
 
                 // Update all selected cells with the slider value
                 for (String cellId : selectedCells) {
