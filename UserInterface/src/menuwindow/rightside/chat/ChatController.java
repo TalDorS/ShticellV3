@@ -1,8 +1,8 @@
 package menuwindow.rightside.chat;
 
-import chat.SingleChatEntry;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import dto.ChatMessageDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -98,15 +98,15 @@ public class ChatController {
                 if (response.isSuccessful()) {
                     String jsonResponse = response.body().string();
 
-                    // Parse the JSON response into a List
+                    // Parse the JSON response into a List of ChatMessageDTO
                     Gson gson = new Gson();
-                    Type listType = new TypeToken<List<SingleChatEntry>>() {}.getType();
-                    List<SingleChatEntry> chatMessages = gson.fromJson(jsonResponse, listType);
+                    Type listType = new TypeToken<List<ChatMessageDTO>>() {}.getType();
+                    List<ChatMessageDTO> chatMessages = gson.fromJson(jsonResponse, listType);
 
                     // Update the chat UI
                     Platform.runLater(() -> {
                         messageContainer.getChildren().clear();
-                        for (SingleChatEntry chatMessage : chatMessages) {
+                        for (ChatMessageDTO chatMessage : chatMessages) {
                             // Create separate text nodes for username and message
                             Text usernameText = new Text(chatMessage.getUsername() + ": ");
                             usernameText.setStyle("-fx-font-weight: bold;"); // Bold style for username
@@ -116,7 +116,7 @@ public class ChatController {
                             // Combine them in a TextFlow
                             TextFlow textFlow = new TextFlow(usernameText, messageText);
 
-                            // Wrap in a label or directly in the VBox
+                            // Add TextFlow to the message container
                             messageContainer.getChildren().add(textFlow);
                         }
                     });

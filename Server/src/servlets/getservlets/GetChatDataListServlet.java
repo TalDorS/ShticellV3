@@ -3,6 +3,7 @@ package servlets.getservlets;
 import chat.ChatManager;
 import chat.SingleChatEntry;
 import com.google.gson.Gson;
+import dto.ChatMessageDTO;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +12,7 @@ import utils.ServletUtils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "GetChatDataListServlet", urlPatterns = "/getChatDataList")
 public class GetChatDataListServlet extends HttpServlet {
@@ -20,9 +22,12 @@ public class GetChatDataListServlet extends HttpServlet {
         ChatManager chatManager = ServletUtils.getChatManager(getServletContext());
 
         // Fetch the list of chat messages
-        List<SingleChatEntry> chatMessages;
+        List<ChatMessageDTO> chatMessages;
         synchronized (chatManager) {
-            chatMessages = chatManager.getChatEntries(); // Assume this method exists in ChatManager
+            chatMessages = chatManager.getChatEntries()
+                    .stream()
+                    .map(entry -> new ChatMessageDTO(entry.getChatString(), entry.getUsername())) // Map to ChatMessageDTO
+                    .collect(Collectors.toList());
         }
 
         // Convert the list to JSON using Gson
