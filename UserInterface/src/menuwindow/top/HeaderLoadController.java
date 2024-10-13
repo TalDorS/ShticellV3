@@ -1,6 +1,5 @@
 package menuwindow.top;
 
-import exceptions.SpreadsheetLoadingException;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -96,17 +95,11 @@ public class HeaderLoadController {
                     simulateLoading(); // Simulate loading process
                     loadSpreadsheet(filePath);
                     isSuccess = true;
-                } catch (IllegalArgumentException e) {
-                    updateMessage("Invalid file path:\n " + e.getMessage());
-                    cancel(); // Attempt to cancel
-                } catch (SpreadsheetLoadingException e) {
-                    updateMessage("Error loading spreadsheet:\n " + e.getMessage());
-                    cancel(); // Attempt to cancel
-                } catch (Exception e) {
-                    updateMessage("Unexpected error:\n " + e.getMessage());
-                    cancel(); // Attempt to cancel
-                }
 
+                } catch (Exception e) {
+                    updateMessage(e.getMessage());
+                    cancel();
+                }
                 return null;
             }
 
@@ -121,7 +114,7 @@ public class HeaderLoadController {
                 }
             }
 
-            private void loadSpreadsheet(String filePath) throws Exception {
+            private void loadSpreadsheet(String filePath)  {
                 if (mainController != null) {
                     try {
                         mainController.loadSpreadsheet(filePath);
