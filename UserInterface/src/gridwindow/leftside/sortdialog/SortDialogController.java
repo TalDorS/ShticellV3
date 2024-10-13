@@ -2,9 +2,9 @@ package gridwindow.leftside.sortdialog;
 
 import gridwindow.GridWindowController;
 import dto.SpreadsheetDTO;
-import exceptions.InvalidCellIdFormatException;
-import exceptions.InvalidColumnException;
-import exceptions.InvalidRowException;
+import utils.uiexceptions.InvalidCellIdFormatException;
+import utils.uiexceptions.InvalidColumnException;
+import utils.uiexceptions.InvalidRowException;
 import utils.uiexceptions.CellNotFoundException;
 import utils.uiexceptions.InvalidInputFormatException;
 import javafx.fxml.FXML;

@@ -1,21 +1,8 @@
 package gridwindow;
 
-import api.Expression;
-import api.Function;
-import cells.Cell;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonParseException;
 import dto.*;
-import exceptions.*;
-import expressionimpls.FunctionExpression;
-import expressionimpls.LiteralExpression;
-import expressionimpls.RangeExpression;
-import expressionimpls.ReferenceExpression;
-import functionsimpl.FunctionFactory;
 import gridwindow.bottom.BackController;
 import gridwindow.top.*;
 import gridwindow.top.Skin;
@@ -34,11 +21,9 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-import ranges.RangeImpl;
 import utils.ClientConstants;
 
 import javafx.util.Duration;
-import spreadsheet.Spreadsheet;
 import gridwindow.grid.MainGridAreaController;
 import gridwindow.grid.dynamicanalysisdialog.DynamicAnalysisDialogController;
 import gridwindow.leftside.LeftSideController;
@@ -47,12 +32,14 @@ import gridwindow.leftside.sortdialog.SortDialogController;
 import utils.AlertUtils;
 import utils.HttpClientUtil;
 import utils.SimpleCookieManager;
+import utils.uiexceptions.SpreadsheetNotFoundException;
+import utils.uiexceptions.UserNotFoundException;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.List;
-import java.util.function.Supplier;
+
 import static utils.AlertUtils.showAlert;
 import static utils.AlertUtils.showError;
 import static utils.CommonResourcesPaths.*;
@@ -776,7 +763,7 @@ public class GridWindowController {
         }
     }
 
-    public  List<String> getCurrentColumns() throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
+    public  List<String> getCurrentColumns() throws utils.uiexceptions.UserNotFoundException, utils.uiexceptions.SpreadsheetNotFoundException, IOException {
         SpreadsheetDTO currentSpreadsheet = getCurrentSpreadsheetDTO();
 
         if (currentSpreadsheet == null) {
@@ -793,7 +780,7 @@ public class GridWindowController {
         return columnNames;
     }
 
-    public String getColumnName(int index) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
+    public String getColumnName(int index) throws IOException, utils.uiexceptions.UserNotFoundException, utils.uiexceptions.SpreadsheetNotFoundException {
         // Build the URL with query parameters
         HttpUrl url = HttpUrl.parse(ClientConstants.GET_COLUMN_NAME)
                 .newBuilder()
@@ -812,9 +799,9 @@ public class GridWindowController {
             if (!response.isSuccessful()) {
                 String errorMessage = response.body().string();
                 if (response.code() == 404) {
-                    throw new UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
+                    throw new utils.uiexceptions.UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
                 }
-                throw new SpreadsheetNotFoundException("Error fetching column name: " + errorMessage);
+                throw new utils.uiexceptions.SpreadsheetNotFoundException("Error fetching column name: " + errorMessage);
             }
 
             // If the response is successful, get the column name from the response body
@@ -866,7 +853,7 @@ public class GridWindowController {
     }
 
     // Method to send a request to the server for filtering table with multiple columns
-    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
+    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws IOException, utils.uiexceptions.UserNotFoundException, utils.uiexceptions.SpreadsheetNotFoundException {
         String url = ClientConstants.FILTER_TABLE_MULTIPLE_COLUMNS;
 
         // Create the form body by iterating over the map
@@ -894,9 +881,9 @@ public class GridWindowController {
             if (!response.isSuccessful()) {
                 String errorMessage = response.body().string();
                 if (response.code() == 404) {
-                    throw new UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
+                    throw new utils.uiexceptions.UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
                 }
-                throw new SpreadsheetNotFoundException("Error fetching filtered table: " + errorMessage);
+                throw new utils.uiexceptions.SpreadsheetNotFoundException("Error fetching filtered table: " + errorMessage);
             }
 
             // Parse the response body into the expected List<String[][]> format
@@ -908,7 +895,7 @@ public class GridWindowController {
         }
     }
 
-    public int getColumnIndex(String columnName) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
+    public int getColumnIndex(String columnName) throws IOException, utils.uiexceptions.UserNotFoundException, utils.uiexceptions.SpreadsheetNotFoundException {
         // Build the URL with query parameters
         HttpUrl url = HttpUrl.parse(ClientConstants.GET_COLUMN_INDEX)
                 .newBuilder()

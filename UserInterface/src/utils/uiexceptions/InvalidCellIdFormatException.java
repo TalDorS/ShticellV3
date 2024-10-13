@@ -1,4 +1,4 @@
-package exceptions;
+package utils.uiexceptions;
 
 public class InvalidCellIdFormatException extends Exception {
     public InvalidCellIdFormatException(String cellId) {
