@@ -3,7 +3,7 @@ package api;
 import cells.Cell;
 import enums.PermissionStatus;
 import enums.PermissionType;
-import exceptions.engineexceptions.*;
+import exceptions.*;
 import dto.*;
 import spreadsheet.Spreadsheet;
 

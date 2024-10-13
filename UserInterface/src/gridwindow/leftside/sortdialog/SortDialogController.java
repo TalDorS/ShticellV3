@@ -2,11 +2,11 @@ package gridwindow.leftside.sortdialog;
 
 import gridwindow.GridWindowController;
 import dto.SpreadsheetDTO;
-import exceptions.engineexceptions.InvalidCellIdFormatException;
-import exceptions.engineexceptions.InvalidColumnException;
-import exceptions.engineexceptions.InvalidRowException;
-import exceptions.uiexceptions.CellNotFoundException;
-import exceptions.uiexceptions.InvalidInputFormatException;
+import exceptions.InvalidCellIdFormatException;
+import exceptions.InvalidColumnException;
+import exceptions.InvalidRowException;
+import utils.uiexceptions.CellNotFoundException;
+import utils.uiexceptions.InvalidInputFormatException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -22,7 +22,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
-import spreadsheet.Spreadsheet;
 import gridwindow.grid.MainGridAreaController;
 import utils.AlertUtils;
 

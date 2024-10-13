@@ -1,6 +1,6 @@
 package menuwindow.top;
 
-import exceptions.engineexceptions.SpreadsheetLoadingException;
+import exceptions.SpreadsheetLoadingException;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;

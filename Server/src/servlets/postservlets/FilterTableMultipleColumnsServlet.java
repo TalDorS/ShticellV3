@@ -2,8 +2,8 @@ package servlets;
 
 import api.Engine;
 import com.google.gson.Gson;
-import exceptions.engineexceptions.SpreadsheetNotFoundException;
-import exceptions.engineexceptions.UserNotFoundException;
+import exceptions.SpreadsheetNotFoundException;
+import exceptions.UserNotFoundException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

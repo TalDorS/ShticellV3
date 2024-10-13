@@ -1,11 +1,10 @@
 package ranges;
 
 import api.Range;
-import exceptions.engineexceptions.RangeAlreadyExistsException;
-import exceptions.engineexceptions.RangeNotFoundException;
+import exceptions.RangeAlreadyExistsException;
+import exceptions.RangeNotFoundException;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 

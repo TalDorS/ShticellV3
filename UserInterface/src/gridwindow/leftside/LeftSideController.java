@@ -1,8 +1,8 @@
 package gridwindow.leftside;
 
 import dto.RangeDTO;
-import exceptions.engineexceptions.SpreadsheetNotFoundException;
-import exceptions.engineexceptions.UserNotFoundException;
+import exceptions.SpreadsheetNotFoundException;
+import exceptions.UserNotFoundException;
 import gridwindow.leftside.addrangedialog.AddRangeDialogController;
 import gridwindow.leftside.filterdialog.FilterDialogController;
 import gridwindow.leftside.graphdialog.GraphDialogController;
@@ -21,7 +21,6 @@ import utils.AlertUtils;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import static utils.CommonResourcesPaths.*;

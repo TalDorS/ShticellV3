@@ -1,4 +1,4 @@
-package exceptions.engineexceptions;
+package exceptions;
 
 public class SpreadsheetLoadingException  extends Exception {
     public SpreadsheetLoadingException(String message) {

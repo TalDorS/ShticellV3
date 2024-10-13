@@ -10,7 +10,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonParseException;
 import dto.*;
-import exceptions.engineexceptions.*;
+import exceptions.*;
 import expressionimpls.FunctionExpression;
 import expressionimpls.LiteralExpression;
 import expressionimpls.RangeExpression;
@@ -195,8 +195,7 @@ public class GridWindowController {
         stage.show();
     }
 
-    public void setSpreadsheetData(String spreadsheetName) throws CellUpdateException, InvalidExpressionException,
-            SpreadsheetLoadingException, RangeProcessException, CircularReferenceException {
+    public void setSpreadsheetData(String spreadsheetName){
         this.spreadsheetName = spreadsheetName;
 
         // Build the URL for the GET request to retrieve engine data

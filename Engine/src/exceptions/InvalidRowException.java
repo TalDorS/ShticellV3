@@ -1,4 +1,4 @@
-package exceptions.engineexceptions;
+package exceptions;
 
 public class InvalidRowException extends Exception {
     public InvalidRowException(String cellId, int row, int maxRow) {

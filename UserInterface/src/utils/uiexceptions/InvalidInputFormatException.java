@@ -1,4 +1,4 @@
-package exceptions.uiexceptions;
+package utils.uiexceptions;
 
 public class InvalidInputFormatException extends Exception {
     public InvalidInputFormatException(String input) {
