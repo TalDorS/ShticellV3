@@ -1,4 +1,4 @@
-package exceptions;
+package utils.uiexceptions;
 
 public class InvalidColumnException extends Exception {
     public InvalidColumnException(String cellId, char column, char maxColumn) {
