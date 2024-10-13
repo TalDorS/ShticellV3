@@ -130,7 +130,6 @@ public class PermissionsTableController {
         if (selectedRequest != null) {
             return selectedRequest.getPermissionStatus(); // Return the selected permission details
         } else {
-            AlertUtils.showAlert(Alert.AlertType.ERROR,"No permission selected.");
             return null; // Return null if no item is selected
         }
     }
@@ -144,7 +143,6 @@ public class PermissionsTableController {
         if (selectedRequest != null) {
             return selectedRequest.getPermissionType(); // Return the selected permission details
         } else {
-            AlertUtils.showAlert(Alert.AlertType.ERROR,"No permission selected.");
             return null; // Return null if no item is selected
         }
     }
@@ -158,7 +156,6 @@ public class PermissionsTableController {
         if (selectedRequest != null) {
             return selectedRequest.getUsername(); // Return the selected permission details
         } else {
-            AlertUtils.showAlert(Alert.AlertType.ERROR,"No permission selected.");
             return null; // Return null if no item is selected
         }
     }

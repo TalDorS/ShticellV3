@@ -60,6 +60,12 @@ public class RightSideController {
         String currentUsername = mainController.getUserName();
         String applicantUsername = mainController.getPermissionsTableComponentController().getSelectedRequestUsername();
 
+        // Check if a request was pressed
+        if (applicantUsername == null) {
+            showError("Please select a permission request first");
+            return;
+        }
+
         // Check if the permission status is not PENDING
         if (permissionStatus != PermissionStatus.PENDING) {
             showError("This request doesn't need to be acknowledged or denied.");
@@ -132,8 +138,14 @@ public class RightSideController {
         String spreadsheetName = mainController.getAvailableSheetTableController().getSelectedSpreadsheetName();
         String username = mainController.getUserName();
 
+        // Check if no file was pressed
+        if (uploaderName == null || spreadsheetName == null || username == null) {
+            showError("You must first select a file to request a permission");
+            return;
+        }
         // If the user is the uploader, no need to request permission
         if (uploaderName.equals(username)) {
+            showError("The uploader of a file cannot request permission to his file.");
             return;
         }
 
@@ -148,6 +160,7 @@ public class RightSideController {
 
         // Create description text
         Label descriptionLabel = new Label(
+                "Requesting permission for spreadsheet: " + spreadsheetName + "\n" +
                 "Choose the type of permission you would like to request:\n\n" +
                         "• READER - View-Only Permission:\n" +
                         "This permission allows you to view the spreadsheet but not make any changes. You can sort, filter, and view older versions.\n\n" +

@@ -9,6 +9,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import menuwindow.rightside.RightSideController;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -105,9 +107,17 @@ public class ChatController {
                     Platform.runLater(() -> {
                         messageContainer.getChildren().clear();
                         for (SingleChatEntry chatMessage : chatMessages) {
-                            Label messageLabel = new Label(chatMessage.toString());
-                            messageLabel.setWrapText(true);
-                            messageContainer.getChildren().add(messageLabel);
+                            // Create separate text nodes for username and message
+                            Text usernameText = new Text(chatMessage.getUsername() + ": ");
+                            usernameText.setStyle("-fx-font-weight: bold;"); // Bold style for username
+
+                            Text messageText = new Text(chatMessage.getChatString()); // Normal style for message
+
+                            // Combine them in a TextFlow
+                            TextFlow textFlow = new TextFlow(usernameText, messageText);
+
+                            // Wrap in a label or directly in the VBox
+                            messageContainer.getChildren().add(textFlow);
                         }
                     });
                 } else {

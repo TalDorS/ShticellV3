@@ -2,12 +2,12 @@ package servlets.getservlets;
 
 import api.Engine;
 import com.google.gson.Gson;
+import dto.SheetDetailsDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import models.SheetDetails;
 import utils.ServletUtils;
 import utils.SessionUtils;
 import versions.VersionsManager;
@@ -20,7 +20,7 @@ import java.util.Map;
 @WebServlet(name = "SheetDetailsServlet", urlPatterns = "/getSheetDetails")
 public class SheetDetailsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<SheetDetails> sheets = new ArrayList<>();
+        List<SheetDetailsDTO> sheets = new ArrayList<>();
         response.setContentType("text/plain;charset=UTF-8");
 
         // Get user session and the engine
@@ -49,7 +49,7 @@ public class SheetDetailsServlet extends HttpServlet {
                 String permission = versionManager.getUserPermission(usernameFromSession).toString();
 
                 // Add the sheet details to the list
-                sheets.add(new SheetDetails(sheetName, uploaderName, sheetSize, permission));
+                sheets.add(new SheetDetailsDTO(sheetName, uploaderName, sheetSize, permission));
             }
 
             // Convert the list of sheets to JSON and send it as the response

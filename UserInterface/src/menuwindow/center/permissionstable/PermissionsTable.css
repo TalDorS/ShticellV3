@@ -1,4 +1,13 @@
-/* Center text in TableView columns */
-.table-view .column-header, .table-view .cell {
-    -fx-alignment: center; /* Align text to the center */
+/* Table styling */
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: lightgray;
+    -fx-border-width: 1;
 }
+
+.table-view .column-header, .table-view .cell {
+    -fx-alignment: center;
+    -fx-font-size: 14px;
+    -fx-text-fill: #2C3E50;
+}
+
