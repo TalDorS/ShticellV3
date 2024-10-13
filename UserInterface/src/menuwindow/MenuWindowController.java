@@ -2,7 +2,6 @@ package menuwindow;
 
 import com.google.gson.Gson;
 import enums.PermissionType;
-import exceptions.*;
 import gridwindow.GridWindowController;
 import gridwindow.top.Skin;
 import javafx.application.Platform;
