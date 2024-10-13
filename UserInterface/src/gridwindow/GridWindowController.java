@@ -1,6 +1,5 @@
 package gridwindow;
 
-import api.Engine;
 import api.Expression;
 import api.Function;
 import cells.Cell;
@@ -11,8 +10,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonParseException;
 import dto.*;
-import dto.common.DynamicAnalysisRequest;
-import dto.common.UpdatedCell;
 import exceptions.engineexceptions.*;
 import expressionimpls.FunctionExpression;
 import expressionimpls.LiteralExpression;
@@ -26,7 +23,6 @@ import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -37,6 +33,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import ranges.RangeImpl;
 import utils.ClientConstants;
 
@@ -51,13 +48,8 @@ import utils.AlertUtils;
 import utils.HttpClientUtil;
 import utils.SimpleCookieManager;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.*;
 import java.util.List;
 import java.util.function.Supplier;
@@ -69,14 +61,14 @@ public class GridWindowController {
 
     private List<FadeTransition> activeFadeTransitions = new ArrayList<>();  // List to store all active transitions
     private List<RotateTransition> activeRotateTransitions = new ArrayList<>();  // List to store all active transitions
-    private String spreadsheetName;
-    private String userName;//set by the menu window controller
-    private OkHttpClient client;
-    private SimpleCookieManager cookieManager;
-    private Stage stage;       // The main window (same stage for both views)
-    private Parent menuRoot;   // The root node of the main menu
-    private boolean spreadsheetModified = false;  // Track if the user has modified the spreadsheet
-    private SpreadsheetVersionRefresher spreadsheetVersionRefresher;
+    private String spreadsheetName; // Set by the menu window controller
+    private String userName;        // Set by the menu window controller
+    private OkHttpClient client;    // Set by the menu window controller
+    private SimpleCookieManager cookieManager;  // Set by the menu window controller
+    private Stage stage;                        // The main window (same stage for both views)
+    private Parent menuRoot;                    // The root node of the main menu
+    private boolean spreadsheetModified = false;// Track if the user has modified the spreadsheet
+    private SpreadsheetVersionRefresher spreadsheetVersionRefresher;       // The version refresher fot the simultaneous updates
 
     @FXML
     private ScrollPane scrollPane;
@@ -131,18 +123,21 @@ public class GridWindowController {
         if (backComponentController != null) {
             backComponentController.setMainController(this);
         }
-
         if(spreadsheetVersionRefresher != null){
             spreadsheetVersionRefresher = new SpreadsheetVersionRefresher(this);
         }
     }
-
 
     public void setName(String name) {
         if (topGridWindowComponentController != null) {
             topGridWindowComponentController.setUsername(name);
         }
     }
+
+    public String getSpreadsheetName() {
+        return spreadsheetName;
+    }
+
     public void setCookieManager(SimpleCookieManager cookieManager) {
         this.cookieManager = cookieManager;
     }
@@ -195,8 +190,8 @@ public class GridWindowController {
         Scene scene = stage.getScene();
         scene.setRoot(menuRoot);  // Change the root back to the menu view
         stage.setTitle("Menu Window for "+ userName);  // Reset the stage title
-        stage.setWidth(950);
-        stage.setHeight(690);
+        stage.setWidth(1100);
+        stage.setHeight(800);
         stage.show();
     }
 
@@ -206,7 +201,7 @@ public class GridWindowController {
 
         // Build the URL for the GET request to retrieve engine data
         String finalUrl = HttpUrl
-                .parse(ClientConstants.GET_ENGINE_DATA) // URL of the servlet you created
+                .parse(ClientConstants.GET_ENGINE_DATA)
                 .newBuilder()
                 .addQueryParameter("userName", userName)
                 .addQueryParameter("spreadsheetName", spreadsheetName)
@@ -216,14 +211,14 @@ public class GridWindowController {
         // Send the GET request asynchronously
         HttpClientUtil.runAsyncGet(finalUrl, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Platform.runLater(() -> {
                     showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
                 });
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 try {
                     if (response.isSuccessful()) {
                         String responseBody = response.body().string();
@@ -237,14 +232,13 @@ public class GridWindowController {
                         SpreadsheetDTO spreadsheetDTO = engineDTO.getCurrentSpreadsheet();
                         List<RangeDTO> rangesDTO = engineDTO.getRanges();
 
-                        // Update the table view and UI
+                        // Update the UI
                         Platform.runLater(() -> {
                             topGridWindowComponentController.startVersionRefresher();
                             mainGridAreaComponentController.clearGrid();
                             optionsBarComponentController.updateCurrentVersionLabel(currentVersionNumber);
                             mainGridAreaComponentController.start(spreadsheetDTO, false);
                             topGridWindowComponentController.setNewVersionVisiblity(false); // Hide the new version label
-                            // Refresh dependent UI elements
                             leftSideComponentController.refreshRanges(rangesDTO);
                         });
                     } else {
@@ -277,7 +271,7 @@ public class GridWindowController {
     }
 
     public void updateCellValue(String cellId, String newValue, Boolean isDynamicAnalysis) {
-        if (topGridWindowComponentController.isNewVersionVisible()) {
+        if (topGridWindowComponentController.isNewVersionVisible()) { // Check if a new version is available - can't update cell until new version is loaded
             showAlert(Alert.AlertType.ERROR, "Error", "Cannot update cell value when a new version is available.");
             return;
         }
@@ -294,24 +288,22 @@ public class GridWindowController {
                 .add("isDynamicAnalysis", isDynamicAnalysis.toString())
                 .build();
 
-
         // Execute the request asynchronously
         HttpClientUtil.runAsyncPost(finalUrl, body, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Platform.runLater(() -> {
                     showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
                 });
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 try {
                     System.out.println("Received response code: " + response.code());
                     String responseBody = response.body().string(); // Read the response body
 
                     if (response.isSuccessful()) {
-
                         // If the cell update is successful, now retrieve the updated spreadsheet data
                         Platform.runLater(() -> {
                             try {
@@ -339,7 +331,6 @@ public class GridWindowController {
 
     public void addNewRange(String name, String firstCell, String lastCell) {
         String finalUrl = ClientConstants.ADD_RANGE;
-
         // Convert cell references to uppercase
         firstCell = firstCell.toUpperCase();
         lastCell = lastCell.toUpperCase();
@@ -352,7 +343,6 @@ public class GridWindowController {
                 .add("firstCell", firstCell)
                 .add("lastCell", lastCell)
                 .build();
-
         // Create a new HttpRequest
         Request request = new Request.Builder()
                 .url(finalUrl)
@@ -370,7 +360,6 @@ public class GridWindowController {
                 leftSideComponentController.addRangeToUI(name, firstCell, lastCell);
                 AlertUtils.showAlert(Alert.AlertType.INFORMATION, "Success", "Range created successfully.");
             } else {
-                // Here we should also parse the JSON response if the call fails
                 String errorMessage = response.body().string();
                 AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Creating Range", errorMessage);
             }
@@ -385,7 +374,7 @@ public class GridWindowController {
     public void removeRange(String rangeName) {
 
         String finalUrl = HttpUrl
-                .parse(ClientConstants.REMOVE_RANGE) // Use your constant URL
+                .parse(ClientConstants.REMOVE_RANGE)
                 .newBuilder()
                 .addQueryParameter("userName", userName)
                 .addQueryParameter("spreadsheetName", spreadsheetName)
@@ -393,16 +382,13 @@ public class GridWindowController {
                 .build()
                 .toString();
 
-        // Create a new HttpRequest
         Request request = new Request.Builder()
                 .url(finalUrl)
                 .delete() // Use DELETE method
                 .build();
 
         try {
-            // Send the request synchronously using the shared OkHttpClient
             Response response = client.newCall(request).execute();
-
             // Check if the response is successful
             if (response.isSuccessful()) {
                 // Parse the response if necessary
@@ -428,9 +414,9 @@ public class GridWindowController {
     }
 
     public void handleSortRequest(String range, List<String> columnsToSortBy) {
-        String finalUrl = ClientConstants.SORT_SPREADSHEET; // Replace with your actual URL for sorting
-
+        String finalUrl = ClientConstants.SORT_SPREADSHEET;
         Gson gson = new Gson();
+
         // Create a FormBody builder
         FormBody.Builder formBuilder = new FormBody.Builder()
                 .add("userName", userName) // Ensure userName is initialized
@@ -444,14 +430,12 @@ public class GridWindowController {
 
         // Build the request body
         RequestBody requestBody = formBuilder.build();
-
         Request request = new Request.Builder()
                 .url(finalUrl)
                 .post(requestBody) // Use POST method
                 .build();
 
         try {
-            // Send the request synchronously using the shared OkHttpClient
             Response response = client.newCall(request).execute();
 
             // Check if the response is successful
@@ -463,50 +447,42 @@ public class GridWindowController {
                 SpreadsheetDTO sortedSpreadsheetDTO = gson.fromJson(gson.toJson(responseMap.get("sortedSpreadsheet")), SpreadsheetDTO.class);
                 Map<String, String> idMapping = gson.fromJson(gson.toJson(responseMap.get("idMapping")), new TypeToken<Map<String, String>>(){}.getType());
 
-                System.out.println("Sorted spreadsheet: " + sortedSpreadsheetDTO);
-                System.out.println("ID Mapping: " + idMapping);
-
                 // Display the sorted results in the UI
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(SORT_DIALOG_FXML));
                 Parent root = loader.load();
                 sortDialogController = loader.getController(); // Get the controller after loading the FXML
                 sortDialogController.setMainController(this); // Set the main controller
-
                 // Show the sorted results popup
                 sortDialogController.showSortedResultsPopup(sortedSpreadsheetDTO, idMapping); // Ensure you have idMapping available here
             } else {
                 String errorMessage = response.body().string();
                 AlertUtils.showAlert(Alert.AlertType.ERROR, "Sorting Error", errorMessage);
-                System.err.println("Error response: " + errorMessage); // Log error response
             }
         } catch (IOException e) {
             String errorMessage = "Failed to connect to the server: " + e.getMessage();
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Sorting Error", errorMessage);
-            System.err.println("Request failed: " + e.getMessage());
         } catch (JsonSyntaxException e) {
             String errorMessage = "Failed to parse the response: " + e.getMessage();
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Parsing Error", errorMessage);
-            System.err.println("Parsing error: " + e.getMessage());
         }
     }
 
     public List<RangeDTO> getRanges() throws IOException {
         String finalUrl = HttpUrl
-                .parse(ClientConstants.GET_RANGES) // Replace with the actual URL to your servlet/API endpoint
+                .parse(ClientConstants.GET_RANGES)
                 .newBuilder()
                 .addQueryParameter("userName", userName)
                 .addQueryParameter("spreadsheetName", spreadsheetName)
                 .build()
                 .toString();
 
-        // Create a GET request to the backend server
         Request request = new Request.Builder()
                 .url(finalUrl)
                 .get() // GET request
                 .build();
 
-        // Execute the request synchronously (can be done asynchronously with enqueue if desired)
-        try (Response response = client.newCall(request).execute()) {
+        try  {
+            Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
                 // Parse the response body as a JSON string
                 String responseBody = response.body().string();
@@ -517,6 +493,8 @@ public class GridWindowController {
             } else {
                 throw new IOException("Failed to get ranges: " + response.body().string());
             }
+        } catch (IOException e){
+            throw new IOException("Failed to connect to the server: " + e.getMessage());
         }
     }
 
@@ -532,7 +510,6 @@ public class GridWindowController {
 
         System.out.println("Sending request to: " + finalUrl);
 
-        // Create the request using OkHttp
         Request request = new Request.Builder()
                 .url(finalUrl)
                 .get() // GET request
@@ -573,14 +550,12 @@ public class GridWindowController {
                 .build()
                 .toString();
 
-        // Create the request using OkHttp
         Request request = new Request.Builder()
                 .url(finalUrl)
                 .get() // GET request
                 .build();
 
         try {
-            // Send the request synchronously using the shared OkHttpClient
             Response response = client.newCall(request).execute();
 
             // Check if the response is successful
@@ -609,7 +584,7 @@ public class GridWindowController {
             try {
                 skin = Skin.valueOf(theme.toUpperCase());
             } catch (IllegalArgumentException e) {
-                skin = Skin.DEFAULT; // Fallback to default skin if skin isnt selected
+                skin = Skin.DEFAULT; // Fallback to default skin if skin isn't selected
             }
 
             String[] components = {"TopGridWindow.css", "OptionsBar.css", "LeftSide.css", "MainGridArea.css", "GridWindow.css","Back.css"};
@@ -725,50 +700,6 @@ public class GridWindowController {
         }
     }
 
-    //todo- fix this when dealing with dynamic analysis
-    public Cell getCellById(String cellId) {
-        // Build the URL for the GET request to retrieve cell data
-        String finalUrl = HttpUrl
-                .parse(ClientConstants.GET_CELL_BY_ID)
-                .newBuilder()
-                .addQueryParameter("userName", userName)
-                .addQueryParameter("spreadsheetName", spreadsheetName)
-                .addQueryParameter("cellId", cellId)
-                .build()
-                .toString();
-
-
-        // Create the request using OkHttp
-        Request request = new Request.Builder()
-                .url(finalUrl)
-                .get() // GET request
-                .build();
-
-        try {
-            // Send the request synchronously using the shared OkHttpClient
-            Response response = client.newCall(request).execute();
-
-            // Check if the response is successful
-            if (response.isSuccessful()) {
-                String responseBody = response.body().string();
-
-                // Parse the JSON response into Cell
-                Gson gson = new Gson();
-                Cell cell = gson.fromJson(responseBody, Cell.class); // Deserialize JSON to Cell
-                return cell; // Return the Cell object
-            } else {
-                String errorMessage = "Failed to load cell data: " + response.body().string();
-                showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-                return null; // Return null on error
-            }
-        } catch (IOException e) {
-            // Handle the failure
-            String errorMessage = "Failed to connect to the server: " + e.getMessage();
-            showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
-            return null; // Return null on failure
-        }
-    }
-
     public CellDTO getCellDTOById(String cellId) {
         // Build the URL for the GET request to retrieve cell data
         String finalUrl = HttpUrl
@@ -780,21 +711,16 @@ public class GridWindowController {
                 .build()
                 .toString();
 
-
-        // Create the request using OkHttp
         Request request = new Request.Builder()
                 .url(finalUrl)
                 .get() // GET request
                 .build();
 
         try {
-            // Send the request synchronously
             Response response = client.newCall(request).execute();
-
             // Check if the response is successful
             if (response.isSuccessful()) {
                 String responseBody = response.body().string();
-
                 // Parse the JSON response into CellDTO
                 Gson gson = new Gson();
                 CellDTO cell = gson.fromJson(responseBody, CellDTO.class); // Deserialize JSON to CellDTO
@@ -823,17 +749,13 @@ public class GridWindowController {
                 .build()
                 .toString();
 
-
-        // Create the request using OkHttp
         Request request = new Request.Builder()
                 .url(finalUrl)
                 .get() // GET request
                 .build();
 
         try {
-            // Send the request synchronously
             Response response = client.newCall(request).execute();
-
             // Check if the response is successful
             if (response.isSuccessful()) {
                 String responseBody = response.body().string();
@@ -857,11 +779,12 @@ public class GridWindowController {
 
     public  List<String> getCurrentColumns() throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
         SpreadsheetDTO currentSpreadsheet = getCurrentSpreadsheetDTO();
+
         if (currentSpreadsheet == null) {
             return new ArrayList<>(); // Return an empty list if no spreadsheet is loaded
         }
 
-        int columnCount = currentSpreadsheet.getColumns(); // Assuming this returns the total number of columns
+        int columnCount = currentSpreadsheet.getColumns();
         List<String> columnNames = new ArrayList<>();
 
         for (int i = 0; i < columnCount; i++) {
@@ -872,22 +795,19 @@ public class GridWindowController {
     }
 
     public String getColumnName(int index) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
-        String url = ClientConstants.GET_COLUMN_NAME; // Replace with your actual URL
-
-        // Create request body with the index as a parameter
-        RequestBody requestBody = new FormBody.Builder()
-                .add("userName", userName)
-                .add("spreadsheetName", spreadsheetName)
-                .add("index", Integer.toString(index)) // Convert the index to string
+        // Build the URL with query parameters
+        HttpUrl url = HttpUrl.parse(ClientConstants.GET_COLUMN_NAME)
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("spreadsheetName", spreadsheetName)
+                .addQueryParameter("index", Integer.toString(index))
                 .build();
 
-        // Create the request
         Request request = new Request.Builder()
                 .url(url)
-                .post(requestBody) // Synchronous POST request
+                .get() // Use GET method
                 .build();
 
-        // Execute the request and handle the response synchronously
         try (Response response = client.newCall(request).execute()) {
 
             if (!response.isSuccessful()) {
@@ -932,20 +852,15 @@ public class GridWindowController {
 
                 // Use Gson to parse the JSON response to SpreadsheetDTO
                 Gson gson = new GsonBuilder().setPrettyPrinting().create(); // Enable pretty printing
-                System.out.println("Response body: " + responseBody);
                 setSpreadsheetModified(false);
                 return gson.fromJson(responseBody, SpreadsheetDTO.class);
             } else {
-                // Handle error response
                 showAlert(Alert.AlertType.ERROR, "Error", "Failed to load spreadsheet: " + response.message());
-                System.err.println("Error: " + response.message());
             }
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
-            System.err.println("Failed to connect to the server: " + e.getMessage());
         } catch (JsonSyntaxException e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to parse the response: " + e.getMessage());
-            System.err.println("Failed to parse the response: " + e.getMessage());
         }
 
         return null; // Return null or handle accordingly if there's an error
@@ -953,7 +868,7 @@ public class GridWindowController {
 
     // Method to send a request to the server for filtering table with multiple columns
     public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
-        String url = ClientConstants.FILTER_TABLE_MULTIPLE_COLUMNS; // Replace with your actual URL
+        String url = ClientConstants.FILTER_TABLE_MULTIPLE_COLUMNS;
 
         // Create the form body by iterating over the map
         FormBody.Builder formBuilder = new FormBody.Builder()
@@ -969,18 +884,14 @@ public class GridWindowController {
             }
         }
 
-        // Build the request body
         RequestBody requestBody = formBuilder.build();
-
-        // Create the request
         Request request = new Request.Builder()
                 .url(url)
-                .post(requestBody) // Synchronous POST request
+                .post(requestBody) // POST request
                 .build();
 
         try  {
             Response response = client.newCall(request).execute();
-
             if (!response.isSuccessful()) {
                 String errorMessage = response.body().string();
                 if (response.code() == 404) {
@@ -998,26 +909,22 @@ public class GridWindowController {
         }
     }
 
-
     public int getColumnIndex(String columnName) throws IOException, UserNotFoundException, SpreadsheetNotFoundException {
-        String url = ClientConstants.GET_COLUMN_INDEX; // Replace with your actual URL
-
-        // Create request body
-        RequestBody requestBody = new FormBody.Builder()
-                .add("userName", userName)
-                .add("spreadsheetName", spreadsheetName)
-                .add("columnName", columnName)
+        // Build the URL with query parameters
+        HttpUrl url = HttpUrl.parse(ClientConstants.GET_COLUMN_INDEX)
+                .newBuilder()
+                .addQueryParameter("userName", userName)
+                .addQueryParameter("spreadsheetName", spreadsheetName)
+                .addQueryParameter("columnName", columnName)
                 .build();
 
-        // Create the request
         Request request = new Request.Builder()
                 .url(url)
-                .post(requestBody) // Synchronous POST request
+                .get() // Use GET request
                 .build();
 
         try {
             Response response = client.newCall(request).execute();
-
             if (!response.isSuccessful()) {
                 String errorMessage = response.body().string();
                 if (response.code() == 404) {
@@ -1084,67 +991,6 @@ public class GridWindowController {
 //        }
 //    }
 
-    private void updateUI(List<UpdatedCell> updatedCells) {
-        for (UpdatedCell cell : updatedCells) {
-            StringProperty cellProperty = mainGridAreaComponentController.getCellProperty(cell.getCellId());
-            if (cellProperty != null) {
-                // Update the UI property with the new value
-                cellProperty.set(String.valueOf(cell.getValue()));
-            }
-        }
-    }
-
-
-//    public void updateDependentCellsForDynamicAnalysis(String cellId, double tempValue) {
-//        try {
-//            // Get the current spreadsheet
-//            Spreadsheet currentSpreadsheet = getCurrentSpreadsheet();
-//
-//            if (currentSpreadsheet == null) {
-//                return;
-//            }
-//
-//            // Temporarily update the value of the target cell in the spreadsheet's backend
-//            Cell cell = currentSpreadsheet.getCellById(cellId);
-//
-//            if (cell != null) {
-//                cell.setExpression(new LiteralExpression(tempValue));
-//                cell.setEffectiveValue();
-//            }
-//
-//            // Get the sorted list of cells to update using topological sort
-//            List<String> sortedCells = currentSpreadsheet.topologicalSort();
-//
-//            // Update each cell in the topological order
-//            for (String sortedCellId : sortedCells) {
-//                Cell dependentCell = currentSpreadsheet.getCellById(sortedCellId);
-//                StringProperty dependentCellProperty = mainGridAreaComponentController.getCellProperty(sortedCellId);
-//
-//                if (dependentCellProperty != null && dependentCell != null) {
-//                    dependentCell.setEffectiveValue();
-//                    Object effectiveValue = dependentCell.getEffectiveValue();
-//                    String effectiveValueString;
-//
-//                    // Format the number with thousands separators and up to two decimal places
-//                    if (effectiveValue instanceof Number) {
-//                        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
-//                        numberFormat.setMinimumFractionDigits(0);  // No minimum decimal digits
-//                        numberFormat.setMaximumFractionDigits(2);  // Maximum 2 decimal digits
-//                        effectiveValueString = numberFormat.format(effectiveValue);
-//                    } else {
-//                        effectiveValueString = String.valueOf(effectiveValue);
-//                    }
-//
-//                    dependentCellProperty.set(effectiveValueString); // Update the StringProperty for the dependent cell
-//                }
-//            }
-//
-//        } catch (Exception e) {
-//            // Handle any errors during dynamic analysis
-//            showAlert(Alert.AlertType.ERROR, "Error Performing Dynamic Analysis", e.getMessage());
-//        }
-//    }
-
     // Method to get the StringProperty of a cell by its ID
     public StringProperty getCellProperty(String cellId) {
         return mainGridAreaComponentController.getCellProperty(cellId);
@@ -1206,7 +1052,7 @@ public class GridWindowController {
     }
 
     public Expression parseExpression(String expressionInput) throws IOException {
-        String finalUrl = ClientConstants.PARSE_EXPRESSION; // Make sure this points to your servlet
+        String finalUrl = ClientConstants.PARSE_EXPRESSION;
         System.out.println(expressionInput);
         // Create a request body with the required parameters
         RequestBody body = new FormBody.Builder()
@@ -1221,7 +1067,6 @@ public class GridWindowController {
                 .post(body)
                 .build();
 
-        // Execute the request synchronously
         try {
             Response response = client.newCall(request).execute();
             if (!response.isSuccessful()) {
@@ -1229,20 +1074,15 @@ public class GridWindowController {
                 showAlert(Alert.AlertType.ERROR, "Error", "Failed to parse expression: " + errorMessage);
                 return null; // Return null or handle accordingly based on your design
             }
-
             // Read the response body
             String responseBody = response.body().string();
-
-            JsonElement jsonElement = new JsonParser().parse(responseBody);  // Use parse() instead of parseString()
+            JsonElement jsonElement = new JsonParser().parse(responseBody);
             JsonObject jsonObject = jsonElement.getAsJsonObject();
-            return parseResponseToExpression(jsonObject);  // Call your method with the JsonObject
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (JsonSyntaxException e) {
+            return parseResponseToExpression(jsonObject);
+        } catch (IOException | JsonSyntaxException e) {
             throw new RuntimeException(e);
         }
     }
-
 
     private Expression parseResponseToExpression(JsonObject jsonObject) throws IOException {
         // Check for "functionName" to handle FunctionExpression case
@@ -1389,19 +1229,19 @@ public class GridWindowController {
                 // Create Cell objects from CellDTOs
                 Cell cell = new Cell(
                         cellDTO.getOriginalValue(),
-                        effectiveValue, // Use converted effective value
-                        null, // Assuming the expression is set later or is null for now
+                        effectiveValue,
+                        null,
                         cellDTO.getLastUpdatedVersion(),
-                        cellDTO.getLastUpdatedBy() // Assuming Cell has a constructor that takes these parameters
+                        cellDTO.getLastUpdatedBy()
                 );
 
                 // Populate dependencies if necessary
                 for (String dependsOnId : cellDTO.getDependsOnThemIds()) {
-                    cell.addDependsOnThem(dependsOnId, new Cell()); // This may need a real Cell object
+                    cell.addDependsOnThem(dependsOnId, new Cell());
                 }
 
                 for (String dependsOnMeId : cellDTO.getDependsOnMeIds()) {
-                    cell.addDependsOnMe(dependsOnMeId, new Cell()); // This may need a real Cell object
+                    cell.addDependsOnMe(dependsOnMeId, new Cell());
                 }
 
                 cellMap.put(cellId, cell); // Add the cell to the map
@@ -1428,27 +1268,25 @@ public class GridWindowController {
                 return strValue;
             }
         }
-        return value; // Return as is if it's not a string
+        return value;
     }
 
     // Helper method to check if dynamic analysis can be done on a cell
     public void canDynamicAnalysisBeDone(String cellId) throws IOException {
-        // POST request body
-        String finalUrl = "http://localhost:8080/Server_Web_exploded/can-dynamic-analysis-be-done";
+        String finalUrl = ClientConstants.CAN_DYNAMIC_ANALYSIS_BE_DONE; // Replace with your actual URL
         RequestBody body = new FormBody.Builder()
                 .add("spreadsheetName", spreadsheetName)
                 .add("cellId", cellId)
                 .build();
 
-        // Make HTTP Request
         HttpClientUtil.runAsyncPost(finalUrl, body, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Platform.runLater(() -> showError("Failed to connect to the server. Please try again."));
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String jsonResponse = response.body().string();
                     Gson gson = new Gson();
@@ -1473,15 +1311,21 @@ public class GridWindowController {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GridWindowController that = (GridWindowController) o;
-        return Objects.equals(activeFadeTransitions, that.activeFadeTransitions) && Objects.equals(activeRotateTransitions, that.activeRotateTransitions) && Objects.equals(spreadsheetName, that.spreadsheetName) && Objects.equals(userName, that.userName) && Objects.equals(client, that.client) && Objects.equals(cookieManager, that.cookieManager) && Objects.equals(stage, that.stage) && Objects.equals(menuRoot, that.menuRoot) && Objects.equals(scrollPane, that.scrollPane) && Objects.equals(topGridWindowComponentController, that.topGridWindowComponentController) && Objects.equals(optionsBarComponentController, that.optionsBarComponentController) && Objects.equals(leftSideComponentController, that.leftSideComponentController) && Objects.equals(mainGridAreaComponentController, that.mainGridAreaComponentController) && Objects.equals(dynamicAnalysisComponentController, that.dynamicAnalysisComponentController) && Objects.equals(sortDialogController, that.sortDialogController) && Objects.equals(addRangeDialogController, that.addRangeDialogController) && Objects.equals(backComponentController, that.backComponentController);
+        return spreadsheetModified == that.spreadsheetModified && Objects.equals(activeFadeTransitions, that.activeFadeTransitions)
+                && Objects.equals(activeRotateTransitions, that.activeRotateTransitions) && Objects.equals(spreadsheetName, that.spreadsheetName)
+                && Objects.equals(userName, that.userName) && Objects.equals(client, that.client) && Objects.equals(cookieManager, that.cookieManager)
+                && Objects.equals(stage, that.stage) && Objects.equals(menuRoot, that.menuRoot) && Objects.equals(spreadsheetVersionRefresher, that.spreadsheetVersionRefresher)
+                && Objects.equals(scrollPane, that.scrollPane) && Objects.equals(topGridWindowComponentController, that.topGridWindowComponentController)
+                && Objects.equals(optionsBarComponentController, that.optionsBarComponentController) && Objects.equals(leftSideComponentController, that.leftSideComponentController)
+                && Objects.equals(mainGridAreaComponentController, that.mainGridAreaComponentController)
+                && Objects.equals(dynamicAnalysisComponentController, that.dynamicAnalysisComponentController) && Objects.equals(sortDialogController, that.sortDialogController)
+                && Objects.equals(addRangeDialogController, that.addRangeDialogController) && Objects.equals(backComponentController, that.backComponentController);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(activeFadeTransitions, activeRotateTransitions, spreadsheetName, userName, client, cookieManager, stage, menuRoot, scrollPane, topGridWindowComponentController, optionsBarComponentController, leftSideComponentController, mainGridAreaComponentController, dynamicAnalysisComponentController, sortDialogController, addRangeDialogController, backComponentController);
-    }
-
-    public String getSpreadsheetName() {
-        return spreadsheetName;
+        return Objects.hash(activeFadeTransitions, activeRotateTransitions, spreadsheetName, userName, client, cookieManager, stage,
+                menuRoot, spreadsheetModified, spreadsheetVersionRefresher, scrollPane, topGridWindowComponentController, optionsBarComponentController,
+                leftSideComponentController, mainGridAreaComponentController, dynamicAnalysisComponentController, sortDialogController, addRangeDialogController, backComponentController);
     }
 }

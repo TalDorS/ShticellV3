@@ -1,4 +1,4 @@
-package servlets;
+package servlets.getservlets;
 
 import engineimpl.EngineImpl;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,16 +20,13 @@ public class LogoutServlet extends HttpServlet {
         String usernameFromSession = SessionUtils.getUsername(request);
         EngineImpl engine = (EngineImpl) ServletUtils.getEngine(getServletContext());
 
-        System.out.println("Cookies received: " + Arrays.toString(request.getCookies())); // Debugging statement
         if (usernameFromSession != null) {
-            System.out.println("Clearing session for " + usernameFromSession);
 
             // Delete user and remove his uploaded spreadsheets
             engine.removeUser(usernameFromSession);
             SessionUtils.clearSession(request);
             response.setStatus(HttpServletResponse.SC_OK); // Set response to 200 OK
         } else {
-            System.err.println("No user session found for logout.");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Set response to 400 if no user found
             response.getWriter().write("No user session found for logout.");
         }

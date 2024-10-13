@@ -5,6 +5,7 @@ import cells.Cell;
 import spreadsheet.Spreadsheet;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 // Represent a reference to a cell in the spreadsheet
@@ -40,5 +41,18 @@ public class ReferenceExpression implements Expression, Serializable {
 
     public String getCellId() {
         return cellId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ReferenceExpression that = (ReferenceExpression) o;
+        return Objects.equals(cellId, that.cellId) && Objects.equals(spreadsheetSupplier, that.spreadsheetSupplier);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(cellId, spreadsheetSupplier);
     }
 }

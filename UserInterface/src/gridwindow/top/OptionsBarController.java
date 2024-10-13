@@ -1,13 +1,11 @@
 package gridwindow.top;
 
 import dto.VersionDTO;
-import exceptions.engineexceptions.SpreadsheetNotFoundException;
-import exceptions.engineexceptions.UserNotFoundException;
 import gridwindow.top.interactiveformuladialog.InteractiveFormulaDialogController;
 import javafx.fxml.FXML;
 
 import java.io.IOException;
-import java.util.List;  // Use this instead of java.awt.List
+import java.util.List;
 import java.util.Objects;
 
 import javafx.fxml.FXMLLoader;
@@ -83,7 +81,6 @@ public class OptionsBarController {
     public void updateCurrentVersionLabel(int versionNumber) {
         currentVersionLabel.setText("Current Version: " + versionNumber);
     }
-
 
     @FXML
     private void handleVersionSelectorButtonAction() {
@@ -198,7 +195,6 @@ public class OptionsBarController {
         }
     }
 
-    // New method to set the expression in the action line input
     public void applyExpressionToActionLine(String expression) {
         actionLineInput.setText(expression);
     }
@@ -213,18 +209,21 @@ public class OptionsBarController {
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OptionsBarController that = (OptionsBarController) o;
         return Objects.equals(mainController, that.mainController) && Objects.equals(selectedCellId, that.selectedCellId)
                 && Objects.equals(originalCellValue, that.originalCellValue) && Objects.equals(actionLineInput, that.actionLineInput)
                 && Objects.equals(updateValueButton, that.updateValueButton) && Objects.equals(lastUpdateCellVersion, that.lastUpdateCellVersion)
-                && Objects.equals(versionSelectorButton, that.versionSelectorButton) && Objects.equals(currentVersionLabel, that.currentVersionLabel);
+                && Objects.equals(versionSelectorButton, that.versionSelectorButton) && Objects.equals(currentVersionLabel, that.currentVersionLabel)
+                && Objects.equals(interactiveFormulaButton, that.interactiveFormulaButton);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mainController, selectedCellId, originalCellValue, actionLineInput, updateValueButton, lastUpdateCellVersion, versionSelectorButton, currentVersionLabel);
+        return Objects.hash(mainController, selectedCellId, originalCellValue, actionLineInput, updateValueButton,
+                lastUpdateCellVersion, versionSelectorButton, currentVersionLabel, interactiveFormulaButton);
     }
 }
 

@@ -1,4 +1,4 @@
-package servlets;
+package servlets.postservlets;
 
 import api.Engine;
 import jakarta.servlet.ServletException;
@@ -8,12 +8,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import utils.ServletUtils;
 
-import utils.SessionUtils;
-import com.google.gson.Gson;
-
 import java.io.IOException;
 
-@WebServlet("/addRange") // Specify the URL pattern for this servlet
+@WebServlet("/addRange")
 public class AddRangeServlet extends HttpServlet {
 
 

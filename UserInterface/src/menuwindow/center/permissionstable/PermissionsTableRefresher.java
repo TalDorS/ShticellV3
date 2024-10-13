@@ -7,9 +7,10 @@ import javafx.application.Platform;
 import menuwindow.MenuWindowController;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.HttpUrl;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
-import utils.AlertUtils;
+import utils.ClientConstants;
 import utils.HttpClientUtil;
 
 import java.io.IOException;
@@ -34,8 +35,11 @@ public class PermissionsTableRefresher extends TimerTask {
             return;
         }
 
-        // Http request to get the permissions for the selected spreadsheet
-        String finalUrl = "http://localhost:8080/Server_Web_exploded/getPermissions?spreadsheetName=" + selectedSpreadsheetName;
+        String finalUrl = HttpUrl.parse(ClientConstants.GET_PERMISSIONS)
+                .newBuilder()
+                .addQueryParameter("spreadsheetName", selectedSpreadsheetName)
+                .build()
+                .toString();
 
         HttpClientUtil.runAsyncGet(finalUrl, new Callback() {
             @Override

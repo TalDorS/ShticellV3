@@ -11,13 +11,12 @@ import expressionimpls.FunctionExpression;
 import expressionimpls.RangeExpression;
 import expressionimpls.ReferenceExpression;
 import filter.SpreadsheetFilter;
-import generatedschemafilesv2.*;
+import generatedschemafilesv3.*;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import ranges.RangesManager;
 import spreadsheet.Spreadsheet;
-import dto.*;
 import versions.permissions.PermissionsManager;
 
 import java.io.File;
@@ -34,13 +33,6 @@ public class VersionsManager implements Serializable {
     private static final int MAX_COLS = 20;
     private Supplier<Spreadsheet> spreadsheetSupplier = this::getCurrentSpreadsheet;
     private int currentVersionNumber;
-
-//    public VersionsManager(RangesManager rangesManager, SpreadsheetFilter spreadsheetFilterer) {
-//        this.rangesManager = rangesManager;
-//        this.spreadsheetFilterer = spreadsheetFilterer;
-//        this.versions = new HashMap<>();
-//        this.currentVersionNumber = 0;
-//    }
 
     public VersionsManager(String username) {
         this.permissionsManager = new PermissionsManager(username);
@@ -299,7 +291,6 @@ public class VersionsManager implements Serializable {
         }
     }
 
-
     // Method to validate a cell ID based on spreadsheet size
     private void validateCellIdWhenLoading(String cellId, STLSheet sheet) throws
             InvalidColumnException, InvalidRowException, InvalidCellIdFormatException {
@@ -463,7 +454,6 @@ public class VersionsManager implements Serializable {
         return cell.getOriginalValue().isEmpty() || valueChanged;
     }
 
-
     // Method to check for circular references in the new expression
     public void checkForCircularReferences(String cellId, Expression newExpression) throws CircularReferenceException {
         if (newExpression instanceof FunctionExpression) {
@@ -625,7 +615,6 @@ public class VersionsManager implements Serializable {
         // Add the range using the RangesManager
         rangesManager.addRange(rangeName, firstCell, lastCell);
     }
-
 
     // Helper method to check if the first cell is greater than the last cell
     private boolean isFirstCellGreater(String firstCell, String lastCell) {
@@ -804,16 +793,19 @@ public class VersionsManager implements Serializable {
     public String getSpreadsheetName() {
         return getCurrentSpreadsheet().getName();
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         VersionsManager that = (VersionsManager) o;
-        return currentVersionNumber == that.currentVersionNumber && Objects.equals(versions, that.versions);
+        return currentVersionNumber == that.currentVersionNumber && Objects.equals(versions, that.versions)
+                && Objects.equals(rangesManager, that.rangesManager) && Objects.equals(spreadsheetFilterer, that.spreadsheetFilterer)
+                && Objects.equals(permissionsManager, that.permissionsManager) && Objects.equals(spreadsheetSupplier, that.spreadsheetSupplier);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(versions, currentVersionNumber);
+        return Objects.hash(versions, rangesManager, spreadsheetFilterer, permissionsManager, spreadsheetSupplier, currentVersionNumber);
     }
 }

@@ -21,28 +21,31 @@ import versions.VersionsManager;
 import versions.permissions.PermissionsManager;
 
 //This class implements the api.Engine interface and manages the spreadsheet
-// First version of the spreadsheet will be index 1
 public class EngineImpl implements Engine {
     private final Map<String, VersionsManager> spreadsheetsMap; // Map of spreadsheet name to it's version manager
-    private final UserManager userManager;
+    private final UserManager userManager;                      // User manager to manage users
 
+    // Constructor
     public EngineImpl() {
         this.spreadsheetsMap = new HashMap<>();
         this.userManager = new UserManager();
     }
 
+    // Method to add a user
     @Override
     public synchronized void addUser(String username) throws Exception {
         userManager.addUser(username);
     }
 
+    // Method to check if a user exists
     @Override
     public synchronized boolean isUserExist(String username) {
         return userManager.isUserExists(username);
     }
 
+    // Method to load a spreadsheet
     @Override
-    public String loadSpreadsheet(String username, String filePath) throws Exception {
+    public synchronized String loadSpreadsheet(String username, String filePath) throws Exception {
         // Load spreadsheet to get the spreadsheet name
         VersionsManager versionsManager = new VersionsManager(username);
         versionsManager.loadSpreadsheet(filePath);
@@ -60,11 +63,6 @@ public class EngineImpl implements Engine {
         return spreadsheetName; // Return that the file was newly loaded
     }
 
-
-//    @Override
-//    public void clearVersions() {
-//        this.versionsManager.clearVersions();
-//    }
 
     @Override
     // Method to get the engine data using dto
@@ -112,7 +110,7 @@ public class EngineImpl implements Engine {
             }
         }
 
-        return new EngineDTO(Collections.emptyMap(),0); //fixme- check this
+        return new EngineDTO(Collections.emptyMap(),0);
     }
 
     @Override
@@ -127,6 +125,7 @@ public class EngineImpl implements Engine {
         return null;
     }
 
+    @Override
     public void removeUser(String username) {
         // Remove the user from the user manager
         userManager.removeUser(username);
@@ -161,8 +160,9 @@ public class EngineImpl implements Engine {
         );
     }
 
+    @Override
     // Method to convert cells to DTO
-    private Map<String, CellDTO> convertCellsToDTO(Map<String, Cell> cells) {
+    public Map<String, CellDTO> convertCellsToDTO(Map<String, Cell> cells) {
         // Create basic CellDTOs without dependencies
         Map<String, CellDTO> cellDTOMap = new HashMap<>();
 
@@ -199,7 +199,8 @@ public class EngineImpl implements Engine {
         return cellDTOMap;
     }
 
-    private RangeDTO convertRangeToDTO(Range range) {
+    @Override
+    public RangeDTO convertRangeToDTO(Range range) {
         if (range == null) {
             return null; // Handle null case if necessary
         }
@@ -235,7 +236,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void updateCellValue(String username, String spreadsheetName, String cellId, String newValue, Boolean isDynamicAnalysis)
+    public synchronized void updateCellValue(String username, String spreadsheetName, String cellId, String newValue, Boolean isDynamicAnalysis)
             throws CircularReferenceException, CellUpdateException, SpreadsheetNotFoundException, UserNotFoundException {
         // Retrieve the VersionsManager for the specified filePath
         VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
@@ -250,7 +251,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void addRange(String username, String spreadsheetName, String rangeName, String firstCell, String lastCell) throws Exception {
+    public synchronized void addRange(String username, String spreadsheetName, String rangeName, String firstCell, String lastCell) throws Exception {
         // Retrieve the VersionsManager for the specified filePath
         VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
@@ -264,7 +265,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void removeRange(String username, String spreadsheetName, String rangeName) throws Exception {
+    public synchronized void removeRange(String username, String spreadsheetName, String rangeName) throws Exception {
         // Retrieve the VersionsManager for the specified filePath
         VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
@@ -292,21 +293,6 @@ public class EngineImpl implements Engine {
             throw new SpreadsheetNotFoundException("The specified file does not exist for this user.");
         }
     }
-
-
-//    @Override
-//    public Map<String, Range> getAllRanges(String userName, String spreadsheetName) throws FileNotFoundException, UserNotFoundException {
-//        // Retrieve the VersionsManager for the specified filePath
-//        VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
-//
-//        // Check if the VersionsManager exists
-//        if (versionsManager != null) {
-//            // Call the getAllRanges method from the VersionsManager
-//            return versionsManager.getAllRanges();
-//        } else {
-//            throw new FileNotFoundException("The specified file does not exist for this user.");
-//        }
-//    }
 
     // Method to check for circular references in the new expression
     public void checkForCircularReferences(String username, String spreadsheetName, String cellId, Expression newExpression) throws CircularReferenceException, SpreadsheetNotFoundException, UserNotFoundException {
@@ -395,7 +381,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void askForPermission(String username, String spreadsheetName, PermissionType permissionType) {
+    public synchronized void askForPermission(String username, String spreadsheetName, PermissionType permissionType) {
         // Retrieve the VersionsManager for the specified spreadsheet name
         VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 

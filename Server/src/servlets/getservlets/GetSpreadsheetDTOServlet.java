@@ -1,4 +1,4 @@
-package servlets;
+package servlets.getservlets;
 
 import api.Engine;
 import com.google.gson.Gson;
@@ -14,7 +14,7 @@ import utils.ServletUtils;
 
 import java.io.IOException;
 
-@WebServlet("/getSpreadsheet") // Specify the URL pattern for this servlet
+@WebServlet("/getSpreadsheet")
 public class GetSpreadsheetDTOServlet extends HttpServlet {
 
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create(); // Enable pretty printing
@@ -52,7 +52,6 @@ public class GetSpreadsheetDTOServlet extends HttpServlet {
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("Error retrieving spreadsheet: " + e.getMessage());
-            System.err.println("Error retrieving spreadsheet: " + e.getMessage());
         }
     }
 }

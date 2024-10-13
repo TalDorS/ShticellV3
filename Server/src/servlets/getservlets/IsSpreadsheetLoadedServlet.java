@@ -1,4 +1,4 @@
-package servlets;
+package servlets.getservlets;
 
 import api.Engine;
 
@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import java.util.Map;
 
-@WebServlet("/isSpreadsheetLoaded") // Specify the URL pattern for this servlet
+@WebServlet("/isSpreadsheetLoaded")
 public class IsSpreadsheetLoadedServlet extends HttpServlet {
 
     @Override
@@ -41,7 +41,6 @@ public class IsSpreadsheetLoadedServlet extends HttpServlet {
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write(e.getMessage());
-            System.err.println("Error checking spreadsheet: " + e.getMessage());
         }
     }
 }

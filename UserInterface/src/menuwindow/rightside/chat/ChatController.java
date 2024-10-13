@@ -9,14 +9,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-import menuwindow.MenuWindowController;
 import menuwindow.rightside.RightSideController;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
+import utils.ClientConstants;
 import utils.HttpClientUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 
 import static utils.AlertUtils.showError;
@@ -49,7 +51,7 @@ public class ChatController {
         }
 
         // Prepare the POST request body
-        String finalUrl = "http://localhost:8080/Server_Web_exploded/add-chat-message";
+        String finalUrl = ClientConstants.ADD_CHAT_MESSAGE;
         RequestBody body = new FormBody.Builder()
                 .add("message", message)
                 .build();
@@ -57,12 +59,12 @@ public class ChatController {
         // Make the http request
         HttpClientUtil.runAsyncPost(finalUrl, body, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Platform.runLater(() -> showError("Failed to send message: " + e.getMessage()));
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     Platform.runLater(() -> {
                         messageTextField.clear();
@@ -80,17 +82,17 @@ public class ChatController {
     }
 
     public void updateMessagesTextField() {
-        String finalUrl = "http://localhost:8080/Server_Web_exploded/get-chat-data-list";
+        String finalUrl = ClientConstants.GET_CHAT_DATA_LIST;
 
         // Make GET request
         HttpClientUtil.runAsyncGet(finalUrl, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call,@NotNull IOException e) {
                 Platform.runLater(() -> showError("Failed to fetch chat data: " + e.getMessage()));
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String jsonResponse = response.body().string();
 
@@ -124,5 +126,21 @@ public class ChatController {
 
     public void setMainController(RightSideController mainController) {
         this.mainController = mainController;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChatController that = (ChatController) o;
+        return Objects.equals(mainController, that.mainController) && Objects.equals(chatTimer, that.chatTimer)
+                && Objects.equals(messageTextField, that.messageTextField) && Objects.equals(messageContainer, that.messageContainer)
+                && Objects.equals(chatScrollPane, that.chatScrollPane);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mainController, chatTimer, messageTextField, messageContainer, chatScrollPane);
     }
 }

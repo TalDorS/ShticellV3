@@ -14,7 +14,7 @@ import utils.ServletUtils;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/getRanges") // The URL to access this servlet
+@WebServlet("/getRanges")
 public class GetRangesServlet extends HttpServlet {
 
     @Override

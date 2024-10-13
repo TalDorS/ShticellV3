@@ -1,8 +1,6 @@
 package menuwindow;
 
-import api.Engine;
 import com.google.gson.Gson;
-import engineimpl.EngineImpl;
 import enums.PermissionType;
 import exceptions.engineexceptions.*;
 import gridwindow.GridWindowController;
@@ -21,13 +19,13 @@ import menuwindow.center.sheettable.AvailableSheetTableController;
 import menuwindow.rightside.RightSideController;
 import menuwindow.top.HeaderLoadController;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import utils.ClientConstants;
 import utils.HttpClientUtil;
 import utils.SimpleCookieManager;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 
 import static utils.AlertUtils.showAlert;
 import static utils.AlertUtils.showError;
@@ -36,7 +34,6 @@ import static utils.CommonResourcesPaths.GRID_WINDOW_FXML;
 public class MenuWindowController {
     private Timer permissionsTableTimer;
     private Stage stage; // To hold the stage reference
-    private Engine engine;
     private OkHttpClient client;
     private SimpleCookieManager cookieManager;
     private String lastSelectedSpreadsheetName;
@@ -58,7 +55,6 @@ public class MenuWindowController {
     @FXML
     public void initialize() {
 
-
         if (headerLoadComponentController != null) {
             headerLoadComponentController.setMainController(this);
         }
@@ -74,9 +70,6 @@ public class MenuWindowController {
 
         // Method to refresh permissions table if a spreadsheet is selected
         startPermissionsTableRefresher();
-
-        // TODO - ADVA DO WE NEED THIS?
-        engine = new EngineImpl();
     }
 
     public void setOkHttpClient(OkHttpClient client) {
@@ -111,15 +104,14 @@ public class MenuWindowController {
 
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                // Optionally log or handle logout failure
-                System.out.println("Logout request failed: " + e.getMessage());
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 showAlert(Alert.AlertType.ERROR, "Error", "Failed to logout: " + e.getMessage());
                 Platform.exit(); // Exit after handling response
+                System.exit(0);  // Forcefully terminate all threads
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     System.out.println("Logout successful");
                     cookieManager.removeCookiesOf(HttpUrl.parse(finalUrl).host());
@@ -140,7 +132,6 @@ public class MenuWindowController {
 
     // Method to load the spreadsheet from the client side
     public void loadSpreadsheet(String filePath) {
-        String userName = getUserName(); // Assuming this method retrieves the logged-in username
 
         String finalUrl = ClientConstants.LOAD_SPREADSHEET;
 
@@ -154,14 +145,14 @@ public class MenuWindowController {
         // Execute the request asynchronously
         HttpClientUtil.runAsyncPost(finalUrl, body, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call,@NotNull IOException e) {
                 Platform.runLater(() -> {
                     showAlert(Alert.AlertType.ERROR, "Error", "Failed to connect to the server: " + e.getMessage());
                 });
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 System.out.println("Received response code: " + response.code());
 
                 String responseBody = response.body().string();
@@ -169,24 +160,23 @@ public class MenuWindowController {
                 if (response.isSuccessful()) {
                     Platform.runLater(() -> {
                         // Manually parse the response for success
-                        String spreadsheetName = responseBody;
-                        if (spreadsheetName != null) {
+                        if (responseBody != null) {
                             availableSheetTableComponentController.updateSheetDetails();
                             showAlert(Alert.AlertType.INFORMATION, "Success", "Spreadsheet loaded successfully.");
                         }
                     });
                 } else {
                     Platform.runLater(() -> {
-                        String errorMessage = responseBody;
-                        showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+                        showAlert(Alert.AlertType.ERROR, "Error", responseBody);
                     });
                 }
             }
         });
     }
-        public void showGridWindow(String spreadsheetName, String username) {
-        try {
 
+
+    public void showGridWindow(String spreadsheetName, String username) {
+        try {
             // Load the FXML for the Grid Window
             FXMLLoader gridLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
             Parent gridRoot = gridLoader.load();
@@ -211,16 +201,9 @@ public class MenuWindowController {
             getUserPermissionAndLockGridIfNeedBe(spreadsheetName, username);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (CellUpdateException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidExpressionException e) {
-            throw new RuntimeException(e);
-        } catch (SpreadsheetLoadingException e) {
-            throw new RuntimeException(e);
-        } catch (RangeProcessException e) {
-            throw new RuntimeException(e);
-        } catch (CircularReferenceException e) {
+
+        } catch (CellUpdateException | InvalidExpressionException | SpreadsheetLoadingException |
+                 RangeProcessException | CircularReferenceException e) {
             throw new RuntimeException(e);
         }
     }
@@ -233,7 +216,7 @@ public class MenuWindowController {
 
     public void getUserPermissionAndLockGridIfNeedBe(String spreadsheetName, String username) {
         // URL for the GET request
-        String finalUrl = HttpUrl.parse("http://localhost:8080/Server_Web_exploded/get-user-permission")
+        String finalUrl = HttpUrl.parse(ClientConstants.GET_USER_PERMISSIONS)
                 .newBuilder()
                 .addQueryParameter("spreadsheetName", spreadsheetName)
                 .addQueryParameter("username", username)
@@ -248,12 +231,12 @@ public class MenuWindowController {
         // Run the async GET request
         HttpClientUtil.runAsyncGet(finalUrl, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Platform.runLater(() -> showError("Failed to fetch permission: " + e.getMessage()));
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call,@NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     // Parse the response to get the PermissionType using Gson
                     String jsonResponse = response.body().string();
@@ -313,19 +296,6 @@ public class MenuWindowController {
         return this.lastSelectedSpreadsheetName;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MenuWindowController that = (MenuWindowController) o;
-        return Objects.equals(engine, that.engine) && Objects.equals(headerLoadComponentController, that.headerLoadComponentController) && Objects.equals(rightSideComponentController, that.rightSideComponentController) && Objects.equals(availableSheetTableComponentController, that.availableSheetTableComponentController);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(engine, headerLoadComponentController, rightSideComponentController, availableSheetTableComponentController);
-    }
-
     public AvailableSheetTableController getAvailableSheetTableController() {
         return availableSheetTableComponentController;
     }
@@ -336,5 +306,29 @@ public class MenuWindowController {
 
     public void setUserName(String text) {
         headerLoadComponentController.setUserName(text);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MenuWindowController that = (MenuWindowController) o;
+        return Objects.equals(permissionsTableTimer, that.permissionsTableTimer) && Objects.equals(stage, that.stage)
+                && Objects.equals(client, that.client) && Objects.equals(cookieManager, that.cookieManager)
+                && Objects.equals(lastSelectedSpreadsheetName, that.lastSelectedSpreadsheetName)
+                && Objects.equals(headerLoadComponentController, that.headerLoadComponentController)
+                && Objects.equals(rightSideComponentController, that.rightSideComponentController)
+                && Objects.equals(availableSheetTableComponentController, that.availableSheetTableComponentController)
+                && Objects.equals(permissionsTableComponentController, that.permissionsTableComponentController)
+                && Objects.equals(gridWindowController, that.gridWindowController);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(permissionsTableTimer, stage, client, cookieManager, lastSelectedSpreadsheetName,
+                headerLoadComponentController, rightSideComponentController, availableSheetTableComponentController,
+                permissionsTableComponentController, gridWindowController);
     }
 }

@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet(name = "SubmitRequestForPermissionServlet", urlPatterns = "/request-permission")
+@WebServlet(name = "SubmitRequestForPermissionServlet", urlPatterns = "/requestPermission")
 public class SubmitRequestForPermissionServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

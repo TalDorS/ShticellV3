@@ -12,7 +12,7 @@ import utils.SessionUtils;
 
 import java.io.IOException;
 
-@WebServlet(name = "AddChatMessageServlet", urlPatterns = "/add-chat-message")
+@WebServlet(name = "AddChatMessageServlet", urlPatterns = "/addChatMessage")
 public class AddChatMessageServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

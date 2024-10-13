@@ -7,6 +7,7 @@ import spreadsheet.Spreadsheet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class RangeExpression implements Expression {
@@ -47,5 +48,18 @@ public class RangeExpression implements Expression {
 
     public Range getRange() {
         return range;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RangeExpression that = (RangeExpression) o;
+        return Objects.equals(rangeName, that.rangeName) && Objects.equals(range, that.range) && Objects.equals(spreadsheetSupplier, that.spreadsheetSupplier);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rangeName, range, spreadsheetSupplier);
     }
 }

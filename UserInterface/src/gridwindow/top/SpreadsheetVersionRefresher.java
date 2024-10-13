@@ -8,10 +8,12 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 import utils.ClientConstants;
 import utils.HttpClientUtil;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -50,12 +52,12 @@ public class SpreadsheetVersionRefresher  {
 
             HttpClientUtil.runAsyncGet(url, new Callback() {
                 @Override
-                public void onFailure(Call call, IOException e) {
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
                     // Handle failure (e.g., log the error)
                 }
 
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                     // Ensure the response body is closed after use
                     try (Response res = response) {
                         if (res.isSuccessful()) {
@@ -84,8 +86,20 @@ public class SpreadsheetVersionRefresher  {
                 }
 
             });
-        } catch (Exception e) {
-            // Handle any exceptions that occur during the request
-        }
+        } catch (Exception e) {}
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SpreadsheetVersionRefresher that = (SpreadsheetVersionRefresher) o;
+        return lastKnownVersion == that.lastKnownVersion && Objects.equals(mainController, that.mainController) && Objects.equals(scheduler, that.scheduler);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mainController, scheduler, lastKnownVersion);
     }
 }

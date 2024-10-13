@@ -73,7 +73,6 @@ public class LeftSideController {
         } catch (IllegalStateException e) {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Adding New Range", e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -98,7 +97,6 @@ public class LeftSideController {
             stage.showAndWait();
 
         } catch (IOException e) {
-            e.printStackTrace();
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Opening Filter Dialog", e.getMessage());
         } catch (IllegalStateException e) {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Adding New Range", e.getMessage());
@@ -122,11 +120,7 @@ public class LeftSideController {
         deleteButton.setOnAction(event -> {
             try {
                 handleDeleteRange(name);
-            } catch (UserNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (SpreadsheetNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
+            } catch (UserNotFoundException | IOException | SpreadsheetNotFoundException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -145,36 +139,14 @@ public class LeftSideController {
         rangesAccordion.getPanes().add(rangePane);
     }
 
-
     // Method to handle mouse hover events
     private void handleMouseHover(String firstCell, String lastCell, boolean isHovering) {
         mainController.highlightRange(firstCell, lastCell, isHovering); // Delegate to AppController
     }
 
-
     private void handleDeleteRange(String rangeName) throws UserNotFoundException, SpreadsheetNotFoundException, IOException {
         mainController.removeRange(rangeName); // Pass the delete request to the AppController refersh is done here
-        //refreshRanges(); // Refresh the ranges to update the UI
     }
-
-//    // Method to refresh the range list in the UI
-//    public void refreshRanges() throws UserNotFoundException, FileNotFoundException, IOException {
-//        // Clear the current list of ranges
-//        rangesAccordion.getPanes().clear();
-//
-//        // Fetch the current list of ranges from the backend engine
-//        Map<String, String[]> ranges = mainController.getRanges();
-//
-//        // Rebuild the range list in the UI
-//        for (Map.Entry<String, String[]> entry : ranges.entrySet()) {
-//            String name = entry.getKey();
-//            String firstCell = entry.getValue()[0];
-//            String lastCell = entry.getValue()[1];
-//
-//            addRangeToUI(name, firstCell, lastCell);
-//        }
-//    }
-
 
     // Method to refresh the range list in the UI for displaying rangesDTO
     public void refreshRanges(List<RangeDTO> rangesDTO) {
@@ -221,14 +193,12 @@ public class LeftSideController {
         } catch (IOException e) {
             // Handle IOException, which may occur during FXML loading
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Loading Sort Dialog", "An error occurred while loading the sort dialog: " + e.getMessage());
-            e.printStackTrace(); // Optionally print stack trace for debugging
         } catch (IllegalStateException e) {
             // Handle IllegalStateException for cases where no spreadsheet is loaded
             AlertUtils.showAlert(Alert.AlertType.WARNING, "Spreadsheet Not Loaded", e.getMessage());
         } catch (Exception e) {
             // Handle any other exceptions that might occur
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Unexpected Error", "An unexpected error occurred: " + e.getMessage());
-            e.printStackTrace(); // Optionally print stack trace for debugging
         }
     }
 
@@ -265,7 +235,6 @@ public class LeftSideController {
         } catch (IllegalStateException e) {
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Creating Graph", e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
             AlertUtils.showAlert(Alert.AlertType.ERROR, "Error Opening Graph Dialog", e.getMessage());
         }
     }
@@ -279,11 +248,11 @@ public class LeftSideController {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LeftSideController that = (LeftSideController) o;
-        return Objects.equals(mainController, that.mainController) && Objects.equals(rangesAccordion, that.rangesAccordion);
+        return Objects.equals(mainController, that.mainController) && Objects.equals(rangesAccordion, that.rangesAccordion) && Objects.equals(addRangeButton, that.addRangeButton);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mainController, rangesAccordion);
+        return Objects.hash(mainController, rangesAccordion, addRangeButton);
     }
 }

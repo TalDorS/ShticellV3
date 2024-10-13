@@ -1,4 +1,4 @@
-package servlets;
+package servlets.getservlets;
 
 import api.Engine;
 import com.google.gson.Gson;

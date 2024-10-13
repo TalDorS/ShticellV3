@@ -5,6 +5,7 @@ import api.Function;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 // Represent functions with arguments
 public class FunctionExpression implements Expression, Serializable {
@@ -35,5 +36,18 @@ public class FunctionExpression implements Expression, Serializable {
 
     public String getFunctionName() {
         return functionName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FunctionExpression that = (FunctionExpression) o;
+        return Objects.equals(functionName, that.functionName) && Objects.equals(arguments, that.arguments) && Objects.equals(function, that.function);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(functionName, arguments, function);
     }
 }

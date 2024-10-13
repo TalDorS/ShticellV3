@@ -1,4 +1,4 @@
-package servlets;
+package servlets.getservlets;
 
 import api.Engine;
 import exceptions.engineexceptions.SpreadsheetNotFoundException;
@@ -12,15 +12,14 @@ import utils.ServletUtils;
 
 import java.io.IOException;
 
-@WebServlet("/getColumnIndex") // Define the URL pattern for the servlet
+@WebServlet("/getColumnIndex")
 public class GetColumnIndexServlet extends HttpServlet {
 
-
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=UTF-8");
 
-        // Retrieve parameters from the request
+        // Retrieve query parameters from the request
         String userName = request.getParameter("userName");
         String spreadsheetName = request.getParameter("spreadsheetName");
         String columnName = request.getParameter("columnName");
@@ -46,15 +45,13 @@ public class GetColumnIndexServlet extends HttpServlet {
         } catch(UserNotFoundException e) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             response.getWriter().write("User not found.");
-        }catch(SpreadsheetNotFoundException e) {
+        } catch(SpreadsheetNotFoundException e) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             response.getWriter().write("Spreadsheet not found.");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // Handle other exceptions
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("An error occurred: " + e.getMessage() );
-            System.err.println("Error getting column index: " + e.getMessage());
+            response.getWriter().write("An error occurred: " + e.getMessage());
         }
     }
 }

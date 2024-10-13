@@ -1,5 +1,7 @@
 package chat;
 
+import java.util.Objects;
+
 public class SingleChatEntry {
     private final String chatString;
     private final String username;
@@ -26,5 +28,18 @@ public class SingleChatEntry {
     @Override
     public String toString() {
         return (username != null ? username + ": " : "") + chatString;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SingleChatEntry that = (SingleChatEntry) o;
+        return time == that.time && Objects.equals(chatString, that.chatString) && Objects.equals(username, that.username);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(chatString, username, time);
     }
 }

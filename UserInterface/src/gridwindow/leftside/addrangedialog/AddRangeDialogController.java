@@ -6,6 +6,8 @@ import javafx.scene.control.TextField;
 import gridwindow.GridWindowController;
 import utils.AlertUtils;
 
+import java.util.Objects;
+
 public class AddRangeDialogController {
     private GridWindowController mainController;
 
@@ -70,5 +72,18 @@ public class AddRangeDialogController {
         }
 
         return new String[] {firstCell, lastCell};
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddRangeDialogController that = (AddRangeDialogController) o;
+        return Objects.equals(mainController, that.mainController) && Objects.equals(rangeNameField, that.rangeNameField) && Objects.equals(rangeInputField, that.rangeInputField);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mainController, rangeNameField, rangeInputField);
     }
 }

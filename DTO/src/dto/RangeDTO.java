@@ -2,6 +2,7 @@ package dto;
 
 import java.util.List;
 
+// This class is for creating the range data transfer object
 public class RangeDTO {
     private final String name;
     private final String startCell;
@@ -30,6 +31,4 @@ public class RangeDTO {
     public List<String> getCells() {
         return cells;
     }
-
-
 }

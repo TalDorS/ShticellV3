@@ -1,4 +1,4 @@
-package servlets;
+package servlets.postservlets;
 
 import api.Engine;
 import api.Expression;
@@ -16,7 +16,7 @@ import utils.ServletUtils;
 
 import java.io.IOException;
 
-@WebServlet("/parseExpression") // Specify the URL pattern for this servlet
+@WebServlet("/parseExpression")
 public class ParseExpressionServlet extends HttpServlet {
 
     private final Gson gson;
@@ -53,7 +53,6 @@ public class ParseExpressionServlet extends HttpServlet {
 
             // Serialize the parsed expression to JSON
             String jsonResponse = gson.toJson(parsedExpression);
-            System.out.println("Parsed expression: " + jsonResponse);
             // Create a response JSON object
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(jsonResponse);
@@ -66,7 +65,6 @@ public class ParseExpressionServlet extends HttpServlet {
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("Error parsing expression: " + e.getMessage());
-            System.err.println("Error parsing expression: " + e.getMessage());
         }
     }
 }

@@ -1,5 +1,4 @@
-package servlets;
-
+package servlets.getservlets;
 
 import api.Engine;
 import exceptions.engineexceptions.SpreadsheetNotFoundException;
@@ -13,14 +12,14 @@ import utils.ServletUtils;
 
 import java.io.IOException;
 
-@WebServlet("/getColumnName") // Define the URL pattern for the servlet
+@WebServlet("/getColumnName") // Ensure this matches your routing
 public class GetColumnNameServlet extends HttpServlet {
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json;charset=UTF-8");
 
-        // Retrieve parameters from the request
+        // Retrieve parameters from the query string (GET parameters)
         String userName = request.getParameter("userName");
         String spreadsheetName = request.getParameter("spreadsheetName");
         String indexString = request.getParameter("index");
@@ -28,11 +27,11 @@ public class GetColumnNameServlet extends HttpServlet {
         // Check if required parameters are missing
         if (userName == null || spreadsheetName == null || indexString == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{Missing required parameters.");
+            response.getWriter().write("Missing required parameters.");
             return;
         }
 
-        // Parse the index from the request (ensure it's an integer)
+        // Parse the index from the query (ensure it's an integer)
         int index;
         try {
             index = Integer.parseInt(indexString);
@@ -53,19 +52,16 @@ public class GetColumnNameServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(columnName); // Return column name as plain text
 
-        } catch(SpreadsheetNotFoundException e) {
+        } catch (SpreadsheetNotFoundException e) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             response.getWriter().write("Spreadsheet not found.");
-        }
-        catch(UserNotFoundException e) {
+        } catch (UserNotFoundException e) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             response.getWriter().write("User not found.");
-        }
-        catch (Exception e) {
-            // Handle any exceptions (UserNotFoundException, SpreadsheetNotFoundException, etc.)
+        } catch (Exception e) {
+            // Handle any other exceptions
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("An error occurred: " + e.getMessage());
-            System.err.println("Error getting column name: " + e.getMessage());
         }
     }
 }

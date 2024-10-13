@@ -1,4 +1,4 @@
-package servlets;
+package servlets.getservlets;
 
 import api.Engine;
 
@@ -17,8 +17,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import utils.ServletUtils;
 import java.io.IOException;
 
-@WebServlet("/getCellDTOById") // This URL maps to the servlet
-public class GetCellDTOByIdServlet extends HttpServlet {
+@WebServlet("/getCellDTOById")
+public class
+GetCellDTOByIdServlet extends HttpServlet {
 
 
     Gson gson = new GsonBuilder()

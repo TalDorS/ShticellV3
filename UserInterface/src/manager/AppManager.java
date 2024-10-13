@@ -1,8 +1,6 @@
 package manager;
 
-import gridwindow.GridWindowController;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,9 +8,7 @@ import javafx.scene.Scene;
 
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Duration;
-import gridwindow.top.Skin;
-import menuwindow.MenuWindowController;
+
 import loginwindow.LoginController;
 import java.io.IOException;
 
@@ -29,96 +25,7 @@ public class AppManager {
     }
 
     public void runApp() {
-        // Show the login window before the main app
-        //showLoginWindow();
-        //showMenuWindow();
         showLoginWindow();
-
-        //showWelcomeScreen(); //fixme-it shows the loading app screen
-        //showGridWindow();
-    }
-
-    private void showMenuWindow() {
-        try{
-            FXMLLoader menuLoader = new FXMLLoader(getClass().getResource(MENU_WINDOW_FXML));
-            Parent menuRoot = menuLoader.load();
-            MenuWindowController menuWindowController = menuLoader.getController();
-
-            Scene menuScene = new Scene(menuRoot);
-            primaryStage.setTitle("Menu Scene");
-            primaryStage.setScene(menuScene);
-            primaryStage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Method to run a new client after a successful login, spawning a new window (Stage)
-//    public void runNewClient() {
-//        Stage newStage = new Stage();  // Create a new Stage (window)
-//        AppManager newClientManager = new AppManager(newStage);  // Create a new AppManager for the new window
-//        newClientManager.showMenuWindow();  // Load the client window (or the app's main window)
-//    }
-
-    private void showWelcomeScreen() {
-        try {
-            // Load the welcome screen FXML
-            FXMLLoader welcomeLoader = new FXMLLoader(getClass().getResource(WELCOME_FXML));
-            Parent welcomeRoot = welcomeLoader.load();
-
-            // Get the controller from the FXML loader
-            AppManagerController welcomeController = welcomeLoader.getController();
-
-            // Create a new Stage for the splash screen (undecorated)
-            Stage splashStage = new Stage();
-            Scene welcomeScene = new Scene(welcomeRoot);
-            splashStage.setScene(welcomeScene);
-            splashStage.initStyle(StageStyle.UNDECORATED); // Removes the window decorations
-            splashStage.show();
-
-            // Simulate progress for the progress bar
-            simulateLoading(welcomeController, splashStage);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void simulateLoading(AppManagerController welcomeController, Stage splashStage) {
-        // Simulate progress for 1.5 seconds, then close the splash screen and open the main app
-        Timeline timeline = new Timeline(
-                new KeyFrame(Duration.ZERO, event -> welcomeController.setProgress(0)),
-                new KeyFrame(Duration.seconds(0.2), event -> welcomeController.setProgress(0.25)),
-                new KeyFrame(Duration.seconds(0.4), event -> welcomeController.setProgress(0.5)),
-                new KeyFrame(Duration.seconds(0.6), event -> welcomeController.setProgress(0.75)),
-                new KeyFrame(Duration.seconds(0.8), event -> welcomeController.setProgress(1))
-        );
-
-        timeline.setOnFinished(event -> {
-            // Once the progress is complete, close the splash screen and load the main app
-            splashStage.close();
-            showGridWindow();
-        });
-
-        timeline.play();
-    }
-
-    private void showGridWindow() {
-        try {
-            // Load the main app FXML and set up the AppController
-            FXMLLoader appLoader = new FXMLLoader(getClass().getResource(GRID_WINDOW_FXML));
-            Parent root = appLoader.load();
-            GridWindowController gridWindowController = appLoader.getController();
-
-            // Set up the scene and stage for the main application
-            Scene scene = new Scene(root);
-            gridWindowController.setSkin(Skin.DEFAULT.getDirectoryName());
-            primaryStage.setTitle("Main Scene");
-            primaryStage.setScene(scene);
-            primaryStage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void showLoginWindow() {
@@ -144,7 +51,6 @@ public class AppManager {
             // Hide the primary stage until login is successful
             primaryStage.hide();
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -154,16 +60,7 @@ public class AppManager {
             primaryStage.close();  // Closes the primary window
         }
 
-        // Optionally exit the whole JavaFX application
         Platform.exit();  // Shuts down the entire application
+        System.exit(0);  // Forces the application to close
     }
-
-//    // Method to start a new client thread
-//    public void launchNewClient() {
-//        Thread clientThread = new Thread(() -> {
-//            Platform.runLater(this::showLoginWindow);
-//        });
-//        clientThread.setDaemon(true); // Set as a daemon thread
-//        clientThread.start();
-//    }
 }

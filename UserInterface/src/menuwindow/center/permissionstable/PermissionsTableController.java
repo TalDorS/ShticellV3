@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import menuwindow.MenuWindowController;
@@ -15,12 +16,16 @@ import enums.PermissionStatus;
 import enums.PermissionType;
 import menuwindow.center.permissionstable.models.PermissionDetails;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
+import utils.AlertUtils;
+import utils.ClientConstants;
 import utils.HttpClientUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class PermissionsTableController {
@@ -60,7 +65,7 @@ public class PermissionsTableController {
 
     // Method to request permission details from the server
     public void fetchPermissionsData(String spreadsheetName) {
-        String url = HttpUrl.parse("http://localhost:8080/Server_Web_exploded/getPermissions")
+        String url = HttpUrl.parse(ClientConstants.GET_PERMISSIONS)
                 .newBuilder()
                 .addQueryParameter("spreadsheetName", spreadsheetName)
                 .build()
@@ -68,14 +73,14 @@ public class PermissionsTableController {
 
         HttpClientUtil.runAsyncGet(url, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call,@NotNull IOException e) {
                 Platform.runLater(() -> {
-                    System.out.println("Failed to fetch permissions data: " + e.getMessage());
+                    AlertUtils.showAlert(Alert.AlertType.ERROR,"Failed to fetch permissions data: " + e.getMessage());
                 });
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
 
@@ -90,7 +95,7 @@ public class PermissionsTableController {
                     });
                 } else {
                     Platform.runLater(() -> {
-                        System.out.println("Failed to fetch permissions data: " + response.message());
+                        AlertUtils.showAlert(Alert.AlertType.ERROR,"Failed to fetch permissions data: " + response.message());
                     });
                 }
             }
@@ -125,7 +130,7 @@ public class PermissionsTableController {
         if (selectedRequest != null) {
             return selectedRequest.getPermissionStatus(); // Return the selected permission details
         } else {
-            System.out.println("No permission selected.");
+            AlertUtils.showAlert(Alert.AlertType.ERROR,"No permission selected.");
             return null; // Return null if no item is selected
         }
     }
@@ -139,7 +144,7 @@ public class PermissionsTableController {
         if (selectedRequest != null) {
             return selectedRequest.getPermissionType(); // Return the selected permission details
         } else {
-            System.out.println("No permission selected.");
+            AlertUtils.showAlert(Alert.AlertType.ERROR,"No permission selected.");
             return null; // Return null if no item is selected
         }
     }
@@ -153,7 +158,7 @@ public class PermissionsTableController {
         if (selectedRequest != null) {
             return selectedRequest.getUsername(); // Return the selected permission details
         } else {
-            System.out.println("No permission selected.");
+            AlertUtils.showAlert(Alert.AlertType.ERROR,"No permission selected.");
             return null; // Return null if no item is selected
         }
     }
@@ -183,5 +188,20 @@ public class PermissionsTableController {
     public void resetPermissionsTableToDefault() {
         // Clear the current data in the table
         permissionDetailsList.clear();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PermissionsTableController that = (PermissionsTableController) o;
+        return Objects.equals(mainController, that.mainController) && Objects.equals(permissionsTableView, that.permissionsTableView)
+                && Objects.equals(usernameColumn, that.usernameColumn) && Objects.equals(permissionTypeColumn, that.permissionTypeColumn)
+                && Objects.equals(permissionStatusColumn, that.permissionStatusColumn) && Objects.equals(permissionDetailsList, that.permissionDetailsList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mainController, permissionsTableView, usernameColumn, permissionTypeColumn, permissionStatusColumn, permissionDetailsList);
     }
 }

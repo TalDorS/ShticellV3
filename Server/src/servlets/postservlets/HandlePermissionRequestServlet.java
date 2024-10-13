@@ -12,7 +12,7 @@ import utils.ServletUtils;
 
 import java.io.IOException;
 
-@WebServlet(name = "HandlePermissionRequestServlet", urlPatterns = "/handle-permission-request")
+@WebServlet(name = "HandlePermissionRequestServlet", urlPatterns = "/handlePermissionRequest")
 public class HandlePermissionRequestServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

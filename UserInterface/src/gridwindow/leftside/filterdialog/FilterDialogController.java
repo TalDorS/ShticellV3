@@ -195,7 +195,6 @@ public class FilterDialogController {
         columnsCheckBoxContainer.setVisible(true);
     }
 
-
     @FXML
     private void handleSelectValues() {
         if (selectedColumns.isEmpty()) {
@@ -446,5 +445,20 @@ public class FilterDialogController {
         // Close the filter dialog
         Stage stage = (Stage) tableAreaField.getScene().getWindow();
         stage.close();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FilterDialogController that = (FilterDialogController) o;
+        return Objects.equals(tableAreaField, that.tableAreaField) && Objects.equals(columnsCheckBoxContainer, that.columnsCheckBoxContainer)
+                && Objects.equals(selectValuesButton, that.selectValuesButton) && Objects.equals(mainController, that.mainController)
+                && Objects.equals(selectedColumnValues, that.selectedColumnValues) && Objects.equals(selectedColumns, that.selectedColumns);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tableAreaField, columnsCheckBoxContainer, selectValuesButton, mainController, selectedColumnValues, selectedColumns);
     }
 }

@@ -1,4 +1,4 @@
-package servlets;
+package servlets.postservlets;
 
 import api.Engine;
 import com.google.gson.Gson;
@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet("/sortSpreadsheet") // Specify the URL pattern for this servlet
+@WebServlet("/sortSpreadsheet")
 public class SortSpreadsheetServlet extends HttpServlet {
 
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create(); // Enable pretty printing
@@ -72,7 +72,6 @@ public class SortSpreadsheetServlet extends HttpServlet {
         catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("Error sorting spreadsheet: " + e.getMessage());
-            System.err.println("Error sorting spreadsheet: " + e.getMessage());
         }
     }
 }

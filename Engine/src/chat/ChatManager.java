@@ -2,6 +2,7 @@ package chat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ChatManager {
     private final List<SingleChatEntry> chatDataList;
@@ -20,5 +21,18 @@ public class ChatManager {
 
     public int getVersion() {
         return chatDataList.size();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChatManager that = (ChatManager) o;
+        return Objects.equals(chatDataList, that.chatDataList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(chatDataList);
     }
 }
