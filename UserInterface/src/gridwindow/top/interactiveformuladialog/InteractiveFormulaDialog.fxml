@@ -15,7 +15,6 @@
         </VBox>
       <TextField fx:id="expressionTextField" layoutX="11.0" layoutY="146.0" prefHeight="25.0" prefWidth="259.0" />
          <Label fx:id="resultPreview" layoutX="11.0" layoutY="212.0" text="Result:" />
-      <Button fx:id="calculateButton" layoutX="11.0" layoutY="179.0" mnemonicParsing="false" text="Calculate" />
       <Button fx:id="applyButton" layoutX="220.0" layoutY="240.0" mnemonicParsing="false" text="Apply" />
       <Button fx:id="cancelButton" layoutX="10.0" layoutY="240.0" mnemonicParsing="false" text="Cancel" />
     </children>

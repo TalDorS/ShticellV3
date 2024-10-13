@@ -35,8 +35,6 @@ public class InteractiveFormulaDialogController {
     @FXML
     private TextField expressionTextField; // Text field that shows the current state of the expression
 
-    @FXML
-    private Button calculateButton;
 
     @FXML
     private Label resultPreview; // Label to display preview result
@@ -70,7 +68,6 @@ public class InteractiveFormulaDialogController {
         expressionTextField.setEditable(false);
         functionComboBox.setItems(functions);
         functionComboBox.setOnAction(event -> handleFunctionSelection());
-        calculateButton.setOnAction(event -> calculateExpression());
         applyButton.setOnAction(event -> handleApplyButton());
         cancelButton.setOnAction(event -> handleCancelButton());
     }
@@ -165,34 +162,6 @@ public class InteractiveFormulaDialogController {
         expressionTextField.setText(expressionBuilder.toString());
     }
 
-    private void calculateExpression() {
-        try {
-            if (currentFunctionName == null || currentFunctionName.isEmpty()) {
-                resultPreview.setText("Please select a function.");
-                return;
-            }
-
-            Expression parseResult = mainController.parseExpression(expressionTextField.getText());
-            Object result = parseResult.evaluate();
-
-            if (result instanceof Number) {
-                NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
-                numberFormat.setMinimumFractionDigits(0);  // No minimum decimal digits
-                numberFormat.setMaximumFractionDigits(2);  // Maximum 2 decimal digits
-                result = numberFormat.format(result);
-            }
-
-            //fixme- i couldnt do that it will show it in the formula window
-//            if (getParentController() != null) {
-//                mainController.checkForCircularReferences(parentController.getCurrentCellId(), parseResult);
-//            }
-
-            resultPreview.setText("Result: " + result.toString());
-        } catch (Exception e) {
-            resultPreview.setText("Error: " + e.getMessage());
-        }
-    }
-
     private void handleApplyButton() {
         this.applied = true; // Mark that the apply button was pressed
 
@@ -231,7 +200,7 @@ public class InteractiveFormulaDialogController {
         InteractiveFormulaDialogController that = (InteractiveFormulaDialogController) o;
         return applied == that.applied && Objects.equals(functionComboBox, that.functionComboBox)
                 && Objects.equals(argumentContainer, that.argumentContainer) && Objects.equals(expressionTextField, that.expressionTextField)
-                && Objects.equals(calculateButton, that.calculateButton) && Objects.equals(resultPreview, that.resultPreview)
+                && Objects.equals(resultPreview, that.resultPreview)
                 && Objects.equals(applyButton, that.applyButton) && Objects.equals(cancelButton, that.cancelButton) && Objects.equals(mainController, that.mainController)
                 && Objects.equals(argumentExpressions, that.argumentExpressions) && Objects.equals(currentFunctionName, that.currentFunctionName)
                 && Objects.equals(argumentValues, that.argumentValues) && Objects.equals(parentController, that.parentController);
@@ -239,7 +208,7 @@ public class InteractiveFormulaDialogController {
 
     @Override
     public int hashCode() {
-        return Objects.hash(functionComboBox, argumentContainer, expressionTextField, calculateButton, resultPreview, applyButton,
+        return Objects.hash(functionComboBox, argumentContainer, expressionTextField, resultPreview, applyButton,
                 cancelButton, mainController, argumentExpressions, currentFunctionName, argumentValues, applied, parentController);
     }
 }
