@@ -1,8 +1,8 @@
 package gridwindow.leftside;
 
 import dto.RangeDTO;
-import utils.uiexceptions.SpreadsheetNotFoundException;
-import utils.uiexceptions.UserNotFoundException;
+import utils.exceptions.SpreadsheetNotFoundException;
+import utils.exceptions.UserNotFoundException;
 import gridwindow.leftside.addrangedialog.AddRangeDialogController;
 import gridwindow.leftside.filterdialog.FilterDialogController;
 import gridwindow.leftside.graphdialog.GraphDialogController;

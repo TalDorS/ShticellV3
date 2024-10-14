@@ -17,7 +17,7 @@ import static utils.AlertUtils.showAlert;
 
 public class HeaderLoadController {
     private MenuWindowController mainController;
-    private String previousFilePath = "";
+    private String clearFilePath = "";
 
     @FXML
     private Button loadFileButton;
@@ -65,7 +65,6 @@ public class HeaderLoadController {
         if (selectedFile == null) return; // User canceled file selection
 
         String filePath = selectedFile.getAbsolutePath();
-        previousFilePath = loadedFilePath.getText(); // Save the current file path
         loadedFilePath.setText(filePath);
 
         // Show progress indicator
@@ -131,6 +130,7 @@ public class HeaderLoadController {
                 super.succeeded();
                 Platform.runLater(() -> {
                     progressIndicator.setVisible(false);
+                    loadedFilePath.setText(clearFilePath);
                 });
             }
 
@@ -140,7 +140,7 @@ public class HeaderLoadController {
                 Platform.runLater(() -> {
                     showAlert(Alert.AlertType.ERROR, "Error", getMessage());
                     progressIndicator.setVisible(false);
-                    loadedFilePath.setText(previousFilePath);
+                    loadedFilePath.setText(clearFilePath);
                 });
             }
 
@@ -150,7 +150,7 @@ public class HeaderLoadController {
                 Platform.runLater(() -> {
                     showAlert(Alert.AlertType.ERROR, "Failed", "Failed to load spreadsheet: \n" + getMessage());
                     progressIndicator.setVisible(false);
-                    loadedFilePath.setText(previousFilePath);
+                    loadedFilePath.setText(clearFilePath);
                 });
             }
         };
@@ -162,13 +162,13 @@ public class HeaderLoadController {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HeaderLoadController that = (HeaderLoadController) o;
-        return Objects.equals(mainController, that.mainController) && Objects.equals(previousFilePath, that.previousFilePath)
+        return Objects.equals(mainController, that.mainController) && Objects.equals(clearFilePath, that.clearFilePath)
                 && Objects.equals(loadFileButton, that.loadFileButton) && Objects.equals(loadedFilePath, that.loadedFilePath)
                 && Objects.equals(progressIndicator, that.progressIndicator) && Objects.equals(nameLabel, that.nameLabel);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mainController, previousFilePath, loadFileButton, loadedFilePath, progressIndicator, nameLabel);
+        return Objects.hash(mainController, clearFilePath, loadFileButton, loadedFilePath, progressIndicator, nameLabel);
     }
 }

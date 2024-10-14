@@ -44,7 +44,7 @@ public class EngineImpl implements Engine {
 
     // Method to load a spreadsheet
     @Override
-    public synchronized String loadSpreadsheet(String username, String filePath) throws Exception {
+    public synchronized String loadSpreadsheet(String username, String filePath) throws InvalidExpressionException, SpreadsheetLoadingException, CellUpdateException, CircularReferenceException, RangeProcessException{
         // Load spreadsheet to get the spreadsheet name
         VersionsManager versionsManager = new VersionsManager(username);
         versionsManager.loadSpreadsheet(filePath);
