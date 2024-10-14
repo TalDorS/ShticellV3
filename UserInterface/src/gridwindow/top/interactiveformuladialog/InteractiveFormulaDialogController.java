@@ -1,5 +1,8 @@
 package gridwindow.top.interactiveformuladialog;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -13,12 +16,16 @@ import gridwindow.GridWindowController;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import gridwindow.top.OptionsBarController;
+import okhttp3.*;
+import utils.ClientConstants;
+import utils.HttpClientUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static utils.AlertUtils.showError;
 import static utils.CommonResourcesPaths.INTERACTIVE_FORMULA_DIALOG_FXML;
 
 public class InteractiveFormulaDialogController {
@@ -50,11 +57,7 @@ public class InteractiveFormulaDialogController {
     @FXML
     public void initialize() {
         // Populate the function dropdown with available functions
-        ObservableList<String> functions = FXCollections.observableArrayList();
-//
-//        for (FunctionType functionType : FunctionType.values()) {
-//            functions.add(functionType.name());
-//        }
+        ObservableList<String> functions = getFunctionNames();
 
         expressionTextField.setEditable(false);
         functionComboBox.setItems(functions);
@@ -69,19 +72,49 @@ public class InteractiveFormulaDialogController {
         argumentValues.clear();
         expressionTextField.clear();
 
-        // Get selected function and determine the number of required arguments
+        // Get selected function name from the ComboBox
         currentFunctionName = functionComboBox.getValue();
 
         if (currentFunctionName != null) {
-            expressionTextField.setText("{" + currentFunctionName + ","); // Set the start of the function expression
-//            FunctionType selectedFunction = FunctionType.valueOf(currentFunctionName);
-//            int argumentCount = selectedFunction.getFunction().getNumberOfArguments(); // Get expected arguments count for function
+            // Set the start of the function expression
+            expressionTextField.setText("{" + currentFunctionName + ",");
 
-//            for (int i = 0; i < argumentCount; i++) {
-//                addArgumentField();
-//            }
+            // Send request to server to get the number of arguments for the selected function
+            String finalUrl = ClientConstants.GET_NUMBER_OF_ARGUMENTS;  // URL for fetching function details (number of arguments, etc.)
+            RequestBody body = new FormBody.Builder()
+                    .add("functionName", currentFunctionName)  // Send the selected function name to the server
+                    .build();
+
+            // Send async request to get function details (like argument count)
+            HttpClientUtil.runAsyncPost(finalUrl, body, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Platform.runLater(() -> showError("Failed to fetch function details: " + e.getMessage()));
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        String jsonResponse = response.body().string();
+
+                        // Assuming the server returns the number of arguments for the function as a simple integer
+                        Gson gson = new Gson();
+                        int argumentCount = gson.fromJson(jsonResponse, Integer.class);  // Parse the number of arguments
+
+                        Platform.runLater(() -> {
+                            // Dynamically create argument input fields
+                            for (int i = 0; i < argumentCount; i++) {
+                                addArgumentField();
+                            }
+                        });
+                    } else {
+                        Platform.runLater(() -> showError("Error: " + response.message()));
+                    }
+                }
+            });
         }
     }
+
 
     private void addArgumentField() {
         HBox argumentBox = new HBox(5); // Horizontal box to contain the text field and button
@@ -181,6 +214,40 @@ public class InteractiveFormulaDialogController {
     private void handleCancelButton() {
         this.applied = false; // Ensure 'applied' is false if Cancel is pressed
         ((Stage) cancelButton.getScene().getWindow()).close(); // Close the dialog without applying any changes
+    }
+
+    private ObservableList<String> getFunctionNames() {
+        ObservableList<String> functionNamesList = FXCollections.observableArrayList();
+        String finalUrl = ClientConstants.GET_FUNCTION_NAMES;
+
+        // Make an HTTP GET request to get the function names from the server
+        HttpClientUtil.runAsyncGet(finalUrl, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Platform.runLater(() -> showError("Failed to retrieve function data: " + e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String jsonResponse = response.body().string();
+
+                    // Parse the JSON response to get a list of function names
+                    Gson gson = new Gson();
+                    List<String> functionNames = gson.fromJson(jsonResponse, new TypeToken<List<String>>() {}.getType());
+
+                    // Update the ObservableList on the UI thread
+                    Platform.runLater(() -> {
+                        functionNamesList.clear();
+                        functionNamesList.addAll(functionNames);
+                    });
+                } else {
+                    Platform.runLater(() -> showError("Error: " + response.message()));
+                }
+            }
+        });
+
+        return functionNamesList;
     }
 
     @Override
