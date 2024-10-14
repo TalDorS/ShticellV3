@@ -10,16 +10,13 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import gridwindow.GridWindowController;
-import enums.FunctionType;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import gridwindow.top.OptionsBarController;
 
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import static utils.CommonResourcesPaths.INTERACTIVE_FORMULA_DIALOG_FXML;
@@ -33,10 +30,6 @@ public class InteractiveFormulaDialogController {
 
     @FXML
     private TextField expressionTextField; // Text field that shows the current state of the expression
-
-
-    @FXML
-    private Label resultPreview; // Label to display preview result
 
     @FXML
     private Button applyButton;
@@ -58,10 +51,10 @@ public class InteractiveFormulaDialogController {
     public void initialize() {
         // Populate the function dropdown with available functions
         ObservableList<String> functions = FXCollections.observableArrayList();
-
-        for (FunctionType functionType : FunctionType.values()) {
-            functions.add(functionType.name());
-        }
+//
+//        for (FunctionType functionType : FunctionType.values()) {
+//            functions.add(functionType.name());
+//        }
 
         expressionTextField.setEditable(false);
         functionComboBox.setItems(functions);
@@ -81,12 +74,12 @@ public class InteractiveFormulaDialogController {
 
         if (currentFunctionName != null) {
             expressionTextField.setText("{" + currentFunctionName + ","); // Set the start of the function expression
-            FunctionType selectedFunction = FunctionType.valueOf(currentFunctionName);
-            int argumentCount = selectedFunction.getFunction().getNumberOfArguments(); // Get expected arguments count for function
+//            FunctionType selectedFunction = FunctionType.valueOf(currentFunctionName);
+//            int argumentCount = selectedFunction.getFunction().getNumberOfArguments(); // Get expected arguments count for function
 
-            for (int i = 0; i < argumentCount; i++) {
-                addArgumentField();
-            }
+//            for (int i = 0; i < argumentCount; i++) {
+//                addArgumentField();
+//            }
         }
     }
 
@@ -195,11 +188,11 @@ public class InteractiveFormulaDialogController {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InteractiveFormulaDialogController that = (InteractiveFormulaDialogController) o;
-        return applied == that.applied && Objects.equals(functionComboBox, that.functionComboBox) && Objects.equals(argumentContainer, that.argumentContainer) && Objects.equals(expressionTextField, that.expressionTextField) && Objects.equals(resultPreview, that.resultPreview) && Objects.equals(applyButton, that.applyButton) && Objects.equals(cancelButton, that.cancelButton) && Objects.equals(mainController, that.mainController) && Objects.equals(currentFunctionName, that.currentFunctionName) && Objects.equals(argumentValues, that.argumentValues) && Objects.equals(parentController, that.parentController);
+        return applied == that.applied && Objects.equals(functionComboBox, that.functionComboBox) && Objects.equals(argumentContainer, that.argumentContainer) && Objects.equals(expressionTextField, that.expressionTextField) && Objects.equals(applyButton, that.applyButton) && Objects.equals(cancelButton, that.cancelButton) && Objects.equals(mainController, that.mainController) && Objects.equals(currentFunctionName, that.currentFunctionName) && Objects.equals(argumentValues, that.argumentValues) && Objects.equals(parentController, that.parentController);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(functionComboBox, argumentContainer, expressionTextField, resultPreview, applyButton, cancelButton, mainController, currentFunctionName, argumentValues, applied, parentController);
+        return Objects.hash(functionComboBox, argumentContainer, expressionTextField, applyButton, cancelButton, mainController, currentFunctionName, argumentValues, applied, parentController);
     }
 }
