@@ -68,11 +68,14 @@ public class DynamicAnalysisDialogController {
     // Method to add a cell to the dynamic analysis list
     public void addCellToAnalysis(String cellId) throws IOException {
         try {
+            // Normalize cellId by removing leading zeros from the numeric part (e.g., B04 -> B4)
+            cellId = cellId.replaceAll("([A-Z]+)(0*)(\\d+)", "$1$3");
+
             // Get CellDTO and save its original value before changes are made
             CellDTO cell = mainController.getCellDTOById(cellId);
 
             if (cell == null) {
-                throw new IOException(cellId + " does not exist");
+                throw new IOException(cellId + " is empty or does not exist");
             }
 
             // Check if cell original value is a number
