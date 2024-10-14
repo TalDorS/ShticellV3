@@ -1,4 +1,4 @@
-package utils.uiexceptions;
+package utils.exceptions;
 
 public class UserNotFoundException extends Exception {
     public UserNotFoundException(String message) {

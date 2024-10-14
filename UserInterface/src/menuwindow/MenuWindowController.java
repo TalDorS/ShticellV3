@@ -166,7 +166,7 @@ public class MenuWindowController {
                     });
                 } else {
                     Platform.runLater(() -> {
-                        showAlert(Alert.AlertType.ERROR, "Error", responseBody);
+                        showAlert(Alert.AlertType.ERROR, "Error",  responseBody);
                     });
                 }
             }

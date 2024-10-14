@@ -32,8 +32,8 @@ import gridwindow.leftside.sortdialog.SortDialogController;
 import utils.AlertUtils;
 import utils.HttpClientUtil;
 import utils.SimpleCookieManager;
-import utils.uiexceptions.SpreadsheetNotFoundException;
-import utils.uiexceptions.UserNotFoundException;
+import utils.exceptions.SpreadsheetNotFoundException;
+import utils.exceptions.UserNotFoundException;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -763,7 +763,7 @@ public class GridWindowController {
         }
     }
 
-    public  List<String> getCurrentColumns() throws utils.uiexceptions.UserNotFoundException, utils.uiexceptions.SpreadsheetNotFoundException, IOException {
+    public  List<String> getCurrentColumns() throws utils.exceptions.UserNotFoundException, utils.exceptions.SpreadsheetNotFoundException, IOException {
         SpreadsheetDTO currentSpreadsheet = getCurrentSpreadsheetDTO();
 
         if (currentSpreadsheet == null) {
@@ -780,7 +780,7 @@ public class GridWindowController {
         return columnNames;
     }
 
-    public String getColumnName(int index) throws IOException, utils.uiexceptions.UserNotFoundException, utils.uiexceptions.SpreadsheetNotFoundException {
+    public String getColumnName(int index) throws IOException, utils.exceptions.UserNotFoundException, utils.exceptions.SpreadsheetNotFoundException {
         // Build the URL with query parameters
         HttpUrl url = HttpUrl.parse(ClientConstants.GET_COLUMN_NAME)
                 .newBuilder()
@@ -799,9 +799,9 @@ public class GridWindowController {
             if (!response.isSuccessful()) {
                 String errorMessage = response.body().string();
                 if (response.code() == 404) {
-                    throw new utils.uiexceptions.UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
+                    throw new utils.exceptions.UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
                 }
-                throw new utils.uiexceptions.SpreadsheetNotFoundException("Error fetching column name: " + errorMessage);
+                throw new utils.exceptions.SpreadsheetNotFoundException("Error fetching column name: " + errorMessage);
             }
 
             // If the response is successful, get the column name from the response body
@@ -853,7 +853,7 @@ public class GridWindowController {
     }
 
     // Method to send a request to the server for filtering table with multiple columns
-    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws IOException, utils.uiexceptions.UserNotFoundException, utils.uiexceptions.SpreadsheetNotFoundException {
+    public List<String[][]> filterTableMultipleColumns(String tableArea, Map<String, List<String>> selectedColumnValues) throws IOException, utils.exceptions.UserNotFoundException, utils.exceptions.SpreadsheetNotFoundException {
         String url = ClientConstants.FILTER_TABLE_MULTIPLE_COLUMNS;
 
         // Create the form body by iterating over the map
@@ -881,9 +881,9 @@ public class GridWindowController {
             if (!response.isSuccessful()) {
                 String errorMessage = response.body().string();
                 if (response.code() == 404) {
-                    throw new utils.uiexceptions.UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
+                    throw new utils.exceptions.UserNotFoundException("User or Spreadsheet not found: " + errorMessage);
                 }
-                throw new utils.uiexceptions.SpreadsheetNotFoundException("Error fetching filtered table: " + errorMessage);
+                throw new utils.exceptions.SpreadsheetNotFoundException("Error fetching filtered table: " + errorMessage);
             }
 
             // Parse the response body into the expected List<String[][]> format
@@ -895,7 +895,7 @@ public class GridWindowController {
         }
     }
 
-    public int getColumnIndex(String columnName) throws IOException, utils.uiexceptions.UserNotFoundException, utils.uiexceptions.SpreadsheetNotFoundException {
+    public int getColumnIndex(String columnName) throws IOException, utils.exceptions.UserNotFoundException, utils.exceptions.SpreadsheetNotFoundException {
         // Build the URL with query parameters
         HttpUrl url = HttpUrl.parse(ClientConstants.GET_COLUMN_INDEX)
                 .newBuilder()

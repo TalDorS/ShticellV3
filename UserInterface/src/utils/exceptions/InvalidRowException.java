@@ -1,4 +1,4 @@
-package utils.uiexceptions;
+package utils.exceptions;
 
 public class InvalidRowException extends Exception {
     public InvalidRowException(String cellId, int row, int maxRow) {

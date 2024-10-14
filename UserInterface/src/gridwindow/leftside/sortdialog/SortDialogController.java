@@ -2,11 +2,11 @@ package gridwindow.leftside.sortdialog;
 
 import gridwindow.GridWindowController;
 import dto.SpreadsheetDTO;
-import utils.uiexceptions.InvalidCellIdFormatException;
-import utils.uiexceptions.InvalidColumnException;
-import utils.uiexceptions.InvalidRowException;
-import utils.uiexceptions.CellNotFoundException;
-import utils.uiexceptions.InvalidInputFormatException;
+import utils.exceptions.InvalidCellIdFormatException;
+import utils.exceptions.InvalidColumnException;
+import utils.exceptions.InvalidRowException;
+import utils.exceptions.CellNotFoundException;
+import utils.exceptions.InvalidInputFormatException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;

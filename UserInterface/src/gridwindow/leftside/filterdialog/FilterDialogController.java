@@ -2,8 +2,8 @@ package gridwindow.leftside.filterdialog;
 
 import dto.CellDTO;
 import dto.SpreadsheetDTO;
-import utils.uiexceptions.SpreadsheetNotFoundException;
-import utils.uiexceptions.UserNotFoundException;
+import utils.exceptions.SpreadsheetNotFoundException;
+import utils.exceptions.UserNotFoundException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
