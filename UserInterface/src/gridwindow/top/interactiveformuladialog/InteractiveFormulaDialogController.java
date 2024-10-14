@@ -11,7 +11,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import gridwindow.GridWindowController;
 import enums.FunctionType;
-import api.Expression;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import gridwindow.top.OptionsBarController;
@@ -46,7 +45,6 @@ public class InteractiveFormulaDialogController {
     private Button cancelButton;
 
     private GridWindowController mainController;
-    private List<Expression> argumentExpressions = new ArrayList<>();
     private String currentFunctionName; // Store the selected function name
     private List<String> argumentValues = new ArrayList<>(); // Store argument values
     private boolean applied; // Indicates if "Apply" was pressed
@@ -75,7 +73,6 @@ public class InteractiveFormulaDialogController {
     private void handleFunctionSelection() {
         // Clear previous arguments
         argumentContainer.getChildren().clear();
-        argumentExpressions.clear();
         argumentValues.clear();
         expressionTextField.clear();
 
@@ -198,17 +195,11 @@ public class InteractiveFormulaDialogController {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InteractiveFormulaDialogController that = (InteractiveFormulaDialogController) o;
-        return applied == that.applied && Objects.equals(functionComboBox, that.functionComboBox)
-                && Objects.equals(argumentContainer, that.argumentContainer) && Objects.equals(expressionTextField, that.expressionTextField)
-                && Objects.equals(resultPreview, that.resultPreview)
-                && Objects.equals(applyButton, that.applyButton) && Objects.equals(cancelButton, that.cancelButton) && Objects.equals(mainController, that.mainController)
-                && Objects.equals(argumentExpressions, that.argumentExpressions) && Objects.equals(currentFunctionName, that.currentFunctionName)
-                && Objects.equals(argumentValues, that.argumentValues) && Objects.equals(parentController, that.parentController);
+        return applied == that.applied && Objects.equals(functionComboBox, that.functionComboBox) && Objects.equals(argumentContainer, that.argumentContainer) && Objects.equals(expressionTextField, that.expressionTextField) && Objects.equals(resultPreview, that.resultPreview) && Objects.equals(applyButton, that.applyButton) && Objects.equals(cancelButton, that.cancelButton) && Objects.equals(mainController, that.mainController) && Objects.equals(currentFunctionName, that.currentFunctionName) && Objects.equals(argumentValues, that.argumentValues) && Objects.equals(parentController, that.parentController);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(functionComboBox, argumentContainer, expressionTextField, resultPreview, applyButton,
-                cancelButton, mainController, argumentExpressions, currentFunctionName, argumentValues, applied, parentController);
+        return Objects.hash(functionComboBox, argumentContainer, expressionTextField, resultPreview, applyButton, cancelButton, mainController, currentFunctionName, argumentValues, applied, parentController);
     }
 }
