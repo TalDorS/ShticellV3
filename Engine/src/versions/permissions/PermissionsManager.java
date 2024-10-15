@@ -1,127 +1,85 @@
 package versions.permissions;
 
+import dto.PermissionRequestDTO;
 import enums.PermissionStatus;
 import enums.PermissionType;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 
 public class PermissionsManager {
     private final String owner;
-    private final Map<String, PermissionStatus> writers;
-    private final Map<String, PermissionStatus> readers;
+    private final Map<String, PermissionType> permissions;  // Maps a username to their permission type
+    private final List<PermissionRequestDTO> requestHistory;  // Holds all permission requests (including duplicates)
 
-    public PermissionsManager(String username) {
-        this.owner = username;
-        writers = new HashMap<>();
-        readers = new HashMap<>();
+    // Constructor
+    public PermissionsManager(String owner) {
+        this.owner = owner;
+        this.permissions = new HashMap<>();
+        this.requestHistory = new ArrayList<>();
+
+        // By default, the owner is added to the permissions map with OWNER permission
+        permissions.put(owner, PermissionType.OWNER);
     }
 
+    // Getter for owner
     public String getOwner() {
         return owner;
     }
 
-    public Map<String, PermissionStatus> getWriters() {
-        return writers;
+    // Getter for permissions map (thread-safe)
+    public synchronized Map<String, PermissionType> getPermissions() {
+        return new HashMap<>(permissions);  // Return a copy of the permissions map for safety
     }
 
-    public Map<String, PermissionStatus> getReaders() {
-        return readers;
+    // Getter for request history (thread-safe)
+    public synchronized List<PermissionRequestDTO> getRequestHistory() {
+        return new ArrayList<>(requestHistory);  // Return a copy of the request history
     }
 
-    public void addWriter(String username) {
-        writers.put(username, PermissionStatus.PENDING);
+    // Method to submit a new permission request
+    public synchronized void askForPermission(String username, PermissionType permissionType) {
+        PermissionRequestDTO newRequest = new PermissionRequestDTO(username, permissionType, PermissionStatus.PENDING);
+        requestHistory.add(newRequest);  // Add the request to the history
     }
 
-    public void removeWriter(String username) {
-        writers.remove(username);
-    }
-
-    public void addReader(String username) {
-        readers.put(username, PermissionStatus.PENDING);
-    }
-
-    public void removeReader(String username) {
-        readers.remove(username);
-    }
-
-    public void approveWriter(String username) {
-        if (writers.containsKey(username)) {
-            writers.put(username, PermissionStatus.APPROVED);  // Approve the writer
-        }
-    }
-
-    public void approveReader(String username) {
-        if (readers.containsKey(username)) {
-            readers.put(username, PermissionStatus.APPROVED);  // Approve the reader
-        }
-    }
-
-    public boolean isWriterApproved(String username) {
-        return writers.getOrDefault(username, PermissionStatus.PENDING) == PermissionStatus.APPROVED;
-    }
-
-    public boolean isReaderApproved(String username) {
-        return readers.getOrDefault(username, PermissionStatus.PENDING) == PermissionStatus.APPROVED;
-    }
-
-    public PermissionType getUserPermission(String username) {
-        if (owner.equals(username)) {
-            return PermissionType.OWNER;
-        }
-        if (writers.containsKey(username) && writers.get(username).equals(PermissionStatus.APPROVED)) {
-            return PermissionType.WRITER;
-        }
-        if (readers.containsKey(username) && readers.get(username).equals(PermissionStatus.APPROVED)) {
-            return PermissionType.READER;
-        }
-
-        return PermissionType.NONE;
-    }
-
-    public void askForPermission(String username, PermissionType permissionType) {
-        // Check the permission type and add the user to the appropriate map with status PENDING
-        if (permissionType == PermissionType.WRITER) {
-            // Add the user as a writer with a PENDING status
-            if (!writers.containsKey(username)) {
-                addWriter(username);
-            }
-        } else if (permissionType == PermissionType.READER) {
-            // Add the user as a reader with a PENDING status
-            if (!readers.containsKey(username)) {
-                addReader(username);
-            }
-        }
-    }
-
-    public void handlePermissionRequest(String applicantName, String handlerName, PermissionStatus permissionStatus, PermissionType permissionType) {
+    public synchronized void handlePermissionRequest(String applicantName, String handlerName, int requestNumber, PermissionStatus status, PermissionType requestedPermission) {
         // Check if the handler is the owner
         if (!owner.equals(handlerName)) {
             throw new IllegalStateException("Only the owner can handle permission requests.");
         }
 
-        // Handle the permission request based on the permission type
-        if (permissionType == PermissionType.WRITER) {
-            // Approve or reject the writer
-            if (writers.containsKey(applicantName)) {
-                writers.put(applicantName, permissionStatus);
-                // If the user is approved as a writer, remove them from the readers map
-                if (permissionStatus == PermissionStatus.APPROVED) {
-                    readers.remove(applicantName);
-                }
-            }
-        } else if (permissionType == PermissionType.READER) {
-            // Approve or reject the reader
-            if (readers.containsKey(applicantName)) {
-                readers.put(applicantName, permissionStatus);
-                // If the user is approved as a reader, remove them from the writers map
-                if (permissionStatus == PermissionStatus.APPROVED) {
-                    writers.remove(applicantName);
-                }
-            }
+        // Validate if the request exists in the requestHistory by its number
+        if (requestNumber < 0 || requestNumber >= requestHistory.size()) {
+            throw new IllegalArgumentException("Invalid request number.");
         }
+
+        // Get the request from the requestHistory
+        PermissionRequestDTO request = requestHistory.get(requestNumber);
+
+        // Check if the request corresponds to the applicant
+        if (!request.getUsername().equals(applicantName)) {
+            throw new IllegalArgumentException("Applicant name does not match the request.");
+        }
+
+        // Handle the permission status update
+        if (status == PermissionStatus.APPROVED) {
+            // Insert or update the user in the permissions map with the approved permission type
+            permissions.put(applicantName, requestedPermission);
+
+            // Update the request status to APPROVED in the request history
+            request.setStatus(PermissionStatus.APPROVED);
+        } else if (status == PermissionStatus.REJECTED) {
+            // Only update the request status to REJECTED in the request history
+            request.setStatus(PermissionStatus.REJECTED);
+        } else {
+            throw new IllegalArgumentException("Invalid permission status.");
+        }
+    }
+
+    // Helper method to check if a user has a specific permission
+    public synchronized PermissionType getUserPermission(String username) {
+        return permissions.getOrDefault(username, PermissionType.NONE);
     }
 
     @Override
@@ -129,11 +87,12 @@ public class PermissionsManager {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PermissionsManager that = (PermissionsManager) o;
-        return Objects.equals(writers, that.writers) && Objects.equals(readers, that.readers);
+        return Objects.equals(owner, that.owner) && Objects.equals(permissions, that.permissions) && Objects.equals(requestHistory, that.requestHistory);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(writers, readers);
+        return Objects.hash(owner, permissions, requestHistory);
     }
 }
+

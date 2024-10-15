@@ -2,6 +2,7 @@ package menuwindow.center.permissionstable;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import dto.PermissionRequestDTO;
 import dto.PermissionsManagerDTO;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -23,10 +24,7 @@ import utils.HttpClientUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class PermissionsTableController {
     private MenuWindowController mainController;
@@ -57,6 +55,7 @@ public class PermissionsTableController {
 
         // Bind the TableView to the ObservableList
         permissionsTableView.setItems(permissionDetailsList);
+        permissionsTableView.getColumns().forEach(column -> column.setSortable(false));
     }
 
     public void setMainController(MenuWindowController mainController) {
@@ -102,22 +101,22 @@ public class PermissionsTableController {
         });
     }
 
-    // Method to update the permissions table
+    // Method to update the permissions table with request history
     public void updatePermissionsTable(PermissionsManagerDTO permissionsData) {
         // Clear previous data
         permissionDetailsList.clear();
 
-        // Add the owner
-        permissionDetailsList.add(new PermissionDetails(permissionsData.getOwner(), PermissionType.OWNER, PermissionStatus.NONE));
-
-        // Add the writers
-        for (Map.Entry<String, PermissionStatus> entry : permissionsData.getWriters().entrySet()) {
-            permissionDetailsList.add(new PermissionDetails(entry.getKey(), PermissionType.WRITER, entry.getValue()));
-        }
-
-        // Add the readers
-        for (Map.Entry<String, PermissionStatus> entry : permissionsData.getReaders().entrySet()) {
-            permissionDetailsList.add(new PermissionDetails(entry.getKey(), PermissionType.READER, entry.getValue()));
+        // Add the request history, with permissionNumber as the index of each request
+        int permissionNumber = 1; // Start numbering from 1, assuming the first row starts at 1
+        for (PermissionRequestDTO request : permissionsData.getRequestHistory()) {
+            // Add each request to the permissions table as a PermissionDetails object, including the permission number
+            permissionDetailsList.add(new PermissionDetails(
+                    request.getUsername(),
+                    permissionNumber,
+                    request.getRequestedPermission(),
+                    request.getStatus()
+            ));
+            permissionNumber++; // Increment the permission number for the next request
         }
     }
 
@@ -160,24 +159,32 @@ public class PermissionsTableController {
         }
     }
 
+    // Method to get the selected request's row number
+    public int getSelectedRequestNumber() {
+        // return the index of the selected item from the TableView
+        return permissionsTableView.getSelectionModel().getSelectedIndex();
+    }
+
     // Method to compare new data with current table data
     public boolean isDataSame(PermissionsManagerDTO newPermissionsData) {
         // Compare the current data in the permissions table with the new data (ignoring order)
-        // You can convert both current table data and new data to sets for comparison
         Set<PermissionDetails> currentDataSet = new HashSet<>(permissionDetailsList);
         Set<PermissionDetails> newDataSet = new HashSet<>();
 
-        // Add the owner
-        newDataSet.add(new PermissionDetails(newPermissionsData.getOwner(), PermissionType.OWNER, PermissionStatus.NONE));
+        // Add past requests from the newPermissionsData, with permissionNumber as the index of each request
+        int permissionNumber = 1; // Start numbering from 1
 
-        // Add writers and readers
-        for (Map.Entry<String, PermissionStatus> entry : newPermissionsData.getWriters().entrySet()) {
-            newDataSet.add(new PermissionDetails(entry.getKey(), PermissionType.WRITER, entry.getValue()));
-        }
-        for (Map.Entry<String, PermissionStatus> entry : newPermissionsData.getReaders().entrySet()) {
-            newDataSet.add(new PermissionDetails(entry.getKey(), PermissionType.READER, entry.getValue()));
+        for (PermissionRequestDTO request : newPermissionsData.getRequestHistory()) {
+            newDataSet.add(new PermissionDetails(
+                    request.getUsername(),
+                    permissionNumber,
+                    request.getRequestedPermission(),
+                    request.getStatus()
+            ));
+            permissionNumber++; // Increment the permission number for the next request
         }
 
+        // Compare current and new data sets
         return currentDataSet.equals(newDataSet);  // Return true if the data is the same
     }
 

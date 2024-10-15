@@ -8,10 +8,12 @@ import java.util.Objects;
 public class PermissionDetails {
     private final String username;
     private final PermissionType permissionType;
+    private final int permissionNumber;
     private PermissionStatus permissionStatus;
 
-    public PermissionDetails(String username, PermissionType permissionType, PermissionStatus permissionStatus) {
+    public PermissionDetails(String username, int permissionNumber, PermissionType permissionType, PermissionStatus permissionStatus) {
         this.username = username;
+        this.permissionNumber = permissionNumber;
         this.permissionType = permissionType;
         this.permissionStatus = permissionStatus;
     }
@@ -37,11 +39,11 @@ public class PermissionDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PermissionDetails that = (PermissionDetails) o;
-        return Objects.equals(username, that.username) && permissionType == that.permissionType && permissionStatus == that.permissionStatus;
+        return permissionNumber == that.permissionNumber && Objects.equals(username, that.username) && permissionType == that.permissionType && permissionStatus == that.permissionStatus;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, permissionType, permissionStatus);
+        return Objects.hash(username, permissionType, permissionNumber, permissionStatus);
     }
 }

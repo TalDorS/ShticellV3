@@ -771,8 +771,8 @@ public class VersionsManager implements Serializable {
         this.permissionsManager.askForPermission(username, permissionType);
     }
 
-    public void handlePermissionRequest(String applicantName, String handlerName, PermissionStatus permissionStatus, PermissionType permissionType) {
-        this.permissionsManager.handlePermissionRequest(applicantName, handlerName, permissionStatus, permissionType);
+    public void handlePermissionRequest(String applicantName, String handlerName, int requestNumber, PermissionStatus permissionStatus, PermissionType permissionType) {
+        this.permissionsManager.handlePermissionRequest(applicantName, handlerName, requestNumber, permissionStatus, permissionType);
     }
 
     public int getRows() {

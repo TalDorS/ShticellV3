@@ -114,13 +114,20 @@ public class EngineImpl implements Engine {
 
     @Override
     public PermissionsManagerDTO getPermissionsData(String spreadsheetName) {
+        // Check if the spreadsheet exists in the map
         if (spreadsheetsMap.containsKey(spreadsheetName)) {
             VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
             PermissionsManager permissionsManager = versionsManager.getPermissionsManager();
 
-            return new PermissionsManagerDTO(permissionsManager.getOwner(), permissionsManager.getWriters(), permissionsManager.getReaders());
+            // Create a new PermissionsManagerDTO from the current PermissionsManager
+            return new PermissionsManagerDTO(
+                    permissionsManager.getOwner(),                     // Get the owner
+                    permissionsManager.getPermissions(),               // Get the permissions map
+                    permissionsManager.getRequestHistory()             // Get the request history
+            );
         }
 
+        // Return null if the spreadsheet does not exist
         return null;
     }
 
@@ -408,13 +415,13 @@ public class EngineImpl implements Engine {
         return spreadsheetsMap;
     }
 
-    public void handlePermissionRequest(String applicantName, String handlerName, String spreadsheetName, PermissionStatus permissionStatus, PermissionType permissionType) {
+    public void handlePermissionRequest(String applicantName, String handlerName, String spreadsheetName, int requestNumber, PermissionStatus permissionStatus, PermissionType permissionType) {
         // Retrieve the VersionsManager for the specified spreadsheet name
         VersionsManager versionsManager = spreadsheetsMap.get(spreadsheetName);
 
         if (versionsManager != null) {
             // Call the getSpreadsheetByVersion method from the VersionsManager
-            versionsManager.handlePermissionRequest(applicantName, handlerName, permissionStatus, permissionType);
+            versionsManager.handlePermissionRequest(applicantName, handlerName, requestNumber, permissionStatus, permissionType);
         }
     }
 
