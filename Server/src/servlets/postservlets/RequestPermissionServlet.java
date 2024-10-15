@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @WebServlet(name = "SubmitRequestForPermissionServlet", urlPatterns = "/requestPermission")
-public class SubmitRequestForPermissionServlet extends HttpServlet {
+public class RequestPermissionServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String username = request.getParameter("username");
@@ -30,23 +30,9 @@ public class SubmitRequestForPermissionServlet extends HttpServlet {
         Gson gson = new Gson();
         Map<String, String> jsonResponse = new HashMap<>();
 
-        synchronized (engine) {
-            try {
-                String existingPermission = engine.getUserPermission(username, spreadsheetName).toString();
-
-                // Check if the user already has the requested permission
-                if (existingPermission.equals(permissionType)) {
-                    jsonResponse.put("status", "ALREADY_HAS_PERMISSION");
-                } else {
-                    // Add the user to the appropriate permission list and set to pending
-                    engine.askForPermission(username, spreadsheetName, PermissionType.valueOf(permissionType));
-                    jsonResponse.put("status", "PERMISSION_REQUESTED");
-                }
-            } catch (SpreadsheetNotFoundException e) {
-                jsonResponse.put("status", "ERROR");
-                jsonResponse.put("message", e.getMessage());
-            }
-        }
+        // Ask for permission
+        engine.askForPermission(username, spreadsheetName, PermissionType.valueOf(permissionType));
+        jsonResponse.put("status", "PERMISSION_REQUESTED");
 
         // Set the content type and write the JSON response
         response.setContentType("application/json");

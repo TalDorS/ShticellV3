@@ -19,6 +19,7 @@ public class HandlePermissionRequestServlet extends HttpServlet {
         String applicantName = req.getParameter("applicantName");
         String handlerName = req.getParameter("handlerName");
         String spreadsheetName = req.getParameter("spreadsheetName");
+        String requestNumber = req.getParameter("requestNumber");
         String permissionStatusStr = req.getParameter("permissionStatus");
         String permissionTypeStr = req.getParameter("permissionType");
 
@@ -29,15 +30,13 @@ public class HandlePermissionRequestServlet extends HttpServlet {
         // Retrieve the engine instance from the servlet context
         Engine engine = ServletUtils.getEngine(getServletContext());
 
-        synchronized (engine) {
-            try {
-                engine.handlePermissionRequest(applicantName, handlerName, spreadsheetName, permissionStatus, permissionType);
-                resp.setStatus(HttpServletResponse.SC_OK);
-                resp.getWriter().write("Success");
-            } catch (Exception e) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getWriter().write("Error: " + e.getMessage());
-            }
+        try {
+            engine.handlePermissionRequest(applicantName, handlerName, spreadsheetName, Integer.parseInt(requestNumber) ,permissionStatus, permissionType);
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getWriter().write("Success");
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Error: " + e.getMessage());
         }
     }
 }

@@ -55,6 +55,7 @@ public class RightSideController {
     private void handleAckOrDenyPermissionRequestButtonAction() {
         PermissionStatus permissionStatus = mainController.getPermissionsTableComponentController().getSelectedRequestPermissionStatus();
         PermissionType permissionType = mainController.getPermissionsTableComponentController().getSelectedRequestPermissionType();
+        String requestNumber = Integer.toString(mainController.getPermissionsTableComponentController().getSelectedRequestNumber());
         String spreadsheetName = mainController.getAvailableSheetTableController().getSelectedSpreadsheetName();
         String uploaderName = mainController.getAvailableSheetTableController().getSelectedSpreadsheetUploaderName();
         String currentUsername = mainController.getUserName();
@@ -109,6 +110,7 @@ public class RightSideController {
                         .add("applicantName", applicantUsername)
                         .add("handlerName", currentUsername)
                         .add("spreadsheetName", spreadsheetName)
+                        .add("requestNumber", requestNumber)
                         .add("permissionStatus", newStatus.toString())
                         .add("permissionType", permissionType.toString())
                         .build();
@@ -220,9 +222,7 @@ public class RightSideController {
                             Map<String, String> result = gson.fromJson(jsonResponse, Map.class);
 
                             Platform.runLater(() -> {
-                                if ("ALREADY_HAS_PERMISSION".equals(result.get("status"))) {
-                                    showAlert(Alert.AlertType.ERROR, "Error", "You already have this permission.");
-                                } else if ("PERMISSION_REQUESTED".equals(result.get("status"))) {
+                                if ("PERMISSION_REQUESTED".equals(result.get("status"))) {
                                     AlertUtils.showAlert(Alert.AlertType.INFORMATION, "Success", "Permission request sent successfully.");
                                 } else if ("ERROR".equals(result.get("status"))) {
                                     showAlert(Alert.AlertType.ERROR, "Error", result.get("message"));

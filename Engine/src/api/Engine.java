@@ -40,6 +40,6 @@ public interface Engine {
     PermissionType getUserPermission(String username, String spreadsheetName) throws SpreadsheetNotFoundException;
     PermissionsManagerDTO getPermissionsData(String spreadsheetName);
     void askForPermission(String username, String spreadsheetName, PermissionType permissionType);
-    void handlePermissionRequest(String applicantName, String handlerName, String spreadsheetName, PermissionStatus permissionStatus, PermissionType permissionType);
+    void handlePermissionRequest(String applicantName, String handlerName, String spreadsheetName, int requestNumber, PermissionStatus permissionStatus, PermissionType permissionType);
 }
 
