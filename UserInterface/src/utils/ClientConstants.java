@@ -38,5 +38,6 @@ public class ClientConstants {
     public static final String REQUEST_PERMISSION = FULL_SERVER_PATH + "/requestPermission";
     public static final String HANDLE_PERMISSION_REQUEST = FULL_SERVER_PATH + "/handlePermissionRequest";
     public static final String CAN_DYNAMIC_ANALYSIS_BE_DONE = FULL_SERVER_PATH + "/canDynamicAnalysisBeDone";
-
+    public static final String GET_FUNCTION_NAMES = FULL_SERVER_PATH + "/get-function-names";
+    public static final String GET_NUMBER_OF_ARGUMENTS = FULL_SERVER_PATH + "/get-number-of-arguments";
 }
